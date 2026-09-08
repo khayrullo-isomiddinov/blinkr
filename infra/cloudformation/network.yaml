@@ -1,0 +1,135 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: blinkr - ALB, security groups, target groups (reuses existing default VPC)
+
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+  RdsSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+
+Resources:
+  AlbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: blinkr ALB - allow inbound HTTP from internet
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: blinkr-alb-sg
+
+  FargateSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: blinkr Fargate tasks - allow inbound only from ALB
+      VpcId: !Ref VpcId
+      Tags:
+        - Key: Name
+          Value: blinkr-fargate-sg
+
+  FargateIngressFromAlbFrontend:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref FargateSecurityGroup
+      IpProtocol: tcp
+      FromPort: 80
+      ToPort: 80
+      SourceSecurityGroupId: !Ref AlbSecurityGroup
+
+  FargateIngressFromAlbBackend:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref FargateSecurityGroup
+      IpProtocol: tcp
+      FromPort: 4567
+      ToPort: 4567
+      SourceSecurityGroupId: !Ref AlbSecurityGroup
+
+  RdsIngressFromFargate:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref RdsSecurityGroupId
+      IpProtocol: tcp
+      FromPort: 5432
+      ToPort: 5432
+      SourceSecurityGroupId: !Ref FargateSecurityGroup
+
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name: blinkr-alb
+      Scheme: internet-facing
+      Type: application
+      IpAddressType: ipv4
+      SecurityGroups:
+        - !Ref AlbSecurityGroup
+      Subnets: !Ref SubnetIds
+
+  FrontendTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: blinkr-frontend-tg
+      Port: 80
+      Protocol: HTTP
+      TargetType: ip
+      VpcId: !Ref VpcId
+      HealthCheckPath: /
+      HealthCheckIntervalSeconds: 30
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
+
+  BackendTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: blinkr-backend-tg
+      Port: 4567
+      Protocol: HTTP
+      TargetType: ip
+      VpcId: !Ref VpcId
+      HealthCheckPath: /api/rollbar/test
+      HealthCheckIntervalSeconds: 30
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
+
+  HttpListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref FrontendTargetGroup
+
+  ApiListenerRule:
+    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+    Properties:
+      ListenerArn: !Ref HttpListener
+      Priority: 10
+      Conditions:
+        - Field: path-pattern
+          Values:
+            - /api/*
+      Actions:
+        - Type: forward
+          TargetGroupArn: !Ref BackendTargetGroup
+
+Outputs:
+  AlbDnsName:
+    Value: !GetAtt ApplicationLoadBalancer.DNSName
+  AlbArn:
+    Value: !Ref ApplicationLoadBalancer
+  FrontendTargetGroupArn:
+    Value: !Ref FrontendTargetGroup
+  BackendTargetGroupArn:
+    Value: !Ref BackendTargetGroup
+  FargateSecurityGroupId:
+    Value: !Ref FargateSecurityGroup
+  HttpListenerArn:
+    Value: !Ref HttpListener

@@ -1,0 +1,111 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: blinkr - avatar upload pipeline (S3 -> Lambda -> DynamoDB)
+
+Parameters:
+  BucketName:
+    Type: String
+
+Resources:
+  AvatarsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: blinkr-avatars
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: user_uuid
+          AttributeType: S
+        - AttributeName: uploaded_at
+          AttributeType: S
+      KeySchema:
+        - AttributeName: user_uuid
+          KeyType: HASH
+        - AttributeName: uploaded_at
+          KeyType: RANGE
+
+  AvatarProcessorRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: blinkr-avatar-processor-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: blinkr-avatar-processor-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                Resource: !Sub arn:aws:s3:::${BucketName}/*
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                Resource: !GetAtt AvatarsTable.Arn
+
+  AvatarProcessorFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: blinkr-avatar-processor
+      Runtime: python3.12
+      Handler: handler.handler
+      Role: !GetAtt AvatarProcessorRole.Arn
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          AVATARS_TABLE_NAME: !Ref AvatarsTable
+      Code:
+        ZipFile: |
+          def handler(event, context):
+              return {'statusCode': 200, 'body': 'placeholder - replaced by deploy script'}
+
+  AvatarProcessorInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref AvatarProcessorFunction
+      Action: lambda:InvokeFunction
+      Principal: s3.amazonaws.com
+      SourceArn: !Sub arn:aws:s3:::${BucketName}
+      SourceAccount: !Ref AWS::AccountId
+
+  AvatarsBucket:
+    Type: AWS::S3::Bucket
+    DependsOn: AvatarProcessorInvokePermission
+    Properties:
+      BucketName: !Ref BucketName
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      NotificationConfiguration:
+        LambdaConfigurations:
+          - Event: s3:ObjectCreated:*
+            Function: !GetAtt AvatarProcessorFunction.Arn
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: prefix
+                    Value: uploads/
+
+Outputs:
+  BucketName:
+    Value: !Ref AvatarsBucket
+  TableName:
+    Value: !Ref AvatarsTable
+  FunctionArn:
+    Value: !GetAtt AvatarProcessorFunction.Arn
+  FunctionName:
+    Value: !Ref AvatarProcessorFunction
