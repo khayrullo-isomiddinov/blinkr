@@ -10,6 +10,9 @@ services:
       AWS_XRAY_URL: "*127.0.0.1:4567*"
       AWS_XRAY_DAEMON_ADDRESS: "xray-daemon:2000"
       ROLLBAR_ACCESS_TOKEN: "${ROLLBAR_ACCESS_TOKEN}"
+      AWS_DEFAULT_REGION: "eu-central-1"
+      AWS_COGNITO_USER_POOL_ID: "eu-central-1_vpiFVQ68P"
+      AWS_COGNITO_USER_POOL_CLIENT_ID: "7bn0hbepr945cu3d2ea07btf1p"
     build: ./backend-flask
     ports:
       - "4567:4567"

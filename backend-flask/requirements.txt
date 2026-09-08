@@ -11,3 +11,5 @@ watchtower
 
 blinker
 rollbar
+
+python-jose[cryptography]

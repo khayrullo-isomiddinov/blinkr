@@ -35,6 +35,9 @@ import rollbar
 import rollbar.contrib.flask
 from flask import got_request_exception
 
+# Cognito JWT ----------
+from lib.cognito_jwt_token import CognitoJwtToken, TokenVerifyError
+
 # CloudWatch Logs ----------
 LOGGER = logging.getLogger(__name__)
 LOGGER.setLevel(logging.DEBUG)
@@ -90,11 +93,18 @@ frontend = os.getenv('FRONTEND_URL')
 backend = os.getenv('BACKEND_URL')
 origins = [frontend, backend]
 cors = CORS(
-  app, 
+  app,
   resources={r"/api/*": {"origins": origins}},
-  expose_headers="location,link",
-  allow_headers="content-type,if-modified-since",
+  expose_headers="location,link,Authorization",
+  allow_headers="content-type,if-modified-since,Authorization",
   methods="OPTIONS,GET,HEAD,POST"
+)
+
+# Cognito JWT ----------
+cognito_jwt_token = CognitoJwtToken(
+  user_pool_id=os.getenv("AWS_COGNITO_USER_POOL_ID"),
+  user_pool_client_id=os.getenv("AWS_COGNITO_USER_POOL_CLIENT_ID"),
+  region=os.getenv("AWS_DEFAULT_REGION")
 )
 
 @app.route("/api/message_groups", methods=['GET'])
@@ -132,9 +142,22 @@ def data_create_message():
     return model['data'], 200
   return
 
-@app.route("/api/activities/home", methods=['GET'])
+@app.route("/api/activities/home", methods=['GET','OPTIONS'])
+@cross_origin()
 def data_home():
-  data = HomeActivities.run(logger=LOGGER)
+  cognito_user_id = None
+  access_token = CognitoJwtToken.extract_access_token(request.headers)
+  if access_token:
+    try:
+      claims = cognito_jwt_token.verify(access_token)
+      cognito_user_id = claims['username']
+      app.logger.debug(f"data_home: authenticated request for cognito user '{cognito_user_id}'")
+    except TokenVerifyError as e:
+      app.logger.debug(f"data_home: token verification failed, treating as unauthenticated: {e}")
+  else:
+    app.logger.debug("data_home: no bearer token present, treating as unauthenticated")
+
+  data = HomeActivities.run(logger=LOGGER, cognito_user_id=cognito_user_id)
   return data, 200
 
 @app.route("/api/activities/@<string:handle>", methods=['GET'])

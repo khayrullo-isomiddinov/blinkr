@@ -6,7 +6,7 @@ tracer = trace.get_tracer("home.activities")
 
 class HomeActivities:
 
-    def run(logger=None):
+    def run(logger=None, cognito_user_id=None):
         with tracer.start_as_current_span("home-activities-data"):
             span = trace.get_current_span()
 
@@ -58,5 +58,19 @@ class HomeActivities:
                     "replies": [],
                 },
             ]
+
+            if cognito_user_id:
+                results.insert(0, {
+                    "uuid": "aa9db958-a1b6-4d24-b0c9-2c9e5c9e5c9e",
+                    "handle": cognito_user_id,
+                    "message": "This crud is only visible to signed-in users!",
+                    "created_at": now.isoformat(),
+                    "expires_at": (now + timedelta(days=1)).isoformat(),
+                    "likes_count": 0,
+                    "replies_count": 0,
+                    "reposts_count": 0,
+                    "replies": [],
+                })
+
             span.set_attribute("app.result_length", len(results))
             return results

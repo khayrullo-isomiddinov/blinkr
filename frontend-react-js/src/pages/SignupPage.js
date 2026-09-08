@@ -3,12 +3,10 @@ import React from "react";
 import {ReactComponent as Logo} from '../components/svg/logo.svg';
 import { Link } from "react-router-dom";
 
-// [TODO] Authenication
-import Cookies from 'js-cookie'
+import { Auth } from 'aws-amplify';
 
 export default function SignupPage() {
 
-  // Username is Eamil
   const [name, setName] = React.useState('');
   const [email, setEmail] = React.useState('');
   const [username, setUsername] = React.useState('');
@@ -17,14 +15,21 @@ export default function SignupPage() {
 
   const onsubmit = async (event) => {
     event.preventDefault();
-    console.log('SignupPage.onsubmit')
-    // [TODO] Authenication
-    Cookies.set('user.name', name)
-    Cookies.set('user.username', username)
-    Cookies.set('user.email', email)
-    Cookies.set('user.password', password)
-    Cookies.set('user.confirmation_code',1234)
-    window.location.href = `/confirm?email=${email}`
+    setErrors('')
+    try {
+      await Auth.signUp({
+        username: username,
+        password: password,
+        attributes: {
+          email: email,
+          name: name,
+          preferred_username: username,
+        },
+      });
+      window.location.href = `/confirm?email=${email}`
+    } catch (error) {
+      setErrors(error.message)
+    }
     return false
   }
 
