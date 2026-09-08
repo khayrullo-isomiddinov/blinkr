@@ -20,6 +20,10 @@ Resources:
           FromPort: 80
           ToPort: 80
           CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8080
+          ToPort: 8080
+          CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
           Value: blinkr-alb-sg
@@ -107,16 +111,42 @@ Resources:
         - Type: forward
           TargetGroupArn: !Ref FrontendTargetGroup
 
-  ApiListenerRule:
-    Type: AWS::ElasticLoadBalancingV2::ListenerRule
+  FrontendTargetGroupGreen:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      ListenerArn: !Ref HttpListener
-      Priority: 10
-      Conditions:
-        - Field: path-pattern
-          Values:
-            - /api/*
-      Actions:
+      Name: blinkr-frontend-tg-green
+      Port: 80
+      Protocol: HTTP
+      TargetType: ip
+      VpcId: !Ref VpcId
+      HealthCheckPath: /
+      HealthCheckIntervalSeconds: 30
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
+
+  BackendTargetGroupGreen:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      Name: blinkr-backend-tg-green
+      Port: 4567
+      Protocol: HTTP
+      TargetType: ip
+      VpcId: !Ref VpcId
+      HealthCheckPath: /api/rollbar/test
+      HealthCheckIntervalSeconds: 30
+      HealthyThresholdCount: 2
+      UnhealthyThresholdCount: 3
+
+  # CodeDeploy's ECS blue/green swap operates on a whole listener's default
+  # action, not on individual path-based rules -- so the backend gets its own
+  # listener (port 8080) rather than an /api/* rule on the port-80 listener.
+  BackendListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 8080
+      Protocol: HTTP
+      DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref BackendTargetGroup
 
@@ -129,7 +159,21 @@ Outputs:
     Value: !Ref FrontendTargetGroup
   BackendTargetGroupArn:
     Value: !Ref BackendTargetGroup
+  FrontendTargetGroupGreenArn:
+    Value: !Ref FrontendTargetGroupGreen
+  BackendTargetGroupGreenArn:
+    Value: !Ref BackendTargetGroupGreen
+  FrontendTargetGroupName:
+    Value: !GetAtt FrontendTargetGroup.TargetGroupName
+  BackendTargetGroupName:
+    Value: !GetAtt BackendTargetGroup.TargetGroupName
+  FrontendTargetGroupGreenName:
+    Value: !GetAtt FrontendTargetGroupGreen.TargetGroupName
+  BackendTargetGroupGreenName:
+    Value: !GetAtt BackendTargetGroupGreen.TargetGroupName
   FargateSecurityGroupId:
     Value: !Ref FargateSecurityGroup
   HttpListenerArn:
     Value: !Ref HttpListener
+  BackendListenerArn:
+    Value: !Ref BackendListener

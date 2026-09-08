@@ -1,0 +1,24 @@
+{
+  "family": "blinkr-frontend",
+  "cpu": "256",
+  "memory": "512",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "executionRoleArn": "arn:aws:iam::792026110723:role/blinkr-ecs-task-execution-role",
+  "containerDefinitions": [
+    {
+      "name": "frontend-react-js",
+      "image": "<IMAGE1_NAME>",
+      "essential": true,
+      "portMappings": [{ "containerPort": 80, "protocol": "tcp" }],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/blinkr-frontend",
+          "awslogs-region": "eu-central-1",
+          "awslogs-stream-prefix": "frontend"
+        }
+      }
+    }
+  ]
+}

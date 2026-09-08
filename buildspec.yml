@@ -1,0 +1,37 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+  build:
+    commands:
+      - echo building backend image
+      - docker build -f backend-flask/Dockerfile.prod -t $BACKEND_REPO_URI:$COMMIT_HASH backend-flask
+      - echo building frontend image
+      - docker build -f frontend-react-js/Dockerfile.prod
+        --build-arg REACT_APP_BACKEND_URL=$ALB_URL
+        --build-arg REACT_APP_AWS_PROJECT_REGION=$AWS_REGION
+        --build-arg REACT_APP_AWS_USER_POOLS_ID=$COGNITO_USER_POOL_ID
+        --build-arg REACT_APP_AWS_USER_POOLS_WEB_CLIENT_ID=$COGNITO_USER_POOL_CLIENT_ID
+        -t $FRONTEND_REPO_URI:$COMMIT_HASH frontend-react-js
+  post_build:
+    commands:
+      - docker push $BACKEND_REPO_URI:$COMMIT_HASH
+      - docker push $FRONTEND_REPO_URI:$COMMIT_HASH
+      - printf '{"ImageURI":"%s"}' $BACKEND_REPO_URI:$COMMIT_HASH > backend-imageDetail.json
+      - printf '{"ImageURI":"%s"}' $FRONTEND_REPO_URI:$COMMIT_HASH > frontend-imageDetail.json
+      - cp infra/codedeploy/backend-taskdef.json backend-taskdef.json
+      - cp infra/codedeploy/frontend-taskdef.json frontend-taskdef.json
+      - cp infra/codedeploy/backend-appspec.yaml backend-appspec.yaml
+      - cp infra/codedeploy/frontend-appspec.yaml frontend-appspec.yaml
+
+artifacts:
+  files:
+    - backend-imageDetail.json
+    - frontend-imageDetail.json
+    - backend-taskdef.json
+    - frontend-taskdef.json
+    - backend-appspec.yaml
+    - frontend-appspec.yaml

@@ -1,0 +1,249 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: blinkr - ECS cluster, task definitions, Fargate services
+
+Parameters:
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+  FargateSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+  FrontendTargetGroupArn:
+    Type: String
+  BackendTargetGroupArn:
+    Type: String
+  BackendImage:
+    Type: String
+  FrontendImage:
+    Type: String
+  AwsRegion:
+    Type: String
+    Default: eu-central-1
+  FrontendUrl:
+    Type: String
+  BackendUrl:
+    Type: String
+  CognitoUserPoolId:
+    Type: String
+  CognitoUserPoolClientId:
+    Type: String
+  RollbarSecretArn:
+    Type: String
+  HoneycombSecretArn:
+    Type: String
+  DatabaseUrlSecretArn:
+    Type: String
+
+Resources:
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: blinkr-cluster
+      ClusterSettings:
+        - Name: containerInsights
+          Value: disabled
+
+  BackendLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /ecs/blinkr-backend
+      RetentionInDays: 14
+
+  FrontendLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /ecs/blinkr-frontend
+      RetentionInDays: 14
+
+  TaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: blinkr-ecs-task-execution-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+      Policies:
+        - PolicyName: blinkr-secrets-access
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameters
+                Resource: !Sub arn:aws:ssm:${AwsRegion}:${AWS::AccountId}:parameter/blinkr/*
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                Resource: !Sub arn:aws:kms:${AwsRegion}:${AWS::AccountId}:alias/aws/ssm
+
+  BackendTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: blinkr-backend-task-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: blinkr-backend-task-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - xray:PutTraceSegments
+                  - xray:PutTelemetryRecords
+                  - xray:GetSamplingRules
+                  - xray:GetSamplingTargets
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                  - logs:DescribeLogStreams
+                Resource: "*"
+
+  BackendTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: blinkr-backend
+      Cpu: '512'
+      Memory: '1024'
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !GetAtt TaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt BackendTaskRole.Arn
+      ContainerDefinitions:
+        - Name: backend-flask
+          Image: !Ref BackendImage
+          Essential: true
+          PortMappings:
+            - ContainerPort: 4567
+              Protocol: tcp
+          Environment:
+            - Name: FRONTEND_URL
+              Value: !Ref FrontendUrl
+            - Name: BACKEND_URL
+              Value: !Ref BackendUrl
+            - Name: OTEL_SERVICE_NAME
+              Value: blinkr_backend
+            - Name: OTEL_EXPORTER_OTLP_ENDPOINT
+              Value: https://api.honeycomb.io
+            - Name: AWS_XRAY_DAEMON_ADDRESS
+              Value: 127.0.0.1:2000
+            - Name: AWS_DEFAULT_REGION
+              Value: !Ref AwsRegion
+            - Name: AWS_COGNITO_USER_POOL_ID
+              Value: !Ref CognitoUserPoolId
+            - Name: AWS_COGNITO_USER_POOL_CLIENT_ID
+              Value: !Ref CognitoUserPoolClientId
+          Secrets:
+            - Name: ROLLBAR_ACCESS_TOKEN
+              ValueFrom: !Ref RollbarSecretArn
+            - Name: OTEL_EXPORTER_OTLP_HEADERS
+              ValueFrom: !Ref HoneycombSecretArn
+            - Name: DATABASE_URL
+              ValueFrom: !Ref DatabaseUrlSecretArn
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref BackendLogGroup
+              awslogs-region: !Ref AwsRegion
+              awslogs-stream-prefix: backend
+        - Name: xray-daemon
+          Image: amazon/aws-xray-daemon
+          Essential: false
+          PortMappings:
+            - ContainerPort: 2000
+              Protocol: udp
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref BackendLogGroup
+              awslogs-region: !Ref AwsRegion
+              awslogs-stream-prefix: xray
+
+  FrontendTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: blinkr-frontend
+      Cpu: '256'
+      Memory: '512'
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !GetAtt TaskExecutionRole.Arn
+      ContainerDefinitions:
+        - Name: frontend-react-js
+          Image: !Ref FrontendImage
+          Essential: true
+          PortMappings:
+            - ContainerPort: 80
+              Protocol: tcp
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref FrontendLogGroup
+              awslogs-region: !Ref AwsRegion
+              awslogs-stream-prefix: frontend
+
+  BackendService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: blinkr-backend
+      Cluster: !Ref Cluster
+      TaskDefinition: !Ref BackendTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      DeploymentController:
+        Type: CODE_DEPLOY
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets: !Ref SubnetIds
+          SecurityGroups:
+            - !Ref FargateSecurityGroupId
+      LoadBalancers:
+        - ContainerName: backend-flask
+          ContainerPort: 4567
+          TargetGroupArn: !Ref BackendTargetGroupArn
+      HealthCheckGracePeriodSeconds: 60
+
+  FrontendService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: blinkr-frontend
+      Cluster: !Ref Cluster
+      TaskDefinition: !Ref FrontendTaskDefinition
+      DesiredCount: 1
+      LaunchType: FARGATE
+      DeploymentController:
+        Type: CODE_DEPLOY
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets: !Ref SubnetIds
+          SecurityGroups:
+            - !Ref FargateSecurityGroupId
+      LoadBalancers:
+        - ContainerName: frontend-react-js
+          ContainerPort: 80
+          TargetGroupArn: !Ref FrontendTargetGroupArn
+      HealthCheckGracePeriodSeconds: 60
+
+Outputs:
+  ClusterName:
+    Value: !Ref Cluster
+  BackendServiceName:
+    Value: !GetAtt BackendService.Name
+  FrontendServiceName:
+    Value: !GetAtt FrontendService.Name

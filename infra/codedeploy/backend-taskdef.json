@@ -1,0 +1,54 @@
+{
+  "family": "blinkr-backend",
+  "cpu": "512",
+  "memory": "1024",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "executionRoleArn": "arn:aws:iam::792026110723:role/blinkr-ecs-task-execution-role",
+  "taskRoleArn": "arn:aws:iam::792026110723:role/blinkr-backend-task-role",
+  "containerDefinitions": [
+    {
+      "name": "backend-flask",
+      "image": "<IMAGE1_NAME>",
+      "essential": true,
+      "portMappings": [{ "containerPort": 4567, "protocol": "tcp" }],
+      "environment": [
+        { "name": "FRONTEND_URL", "value": "http://blinkr-alb-2112977045.eu-central-1.elb.amazonaws.com" },
+        { "name": "BACKEND_URL", "value": "http://blinkr-alb-2112977045.eu-central-1.elb.amazonaws.com:8080" },
+        { "name": "OTEL_SERVICE_NAME", "value": "blinkr_backend" },
+        { "name": "OTEL_EXPORTER_OTLP_ENDPOINT", "value": "https://api.honeycomb.io" },
+        { "name": "AWS_XRAY_DAEMON_ADDRESS", "value": "127.0.0.1:2000" },
+        { "name": "AWS_DEFAULT_REGION", "value": "eu-central-1" },
+        { "name": "AWS_COGNITO_USER_POOL_ID", "value": "eu-central-1_vpiFVQ68P" },
+        { "name": "AWS_COGNITO_USER_POOL_CLIENT_ID", "value": "7bn0hbepr945cu3d2ea07btf1p" }
+      ],
+      "secrets": [
+        { "name": "ROLLBAR_ACCESS_TOKEN", "valueFrom": "arn:aws:ssm:eu-central-1:792026110723:parameter/blinkr/rollbar_access_token" },
+        { "name": "OTEL_EXPORTER_OTLP_HEADERS", "valueFrom": "arn:aws:ssm:eu-central-1:792026110723:parameter/blinkr/honeycomb_api_key" },
+        { "name": "DATABASE_URL", "valueFrom": "arn:aws:ssm:eu-central-1:792026110723:parameter/blinkr/database_url" }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/blinkr-backend",
+          "awslogs-region": "eu-central-1",
+          "awslogs-stream-prefix": "backend"
+        }
+      }
+    },
+    {
+      "name": "xray-daemon",
+      "image": "amazon/aws-xray-daemon",
+      "essential": false,
+      "portMappings": [{ "containerPort": 2000, "protocol": "udp" }],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/blinkr-backend",
+          "awslogs-region": "eu-central-1",
+          "awslogs-stream-prefix": "xray"
+        }
+      }
+    }
+  ]
+}
