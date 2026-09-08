@@ -1,0 +1,369 @@
+AWSTemplateFormatVersion: '2010-09-09'
+# NOT YET DEPLOYED: this account currently gets SubscriptionRequiredException
+# from the CodeDeploy API (confirmed via `aws deploy list-applications`), so
+# CodeDeploy::Application/DeploymentGroup creation fails at the account level --
+# no template or IAM change fixes this, it needs AWS Support / account
+# verification. cicd.yaml (native ECS deploy action, no CodeDeploy) is what's
+# actually running. Once CodeDeploy access is granted: switch ecs.yaml services
+# back to DeploymentController CODE_DEPLOY, deploy this stack, and swap the
+# Deploy stage in cicd.yaml's pipeline for this one's blue/green actions.
+Description: blinkr - CodePipeline, CodeBuild, CodeDeploy (ECS blue/green) wired to GitHub
+
+Parameters:
+  GithubOwner:
+    Type: String
+  GithubRepo:
+    Type: String
+    Default: blinkr
+  GithubBranch:
+    Type: String
+    Default: main
+  ClusterName:
+    Type: String
+    Default: blinkr-cluster
+  BackendServiceName:
+    Type: String
+    Default: blinkr-backend
+  FrontendServiceName:
+    Type: String
+    Default: blinkr-frontend
+  HttpListenerArn:
+    Type: String
+  BackendListenerArn:
+    Type: String
+  FrontendTargetGroupName:
+    Type: String
+  FrontendTargetGroupGreenName:
+    Type: String
+  BackendTargetGroupName:
+    Type: String
+  BackendTargetGroupGreenName:
+    Type: String
+  BackendRepoUri:
+    Type: String
+  FrontendRepoUri:
+    Type: String
+  FrontendUrl:
+    Type: String
+  BackendUrl:
+    Type: String
+  CognitoUserPoolId:
+    Type: String
+  CognitoUserPoolClientId:
+    Type: String
+
+Resources:
+  GitHubConnection:
+    Type: AWS::CodeStarConnections::Connection
+    Properties:
+      ConnectionName: blinkr-github
+      ProviderType: GitHub
+
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub blinkr-pipeline-artifacts-${AWS::AccountId}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: blinkr-codebuild-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: blinkr-codebuild-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:GetBucketLocation
+                Resource:
+                  - !Sub arn:aws:s3:::blinkr-pipeline-artifacts-${AWS::AccountId}
+                  - !Sub arn:aws:s3:::blinkr-pipeline-artifacts-${AWS::AccountId}/*
+              - Effect: Allow
+                Action:
+                  - ecr:GetAuthorizationToken
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - ecr:PutImage
+                  - ecr:InitiateLayerUpload
+                  - ecr:UploadLayerPart
+                  - ecr:CompleteLayerUpload
+                Resource:
+                  - !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/blinkr-backend
+                  - !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/blinkr-frontend
+
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: blinkr-build
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec.yml
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_MEDIUM
+        Image: aws/codebuild/standard:7.0
+        PrivilegedMode: true
+        EnvironmentVariables:
+          - Name: AWS_ACCOUNT_ID
+            Value: !Ref AWS::AccountId
+          - Name: AWS_REGION
+            Value: !Ref AWS::Region
+          - Name: BACKEND_REPO_URI
+            Value: !Ref BackendRepoUri
+          - Name: FRONTEND_REPO_URI
+            Value: !Ref FrontendRepoUri
+          - Name: FRONTEND_URL
+            Value: !Ref FrontendUrl
+          - Name: BACKEND_URL
+            Value: !Ref BackendUrl
+          - Name: COGNITO_USER_POOL_ID
+            Value: !Ref CognitoUserPoolId
+          - Name: COGNITO_USER_POOL_CLIENT_ID
+            Value: !Ref CognitoUserPoolClientId
+
+  CodeDeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: blinkr-codedeploy-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codedeploy.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AWSCodeDeployRoleForECS
+
+  BackendCodeDeployApp:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: blinkr-backend-app
+      ComputePlatform: ECS
+
+  FrontendCodeDeployApp:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: blinkr-frontend-app
+      ComputePlatform: ECS
+
+  BackendDeploymentGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref BackendCodeDeployApp
+      DeploymentGroupName: blinkr-backend-dg
+      ServiceRoleArn: !GetAtt CodeDeployRole.Arn
+      DeploymentConfigName: CodeDeployDefault.ECSAllAtOnce
+      DeploymentStyle:
+        DeploymentType: BLUE_GREEN
+        DeploymentOption: WITH_TRAFFIC_CONTROL
+      BlueGreenDeploymentConfiguration:
+        TerminateBlueInstancesOnDeploymentSuccess:
+          Action: TERMINATE
+          TerminationWaitTimeInMinutes: 5
+        DeploymentReadyOption:
+          ActionOnTimeout: CONTINUE_DEPLOYMENT
+      ECSServices:
+        - ServiceName: !Ref BackendServiceName
+          ClusterName: !Ref ClusterName
+      LoadBalancerInfo:
+        TargetGroupPairInfoList:
+          - ProdTrafficRoute:
+              ListenerArns:
+                - !Ref BackendListenerArn
+            TargetGroups:
+              - Name: !Ref BackendTargetGroupName
+              - Name: !Ref BackendTargetGroupGreenName
+
+  FrontendDeploymentGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref FrontendCodeDeployApp
+      DeploymentGroupName: blinkr-frontend-dg
+      ServiceRoleArn: !GetAtt CodeDeployRole.Arn
+      DeploymentConfigName: CodeDeployDefault.ECSAllAtOnce
+      DeploymentStyle:
+        DeploymentType: BLUE_GREEN
+        DeploymentOption: WITH_TRAFFIC_CONTROL
+      BlueGreenDeploymentConfiguration:
+        TerminateBlueInstancesOnDeploymentSuccess:
+          Action: TERMINATE
+          TerminationWaitTimeInMinutes: 5
+        DeploymentReadyOption:
+          ActionOnTimeout: CONTINUE_DEPLOYMENT
+      ECSServices:
+        - ServiceName: !Ref FrontendServiceName
+          ClusterName: !Ref ClusterName
+      LoadBalancerInfo:
+        TargetGroupPairInfoList:
+          - ProdTrafficRoute:
+              ListenerArns:
+                - !Ref HttpListenerArn
+            TargetGroups:
+              - Name: !Ref FrontendTargetGroupName
+              - Name: !Ref FrontendTargetGroupGreenName
+
+  CodePipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: blinkr-codepipeline-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: blinkr-codepipeline-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:GetBucketVersioning
+                Resource:
+                  - !Sub arn:aws:s3:::blinkr-pipeline-artifacts-${AWS::AccountId}
+                  - !Sub arn:aws:s3:::blinkr-pipeline-artifacts-${AWS::AccountId}/*
+              - Effect: Allow
+                Action:
+                  - codestar-connections:UseConnection
+                Resource: !Ref GitHubConnection
+              - Effect: Allow
+                Action:
+                  - codebuild:BatchGetBuilds
+                  - codebuild:StartBuild
+                Resource: !GetAtt CodeBuildProject.Arn
+              - Effect: Allow
+                Action:
+                  - codedeploy:CreateDeployment
+                  - codedeploy:GetDeployment
+                  - codedeploy:GetDeploymentConfig
+                  - codedeploy:GetApplicationRevision
+                  - codedeploy:RegisterApplicationRevision
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - ecs:RegisterTaskDefinition
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - iam:PassRole
+                Resource: "*"
+                Condition:
+                  StringEqualsIfExists:
+                    iam:PassedToService:
+                      - ecs-tasks.amazonaws.com
+
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: blinkr-pipeline
+      RoleArn: !GetAtt CodePipelineRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeStarSourceConnection
+                Version: '1'
+              Configuration:
+                ConnectionArn: !Ref GitHubConnection
+                FullRepositoryId: !Sub ${GithubOwner}/${GithubRepo}
+                BranchName: !Ref GithubBranch
+              OutputArtifacts:
+                - Name: SourceOutput
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+              InputArtifacts:
+                - Name: SourceOutput
+              OutputArtifacts:
+                - Name: BackendBuildOutput
+                - Name: FrontendBuildOutput
+        - Name: Deploy
+          Actions:
+            - Name: DeployBackend
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CodeDeployToECS
+                Version: '1'
+              Configuration:
+                ApplicationName: !Ref BackendCodeDeployApp
+                DeploymentGroupName: !Ref BackendDeploymentGroup
+                TaskDefinitionTemplateArtifact: BackendBuildOutput
+                TaskDefinitionTemplatePath: backend-taskdef.json
+                AppSpecTemplateArtifact: BackendBuildOutput
+                AppSpecTemplatePath: backend-appspec.yaml
+                Image1ArtifactName: BackendBuildOutput
+                Image1ContainerName: IMAGE1_NAME
+              InputArtifacts:
+                - Name: BackendBuildOutput
+              RunOrder: 1
+            - Name: DeployFrontend
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CodeDeployToECS
+                Version: '1'
+              Configuration:
+                ApplicationName: !Ref FrontendCodeDeployApp
+                DeploymentGroupName: !Ref FrontendDeploymentGroup
+                TaskDefinitionTemplateArtifact: FrontendBuildOutput
+                TaskDefinitionTemplatePath: frontend-taskdef.json
+                AppSpecTemplateArtifact: FrontendBuildOutput
+                AppSpecTemplatePath: frontend-appspec.yaml
+                Image1ArtifactName: FrontendBuildOutput
+                Image1ContainerName: IMAGE1_NAME
+              InputArtifacts:
+                - Name: FrontendBuildOutput
+              RunOrder: 1
+
+Outputs:
+  GitHubConnectionArn:
+    Value: !Ref GitHubConnection
+  PipelineName:
+    Value: !Ref Pipeline

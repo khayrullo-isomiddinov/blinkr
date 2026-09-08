@@ -1,0 +1,258 @@
+AWSTemplateFormatVersion: '2010-09-09'
+# Uses CodePipeline's native "Amazon ECS" deploy action (rolling update),
+# not CodeDeploy -- this account currently gets SubscriptionRequiredException
+# from the CodeDeploy API at the account level (confirmed via
+# `aws deploy list-applications`), so CodeDeploy::Application resources can't
+# be created here yet. See cicd-bluegreen-pending-codedeploy-access.yaml for
+# the CodeDeploy blue/green version, ready to swap in once that's resolved.
+Description: blinkr - CodePipeline, CodeBuild, ECS rolling deploy wired to GitHub
+
+Parameters:
+  GithubOwner:
+    Type: String
+  GithubRepo:
+    Type: String
+    Default: blinkr
+  GithubBranch:
+    Type: String
+    Default: main
+  ClusterName:
+    Type: String
+    Default: blinkr-cluster
+  BackendServiceName:
+    Type: String
+  FrontendServiceName:
+    Type: String
+  BackendRepoUri:
+    Type: String
+  FrontendRepoUri:
+    Type: String
+  FrontendUrl:
+    Type: String
+  BackendUrl:
+    Type: String
+  CognitoUserPoolId:
+    Type: String
+  CognitoUserPoolClientId:
+    Type: String
+
+Resources:
+  GitHubConnection:
+    Type: AWS::CodeStarConnections::Connection
+    Properties:
+      ConnectionName: blinkr-github
+      ProviderType: GitHub
+
+  ArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub blinkr-pipeline-artifacts-${AWS::AccountId}
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: blinkr-codebuild-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: blinkr-codebuild-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:GetBucketLocation
+                Resource:
+                  - !Sub arn:aws:s3:::blinkr-pipeline-artifacts-${AWS::AccountId}
+                  - !Sub arn:aws:s3:::blinkr-pipeline-artifacts-${AWS::AccountId}/*
+              - Effect: Allow
+                Action:
+                  - ecr:GetAuthorizationToken
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - ecr:BatchCheckLayerAvailability
+                  - ecr:GetDownloadUrlForLayer
+                  - ecr:BatchGetImage
+                  - ecr:PutImage
+                  - ecr:InitiateLayerUpload
+                  - ecr:UploadLayerPart
+                  - ecr:CompleteLayerUpload
+                Resource:
+                  - !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/blinkr-backend
+                  - !Sub arn:aws:ecr:${AWS::Region}:${AWS::AccountId}:repository/blinkr-frontend
+
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: blinkr-build
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+      Artifacts:
+        Type: CODEPIPELINE
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec.yml
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_MEDIUM
+        Image: aws/codebuild/standard:7.0
+        PrivilegedMode: true
+        EnvironmentVariables:
+          - Name: AWS_ACCOUNT_ID
+            Value: !Ref AWS::AccountId
+          - Name: AWS_REGION
+            Value: !Ref AWS::Region
+          - Name: BACKEND_REPO_URI
+            Value: !Ref BackendRepoUri
+          - Name: FRONTEND_REPO_URI
+            Value: !Ref FrontendRepoUri
+          - Name: FRONTEND_URL
+            Value: !Ref FrontendUrl
+          - Name: BACKEND_URL
+            Value: !Ref BackendUrl
+          - Name: COGNITO_USER_POOL_ID
+            Value: !Ref CognitoUserPoolId
+          - Name: COGNITO_USER_POOL_CLIENT_ID
+            Value: !Ref CognitoUserPoolClientId
+
+  CodePipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: blinkr-codepipeline-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: blinkr-codepipeline-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:PutObject
+                  - s3:GetBucketVersioning
+                Resource:
+                  - !Sub arn:aws:s3:::blinkr-pipeline-artifacts-${AWS::AccountId}
+                  - !Sub arn:aws:s3:::blinkr-pipeline-artifacts-${AWS::AccountId}/*
+              - Effect: Allow
+                Action:
+                  - codestar-connections:UseConnection
+                Resource: !Ref GitHubConnection
+              - Effect: Allow
+                Action:
+                  - codebuild:BatchGetBuilds
+                  - codebuild:StartBuild
+                Resource: !GetAtt CodeBuildProject.Arn
+              - Effect: Allow
+                Action:
+                  - ecs:DescribeServices
+                  - ecs:DescribeTaskDefinition
+                  - ecs:DescribeTasks
+                  - ecs:ListTasks
+                  - ecs:RegisterTaskDefinition
+                  - ecs:UpdateService
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - iam:PassRole
+                Resource: "*"
+                Condition:
+                  StringEqualsIfExists:
+                    iam:PassedToService:
+                      - ecs-tasks.amazonaws.com
+
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: blinkr-pipeline
+      RoleArn: !GetAtt CodePipelineRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref ArtifactBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: Source
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeStarSourceConnection
+                Version: '1'
+              Configuration:
+                ConnectionArn: !Ref GitHubConnection
+                FullRepositoryId: !Sub ${GithubOwner}/${GithubRepo}
+                BranchName: !Ref GithubBranch
+              OutputArtifacts:
+                - Name: SourceOutput
+        - Name: Build
+          Actions:
+            - Name: Build
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+              InputArtifacts:
+                - Name: SourceOutput
+              OutputArtifacts:
+                - Name: BackendBuildOutput
+                - Name: FrontendBuildOutput
+        - Name: Deploy
+          Actions:
+            - Name: DeployBackend
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: ECS
+                Version: '1'
+              Configuration:
+                ClusterName: !Ref ClusterName
+                ServiceName: !Ref BackendServiceName
+                FileName: imagedefinitions.json
+              InputArtifacts:
+                - Name: BackendBuildOutput
+              RunOrder: 1
+            - Name: DeployFrontend
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: ECS
+                Version: '1'
+              Configuration:
+                ClusterName: !Ref ClusterName
+                ServiceName: !Ref FrontendServiceName
+                FileName: imagedefinitions.json
+              InputArtifacts:
+                - Name: FrontendBuildOutput
+              RunOrder: 1
+
+Outputs:
+  GitHubConnectionArn:
+    Value: !Ref GitHubConnection
+  PipelineName:
+    Value: !Ref Pipeline

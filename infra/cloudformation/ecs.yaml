@@ -196,16 +196,14 @@ Resources:
               awslogs-region: !Ref AwsRegion
               awslogs-stream-prefix: frontend
 
-  BackendService:
+  BackendServiceV2:
     Type: AWS::ECS::Service
     Properties:
-      ServiceName: blinkr-backend
+      ServiceName: blinkr-backend-v2
       Cluster: !Ref Cluster
       TaskDefinition: !Ref BackendTaskDefinition
       DesiredCount: 1
       LaunchType: FARGATE
-      DeploymentController:
-        Type: CODE_DEPLOY
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: ENABLED
@@ -218,16 +216,14 @@ Resources:
           TargetGroupArn: !Ref BackendTargetGroupArn
       HealthCheckGracePeriodSeconds: 60
 
-  FrontendService:
+  FrontendServiceV2:
     Type: AWS::ECS::Service
     Properties:
-      ServiceName: blinkr-frontend
+      ServiceName: blinkr-frontend-v2
       Cluster: !Ref Cluster
       TaskDefinition: !Ref FrontendTaskDefinition
       DesiredCount: 1
       LaunchType: FARGATE
-      DeploymentController:
-        Type: CODE_DEPLOY
       NetworkConfiguration:
         AwsvpcConfiguration:
           AssignPublicIp: ENABLED
@@ -244,6 +240,6 @@ Outputs:
   ClusterName:
     Value: !Ref Cluster
   BackendServiceName:
-    Value: !GetAtt BackendService.Name
+    Value: !GetAtt BackendServiceV2.Name
   FrontendServiceName:
-    Value: !GetAtt FrontendService.Name
+    Value: !GetAtt FrontendServiceV2.Name

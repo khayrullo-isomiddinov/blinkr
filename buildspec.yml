@@ -11,7 +11,7 @@ phases:
       - docker build -f backend-flask/Dockerfile.prod -t $BACKEND_REPO_URI:$COMMIT_HASH backend-flask
       - echo building frontend image
       - docker build -f frontend-react-js/Dockerfile.prod
-        --build-arg REACT_APP_BACKEND_URL=$ALB_URL
+        --build-arg REACT_APP_BACKEND_URL=$BACKEND_URL
         --build-arg REACT_APP_AWS_PROJECT_REGION=$AWS_REGION
         --build-arg REACT_APP_AWS_USER_POOLS_ID=$COGNITO_USER_POOL_ID
         --build-arg REACT_APP_AWS_USER_POOLS_WEB_CLIENT_ID=$COGNITO_USER_POOL_CLIENT_ID
@@ -20,18 +20,17 @@ phases:
     commands:
       - docker push $BACKEND_REPO_URI:$COMMIT_HASH
       - docker push $FRONTEND_REPO_URI:$COMMIT_HASH
-      - printf '{"ImageURI":"%s"}' $BACKEND_REPO_URI:$COMMIT_HASH > backend-imageDetail.json
-      - printf '{"ImageURI":"%s"}' $FRONTEND_REPO_URI:$COMMIT_HASH > frontend-imageDetail.json
-      - cp infra/codedeploy/backend-taskdef.json backend-taskdef.json
-      - cp infra/codedeploy/frontend-taskdef.json frontend-taskdef.json
-      - cp infra/codedeploy/backend-appspec.yaml backend-appspec.yaml
-      - cp infra/codedeploy/frontend-appspec.yaml frontend-appspec.yaml
+      - mkdir -p backend-artifact frontend-artifact
+      - printf '[{"name":"backend-flask","imageUri":"%s"}]' $BACKEND_REPO_URI:$COMMIT_HASH > backend-artifact/imagedefinitions.json
+      - printf '[{"name":"frontend-react-js","imageUri":"%s"}]' $FRONTEND_REPO_URI:$COMMIT_HASH > frontend-artifact/imagedefinitions.json
 
 artifacts:
-  files:
-    - backend-imageDetail.json
-    - frontend-imageDetail.json
-    - backend-taskdef.json
-    - frontend-taskdef.json
-    - backend-appspec.yaml
-    - frontend-appspec.yaml
+  secondary-artifacts:
+    BackendBuildOutput:
+      base-directory: backend-artifact
+      files:
+        - imagedefinitions.json
+    FrontendBuildOutput:
+      base-directory: frontend-artifact
+      files:
+        - imagedefinitions.json
