@@ -1,5 +1,6 @@
-import uuid
 from datetime import datetime, timedelta, timezone
+
+from lib.db import execute
 class CreateActivity:
   def run(message, user_handle, ttl):
     model = {
@@ -38,14 +39,29 @@ class CreateActivity:
       model['data'] = {
         'handle':  user_handle,
         'message': message
-      }   
-    else:
-      model['data'] = {
-        'uuid': uuid.uuid4(),
-        'display_name': 'Andrew Brown',
-        'handle':  user_handle,
-        'message': message,
-        'created_at': now.isoformat(),
-        'expires_at': (now + ttl_offset).isoformat()
       }
+    else:
+      row = execute(
+        """
+        INSERT INTO public.activities (user_uuid, message, expires_at)
+        SELECT uuid, %s, %s FROM public.users WHERE handle = %s
+        RETURNING uuid, message, created_at, expires_at
+        """,
+        (message, now + ttl_offset, user_handle)
+      )
+      if row is None:
+        model['errors'] = ['user_handle_not_found']
+        model['data'] = {
+          'handle':  user_handle,
+          'message': message
+        }
+      else:
+        model['data'] = {
+          'uuid': row['uuid'],
+          'display_name': 'Andrew Brown',
+          'handle':  user_handle,
+          'message': row['message'],
+          'created_at': row['created_at'].isoformat(),
+          'expires_at': row['expires_at'].isoformat()
+        }
     return model

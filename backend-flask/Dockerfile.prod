@@ -1,0 +1,16 @@
+FROM python:3.10-slim-buster
+
+WORKDIR /backend-flask
+
+COPY requirements.txt requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+ENV FLASK_ENV=production
+ENV FLASK_DEBUG=0
+ENV PYTHONUNBUFFERED=1
+
+EXPOSE 4567
+
+CMD ["gunicorn", "-b", "0.0.0.0:4567", "--workers=2", "--threads=4", "--access-logfile=-", "--error-logfile=-", "app:app"]
