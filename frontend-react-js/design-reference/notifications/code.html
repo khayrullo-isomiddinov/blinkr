@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"primary-container":"#8083ff","surface-bright":"#373940","on-tertiary":"#3c0091","on-surface-variant":"#c7c4d7","on-background":"#e2e2eb","on-primary-fixed":"#07006c","inverse-surface":"#e2e2eb","inverse-on-surface":"#2e3037","on-secondary":"#003640","background":"#111319","inverse-primary":"#494bd6","surface-container-lowest":"#0c0e14","tertiary-fixed-dim":"#d0bcff","surface-container-low":"#191b22","surface-dim":"#111319","outline-variant":"#464554","on-tertiary-fixed":"#23005c","secondary":"#4cd7f6","error-container":"#93000a","on-tertiary-fixed-variant":"#5516be","on-secondary-container":"#00424e","secondary-fixed":"#acedff","secondary-fixed-dim":"#4cd7f6","on-primary":"#1000a9","tertiary-fixed":"#e9ddff","on-error":"#690005","tertiary":"#d0bcff","error":"#ffb4ab","primary":"#c0c1ff","secondary-container":"#03b5d3","on-primary-fixed-variant":"#2f2ebe","on-error-container":"#ffdad6","on-surface":"#e2e2eb","on-secondary-fixed-variant":"#004e5c","primary-fixed":"#e1e0ff","on-tertiary-container":"#340080","surface-container-highest":"#33343b","surface-variant":"#33343b","surface-container-high":"#282a30","primary-fixed-dim":"#c0c1ff","on-primary-container":"#0d0096","surface-tint":"#c0c1ff","surface-container":"#1e1f26","on-secondary-fixed":"#001f26","tertiary-container":"#a078ff","outline":"#908fa0","surface":"#111319"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"col-feed-max":"620px","space-3xl":"3rem","space-2xs":"0.125rem","space-base":"1rem","space-sm":"0.5rem","col-sidebar-left":"260px","col-sidebar-right":"340px","space-lg":"1.25rem","space-md":"0.75rem","space-2xl":"2rem","gutter":"1rem","space-xs":"0.25rem","space-xl":"1.5rem"},"fontFamily":{"headline-lg":["Geist"],"headline-md":["Geist"],"label-md":["Geist"],"label-xs":["Geist"],"body-md":["Geist"],"headline-sm":["Geist"],"body-sm":["Geist"],"display-lg":["Geist"],"body-lg":["Geist"],"label-sm":["Geist"]},"fontSize":{"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.025em","fontWeight":"600"}],"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"-0.02em","fontWeight":"600"}],"label-md":["14px",{"lineHeight":"20px","letterSpacing":"-0.005em","fontWeight":"500"}],"label-xs":["11px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"21px","letterSpacing":"-0.006em","fontWeight":"400"}],"headline-sm":["16px",{"lineHeight":"24px","letterSpacing":"-0.015em","fontWeight":"600"}],"body-sm":["13px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"display-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.03em","fontWeight":"700"}],"body-lg":["16px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"400"}],"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"500"}]}}}}</script></head><body class="bg-background font-body-md text-body-md text-on-background min-h-screen"><header class="fixed top-0 left-0 right-0 h-14 z-40 bg-surface/80 backdrop-blur-xl md:hidden px-space-base flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex items-center gap-space-sm"><img alt="Blinkr Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WeKokrMgOU-fO4PD-1c1Ak3L0ZrurzcMPRvuztn2BTfICaB8ECOctrQxXbgOrF0CI6gofFfWeRUo7zfA1C8ue1cHzaY9iRg5KeiEFZQz5rwlnN5AURa-F0G5z4F1GfL4DSM7gb9dU_bExBZsF5utYh4vMGt8T9SmVqKu94i0Cu42l8EdVgAbTxXpHL-8m70IxRsqPCKzdI1gvvDEGkN5kzSJMo-Wdp2oyNMkBgU6_7a_GfOiOgCbVkcY4"/><span class="font-headline-sm text-headline-sm text-on-surface">Blinkr</span><span class="font-label-xs text-label-xs px-space-xs py-space-2xs bg-surface-container-high text-primary rounded-full">v2.0</span></div><div class="flex items-center gap-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBY8PG3EezAXsfMXAJCu2GNvHebOCqiHaiXzzkfdixt1ykFExI7rLG7XF8OUx9bgo_Q8qI2l5cEuRX-jHynM3VNg01PmW_jeCvy0P4e3eBeg1HiRAX_yRqlbe9ed-hEeJ8IJNxDfBHjD_hnH7tD_9C4kiwBvRMxOoQJ95jxG1xj-ksCQvcGx4V9Tj30O1AwFKiuWfX1TBY_X3Jmg2yabD95EJ9rEMiwHU8Am0jMFRBb75cWKu7S0_mryg"/></div></header><aside class="fixed left-0 top-0 h-full w-[260px] bg-surface-container-low z-30 hidden md:flex flex-col justify-between p-space-base"><div class="flex flex-col gap-space-lg"><div class="flex items-center justify-between px-space-xs"><div class="flex items-center gap-space-sm"><img alt="Blinkr Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WeKokrMgOU-fO4PD-1c1Ak3L0ZrurzcMPRvuztn2BTfICaB8ECOctrQxXbgOrF0CI6gofFfWeRUo7zfA1C8ue1cHzaY9iRg5KeiEFZQz5rwlnN5AURa-F0G5z4F1GfL4DSM7gb9dU_bExBZsF5utYh4vMGt8T9SmVqKu94i0Cu42l8EdVgAbTxXpHL-8m70IxRsqPCKzdI1gvvDEGkN5kzSJMo-Wdp2oyNMkBgU6_7a_GfOiOgCbVkcY4"/><span class="font-headline-md text-headline-md text-on-surface">Blinkr</span></div><span class="font-label-xs text-label-xs px-space-xs py-space-2xs bg-surface-container-highest text-primary font-bold rounded-full">v2.0</span></div><nav class="flex flex-col gap-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded-full"><a class="flex items-center justify-between px-space-base py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="home" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">home</span><span class="font-label-md text-label-md">Home</span></div></a><a class="flex items-center justify-between px-space-base py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="explore" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">explore</span><span class="font-label-md text-label-md">Explore</span></div></a><a aria-current="page" class="flex items-center justify-between px-space-base py-space-sm transition-all bg-primary-container text-on-primary-container font-semibold rounded-full" data-path="notifications" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="font-label-md text-label-md">Notifications</span></div><span class="px-space-xs py-space-2xs bg-primary-container text-on-primary-container font-label-xs text-label-xs rounded-full">3</span></a><a class="flex items-center justify-between px-space-base py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="messages" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">chat_bubble</span><span class="font-label-md text-label-md">Messages</span></div><span class="px-space-xs py-space-2xs bg-surface-container-high text-on-surface-variant font-label-xs text-label-xs rounded-full">5</span></a><a class="flex items-center justify-between px-space-base py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="bookmarks" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">bookmark</span><span class="font-label-md text-label-md">Bookmarks</span></div></a><a class="flex items-center justify-between px-space-base py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="profile" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">person</span><span class="font-label-md text-label-md">Profile</span></div></a><a class="flex items-center justify-between px-space-base py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="settings" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">settings</span><span class="font-label-md text-label-md">Settings</span></div></a></nav><button class="w-full mt-space-xs py-space-md px-space-base bg-primary-container hover:bg-inverse-primary text-on-primary-container hover:text-on-surface rounded-full flex items-center justify-center gap-space-sm transition-all shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><span class="material-symbols-outlined text-[20px]">add</span><span class="font-label-md text-label-md font-semibold">Blink</span><kbd class="hidden xl:inline-block font-label-xs text-label-xs px-space-xs py-space-2xs bg-surface-container-lowest/40 rounded">⌘K</kbd></button></div><div class="flex items-center justify-between p-space-sm rounded-full hover:bg-surface-container transition-all cursor-pointer"><div class="flex items-center gap-space-sm min-w-0"><img alt="Profile" class="w-9 h-9 rounded-full object-cover shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBY8PG3EezAXsfMXAJCu2GNvHebOCqiHaiXzzkfdixt1ykFExI7rLG7XF8OUx9bgo_Q8qI2l5cEuRX-jHynM3VNg01PmW_jeCvy0P4e3eBeg1HiRAX_yRqlbe9ed-hEeJ8IJNxDfBHjD_hnH7tD_9C4kiwBvRMxOoQJ95jxG1xj-ksCQvcGx4V9Tj30O1AwFKiuWfX1TBY_X3Jmg2yabD95EJ9rEMiwHU8Am0jMFRBb75cWKu7S0_mryg"/><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-2xs"><span class="font-label-sm text-label-sm font-semibold text-on-surface truncate">Julian Vance</span><span class="material-symbols-outlined text-[14px] text-secondary">verified</span></div><span class="font-body-sm text-body-sm text-outline truncate">@julian</span></div></div><span class="material-symbols-outlined text-outline hover:text-on-surface shrink-0">more_horiz</span></div></aside><div class="md:pl-[260px] min-h-screen"><div class="max-w-7xl mx-auto flex justify-center"><main class="w-full max-w-[620px] pt-14 md:pt-0 pb-20 md:pb-space-3xl px-space-base bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Sticky Activity Header & Segmented Filter Bar -->
+<header class="sticky top-0 z-20 bg-surface/90 backdrop-blur-xl -mx-space-base px-space-base pb-space-sm pt-space-xs shadow-sm">
+<div class="flex items-center justify-between py-space-xs">
+<div class="flex items-center gap-space-sm">
+<h1 class="font-headline-md text-headline-md text-on-surface">Notifications</h1>
+<span class="px-space-xs py-space-2xs bg-primary-container text-on-primary-container font-label-xs text-label-xs rounded-full font-bold" id="unreadCountBadge">4 new</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-all" id="markAllReadBtn" title="Mark all as read">
+<span class="material-symbols-outlined text-[20px]">done_all</span>
+</button>
+<button class="w-9 h-9 flex items-center justify-center rounded-full hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-all" title="Notification Settings">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+</button>
+</div>
+</div>
+<!-- Segmented Scrollable Filter Chips -->
+<div class="flex items-center gap-space-xs overflow-x-auto py-space-xs no-scrollbar">
+<button class="tab-btn px-space-md py-space-xs rounded-full font-label-sm text-label-sm bg-primary-container text-on-primary-container font-semibold transition-all" data-filter="all">
+        All
+      </button>
+<button class="tab-btn px-space-md py-space-xs rounded-full font-label-sm text-label-sm bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all flex items-center gap-space-2xs" data-filter="mentions">
+<span>Mentions</span>
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+</button>
+<button class="tab-btn px-space-md py-space-xs rounded-full font-label-sm text-label-sm bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-filter="replies">
+        Replies
+      </button>
+<button class="tab-btn px-space-md py-space-xs rounded-full font-label-sm text-label-sm bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-filter="likes">
+        Likes
+      </button>
+<button class="tab-btn px-space-md py-space-xs rounded-full font-label-sm text-label-sm bg-surface-container-low text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-filter="reposts">
+        Reposts
+      </button>
+</div>
+</header>
+<!-- Velocity Metric Micro-Banner -->
+<div class="mt-space-md mb-space-sm p-space-base bg-gradient-to-r from-surface-container via-surface-container-high to-surface-container rounded-xl shadow-sm relative overflow-hidden">
+<div class="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-primary/10 blur-xl pointer-events-none"></div>
+<div class="flex items-center justify-between relative z-10">
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded-full bg-primary-container/20 text-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">insights</span>
+</div>
+<div class="flex flex-col">
+<span class="font-label-xs text-label-xs uppercase tracking-wider text-secondary font-bold">24h Signal Ratio</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">+184 interactions today</span>
+</div>
+</div>
+<!-- Inline Sparkline Curve Chart (theme tokens via currentColor) -->
+<div class="w-24 h-9 flex items-center justify-end text-secondary">
+<svg class="w-full h-full fill-none stroke-current" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 96 36">
+<path d="M4 28 L24 22 L44 26 L64 12 L78 16 L92 4"></path>
+<circle class="fill-secondary" cx="92" cy="4" r="3"></circle>
+</svg>
+</div>
+</div>
+</div>
+<!-- Notification Stream Container -->
+<div class="flex flex-col gap-space-xs mt-space-xs" id="notificationList">
+<!-- 1. System / Milestone Card (Unread) -->
+<article class="notif-item relative group bg-surface-container-low hover:bg-surface-container p-space-base rounded-xl transition-all shadow-sm" data-category="all">
+<div class="flex items-start gap-space-md">
+<div class="w-9 h-9 rounded-full bg-surface-container-highest text-secondary flex items-center justify-center shrink-0 mt-space-2xs">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">auto_graph</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between gap-space-xs">
+<span class="font-label-xs text-label-xs text-secondary uppercase font-bold tracking-wider">Milestone Alert</span>
+<div class="flex items-center gap-space-xs">
+<span class="font-body-sm text-body-sm text-outline">12m</span>
+<span class="unread-dot w-2 h-2 rounded-full bg-primary-container"></span>
+</div>
+</div>
+<p class="mt-space-2xs font-headline-sm text-headline-sm text-on-surface">
+            Your post reached 10,000 impressions in Explore
+          </p>
+<p class="mt-space-2xs font-body-sm text-body-sm text-on-surface-variant">
+            Top audience segments include Staff Product Designers and Distributed Systems Architects.
+          </p>
+<div class="mt-space-md flex items-center gap-space-md">
+<button class="px-space-md py-space-xs bg-surface-container-high hover:bg-surface-bright text-primary font-label-sm text-label-sm rounded-full flex items-center gap-space-xs transition-all">
+<span class="material-symbols-outlined text-[16px]">query_stats</span>
+<span>View Analytics</span>
+</button>
+<span class="font-label-xs text-label-xs text-outline">Global rank: Top 2% today</span>
+</div>
+</div>
+</div>
+</article>
+<!-- 2. Stacked Like Notification (Unread) -->
+<article class="notif-item relative group bg-surface-container-low hover:bg-surface-container p-space-base rounded-xl transition-all shadow-sm" data-category="likes">
+<div class="flex items-start gap-space-md">
+<div class="w-9 h-9 rounded-full bg-error-container/30 text-error flex items-center justify-center shrink-0 mt-space-2xs">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<!-- Stacked Mini-Avatars -->
+<div class="flex items-center -space-x-space-xs">
+<img class="w-7 h-7 rounded-full object-cover ring-2 ring-surface-container-low" data-alt="Close up portrait photograph of Elena Rostova with sleek dark hair in warm cinematic side lighting, against a dark modern studio backdrop." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHalJmgyLKU1T1iqs7O5uD3FTIK_rmM1cARnLiZDozIbPeF0QBnvVKbfjb74j_uwFLic8Fwy1o0qFAVQAVikBPE7RFQmgbIgyXQx-pAQguBQrO4W1TfiWjU4C9bkGKNPe0kZWoDwSnD3oB676GNXr2m9G9s5GNFFF5oQNxcWYqjSmYoAppqpKCwFW_TAbS2bj41k9X-Q5uH-mvf8JBUQQxZ9qf_wNUoaOCJbr1l5sD7czYrFssjQPigA"/>
+<img class="w-7 h-7 rounded-full object-cover ring-2 ring-surface-container-low" data-alt="Portrait photograph of Sarah Chen wearing contemporary tortoiseshell glasses with soft cyan studio backlighting, minimalistic tech aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD518IAbuq4Mso_0pIq2tCnaCAmCj1AD689jdm1euC4PFvoUfzPa7xPQjTLfYit_-gjL8pTUnDE011ne01sJWEln5NdfDAVaMHyQg-WssggVEiVWhbJhyevRehi5nyswF8G8aEluuYKamLn-sMG3kI9NhT5Td066lLytptt1yzqSVOTzm7eCNjUgEJVKag_c1jb2UES8G7_sL9EnUCS5_5Db_M7hNKKMtNDakurZINvc0DYyk_12ycGGw"/>
+<div class="w-7 h-7 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center font-label-xs text-label-xs font-bold ring-2 ring-surface-container-low">
+                +18
+              </div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-body-sm text-body-sm text-outline">44m</span>
+<span class="unread-dot w-2 h-2 rounded-full bg-primary-container"></span>
+</div>
+</div>
+<p class="mt-space-sm font-body-md text-body-md text-on-surface">
+<span class="font-label-md text-label-md text-on-surface font-semibold">Elena Rostova</span>, 
+            <span class="font-label-md text-label-md text-on-surface font-semibold">Sarah Chen</span> and 
+            <span class="font-label-md text-label-md text-primary font-semibold">18 others</span> liked your Blink
+          </p>
+<!-- Embedded Post Snippet -->
+<div class="mt-space-sm p-space-md bg-surface-container-highest/40 rounded-xl">
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2 italic">
+              "Restraint is the highest form of polish in product design. Density without friction, hairlines over heavy dropshadows, zero decorative noise."
+            </p>
+</div>
+</div>
+</div>
+</article>
+<!-- 3. High-Priority Mention with Expandable Reply Drawer (Unread) -->
+<article class="notif-item relative group bg-surface-container-low hover:bg-surface-container p-space-base rounded-xl transition-all shadow-sm" data-category="mentions">
+<div class="flex items-start gap-space-md">
+<div class="w-9 h-9 rounded-full bg-primary-container/20 text-primary flex items-center justify-center shrink-0 mt-space-2xs">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">alternate_email</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<img class="w-7 h-7 rounded-full object-cover" data-alt="Portrait photo of Devon Miller looking thoughtfully at the camera with crisp neutral lighting and deep charcoal background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDokfn0q0QgElMWV8PrqdEfGna4pA3W3S9BUS7sLHBAxIGVFTr0V16n7YeZq-1AOWp3kFU0hMAiMwe-4ZXkr82pcgzsa9WDKSAiiSjQjMRH2ZQnDgkZvJ49JfwlkqgFbtikzaWwVyvY1V0U1F928oZ4kf0-qVamQAfQofbKSSWdaUF8Kyp0m3Lf_ajlsc4_VI8-H-JFP-e0FpGe7VAjYMW-NDYqOKs0aecB83wTmAuybepow27l7-xEiQ"/>
+<div class="flex items-center gap-space-2xs">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Devon Miller</span>
+<span class="material-symbols-outlined text-[15px] text-secondary">verified</span>
+<span class="font-body-sm text-body-sm text-outline">@devonm</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs">
+<span class="font-body-sm text-body-sm text-outline">2h</span>
+<span class="unread-dot w-2 h-2 rounded-full bg-primary-container"></span>
+</div>
+</div>
+<p class="mt-space-xs font-body-md text-body-md text-on-surface">
+            mentioned you in a reply:
+          </p>
+<!-- Quoted Reply Box -->
+<div class="mt-space-xs p-space-md bg-surface-container-highest/60 rounded-xl flex flex-col gap-space-xs">
+<p class="font-body-md text-body-md text-on-surface">
+<span class="text-primary font-semibold">@julian</span> completely agree with this architecture approach. How are you handling cache invalidation across distributed edge nodes during high surge writes?
+            </p>
+</div>
+<!-- Interaction Actions & Inline Drawer Trigger -->
+<div class="mt-space-md flex items-center justify-between">
+<div class="flex items-center gap-space-lg text-outline">
+<button class="flex items-center gap-space-xs hover:text-primary transition-all" onclick="toggleReplyDrawer('drawer-devon')">
+<span class="material-symbols-outlined text-[18px]">reply</span>
+<span class="font-label-sm text-label-sm font-semibold">Reply</span>
+</button>
+<button class="flex items-center gap-space-xs hover:text-secondary transition-all">
+<span class="material-symbols-outlined text-[18px]">repeat</span>
+<span class="font-label-sm text-label-sm">3</span>
+</button>
+<button class="flex items-center gap-space-xs hover:text-error transition-all">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+<span class="font-label-sm text-label-sm">14</span>
+</button>
+</div>
+<button class="text-outline hover:text-on-surface transition-all">
+<span class="material-symbols-outlined text-[18px]">bookmark</span>
+</button>
+</div>
+<!-- Inline Quick Reply Drawer (Hidden by Default) -->
+<div class="hidden mt-space-md p-space-md bg-surface-container rounded-xl flex-col gap-space-sm animate-fadeIn" id="drawer-devon">
+<div class="flex items-center gap-space-sm text-outline font-label-xs text-label-xs">
+<span>Replying to</span>
+<span class="text-primary">@devonm</span>
+</div>
+<textarea class="w-full bg-surface-container-low text-on-surface placeholder:text-outline font-body-sm text-body-sm p-space-sm rounded-lg outline-none focus:bg-surface-container-lowest transition-all resize-none" placeholder="Write your tactical response..." rows="2"></textarea>
+<div class="flex items-center justify-between pt-space-xs">
+<div class="flex items-center gap-space-xs text-outline">
+<button class="p-space-2xs rounded-full hover:bg-surface-container-high hover:text-primary transition-all">
+<span class="material-symbols-outlined text-[18px]">code</span>
+</button>
+<button class="p-space-2xs rounded-full hover:bg-surface-container-high hover:text-primary transition-all">
+<span class="material-symbols-outlined text-[18px]">image</span>
+</button>
+</div>
+<div class="flex items-center gap-space-sm">
+<button class="px-space-md py-space-xs text-outline hover:text-on-surface font-label-sm text-label-sm rounded-full transition-all" onclick="toggleReplyDrawer('drawer-devon')">Cancel</button>
+<button class="px-space-md py-space-xs bg-primary-container text-on-primary-container font-label-sm text-label-sm font-semibold rounded-full hover:bg-inverse-primary hover:text-on-surface transition-all" onclick="sendQuickReply('drawer-devon')">Send</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</article>
+<!-- 4. Grouped Follow Notification (Read State) -->
+<article class="notif-item relative group bg-surface-container-low hover:bg-surface-container p-space-base rounded-xl transition-all shadow-sm" data-category="all">
+<div class="flex items-start gap-space-md">
+<div class="w-9 h-9 rounded-full bg-secondary-container/20 text-secondary flex items-center justify-center shrink-0 mt-space-2xs">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">person_add</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<!-- Grouped Avatars -->
+<div class="flex items-center -space-x-space-xs">
+<img class="w-7 h-7 rounded-full object-cover ring-2 ring-surface-container-low" data-alt="Headshot of Alex Rivera with short textured hair smiling slightly, bathed in high-contrast dramatic indigo lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAQT9G81r7Cl61MdZt9eolhmXq8MpLLrZimstJfYVq59MOy-lwKnm9Djnq3SEwpvpL062TSemXNgvuQwvhsoLL9yBBJwcMYC5PUH_HYXezPDlwcQAhYaZbTmjjsqlhPlVDdwzyAcVwu8-LYuaZfKl90qoXjG5JlS4t8lXp9Y6zW_PK5fhjIDCou3mORI5pycsTt6_7MMRPjy8SRg1eiQkTmY4kOKwd7DDc5vFkMoZBwEzmtonJ3ikdNbg"/>
+<div class="w-7 h-7 rounded-full bg-surface-container-highest text-secondary flex items-center justify-center font-label-xs text-label-xs font-bold ring-2 ring-surface-container-low">
+                M
+              </div>
+<div class="w-7 h-7 rounded-full bg-surface-container-highest text-primary flex items-center justify-center font-label-xs text-label-xs font-bold ring-2 ring-surface-container-low">
+                K
+              </div>
+</div>
+<span class="font-body-sm text-body-sm text-outline">5h</span>
+</div>
+<p class="mt-space-sm font-body-md text-body-md text-on-surface">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Alex Rivera</span>
+<span class="font-body-sm text-body-sm text-outline">(@arivera)</span> and 
+            <span class="font-label-md text-label-md font-semibold text-on-surface">3 others</span> started following you
+          </p>
+<!-- Follow Back Card Snippet -->
+<div class="mt-space-sm p-space-sm bg-surface-container-highest/30 rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-space-sm min-w-0">
+<div class="flex flex-col min-w-0">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface truncate">Alex Rivera</span>
+<span class="font-body-sm text-body-sm text-outline truncate">Founding Engineer @hypergraph · Rust, WASM</span>
+</div>
+</div>
+<button class="px-space-md py-space-xs bg-primary-container text-on-primary-container hover:bg-inverse-primary hover:text-on-surface font-label-sm text-label-sm rounded-full transition-all shrink-0 font-semibold" id="followBackBtn" onclick="toggleFollow(this)">
+              Follow back
+            </button>
+</div>
+</div>
+</div>
+</article>
+<!-- 5. Quote Repost Notification (Read State) -->
+<article class="notif-item relative group bg-surface-container-low hover:bg-surface-container p-space-base rounded-xl transition-all shadow-sm" data-category="reposts">
+<div class="flex items-start gap-space-md">
+<div class="w-9 h-9 rounded-full bg-surface-container-highest text-secondary flex items-center justify-center shrink-0 mt-space-2xs">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">format_quote</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center font-label-xs text-label-xs text-secondary font-bold">
+                DK
+              </div>
+<div class="flex items-center gap-space-2xs">
+<span class="font-label-md text-label-md font-semibold text-on-surface">David K.</span>
+<span class="font-body-sm text-body-sm text-outline">@davidk</span>
+</div>
+</div>
+<span class="font-body-sm text-body-sm text-outline">8h</span>
+</div>
+<p class="mt-space-xs font-body-md text-body-md text-on-surface">
+            reposted your Blink with a quote:
+          </p>
+<p class="mt-space-2xs font-headline-sm text-headline-sm text-on-surface">
+            "This thesis is the blueprint for v3. Essential reading."
+          </p>
+<!-- Quoted Nested Original Post -->
+<div class="mt-space-sm p-space-md bg-surface-container-highest/40 rounded-xl flex flex-col gap-space-2xs">
+<div class="flex items-center gap-space-2xs">
+<span class="font-label-xs text-label-xs font-semibold text-on-surface">Julian Vance</span>
+<span class="font-label-xs text-label-xs text-outline">@julian</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+              Next-gen social infrastructure must operate at sub-50ms sync latencies globally. Centralized polling models are dead.
+            </p>
+</div>
+</div>
+</div>
+</article>
+<!-- 6. Direct Reply Notification (Read State) -->
+<article class="notif-item relative group bg-surface-container-low hover:bg-surface-container p-space-base rounded-xl transition-all shadow-sm" data-category="replies">
+<div class="flex items-start gap-space-md">
+<div class="w-9 h-9 rounded-full bg-tertiary-container/20 text-tertiary flex items-center justify-center shrink-0 mt-space-2xs">
+<span class="material-symbols-outlined text-[20px]">forum</span>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-7 h-7 rounded-full bg-surface-container-highest flex items-center justify-center font-label-xs text-label-xs text-primary font-bold">
+                ML
+              </div>
+<div class="flex items-center gap-space-2xs">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Maya Lin</span>
+<span class="font-body-sm text-body-sm text-outline">@mayalin</span>
+</div>
+</div>
+<span class="font-body-sm text-body-sm text-outline">1d</span>
+</div>
+<p class="mt-space-xs font-body-md text-body-md text-on-surface">
+            replied: "Bookmarked. The typography scaling system in v2.0 is exceptionally clean."
+          </p>
+</div>
+</div>
+</article>
+</div>
+<!-- End of Activity Subtle Anchor -->
+<div class="py-space-2xl flex flex-col items-center justify-center gap-space-xs text-outline">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">check</span>
+</div>
+<span class="font-label-xs text-label-xs uppercase tracking-widest">Caught up with all notifications</span>
+</div>
+</div>
+<script>
+  // Filter Tabs Switcher
+  const filterButtons = document.querySelectorAll('.tab-btn');
+  const notifItems = document.querySelectorAll('.notif-item');
+
+  filterButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      filterButtons.forEach(btn => {
+        btn.classList.remove('bg-primary-container', 'text-on-primary-container', 'font-semibold');
+        btn.classList.add('bg-surface-container-low', 'text-on-surface-variant');
+      });
+
+      button.classList.add('bg-primary-container', 'text-on-primary-container', 'font-semibold');
+      button.classList.remove('bg-surface-container-low', 'text-on-surface-variant');
+
+      const filter = button.getAttribute('data-filter');
+
+      notifItems.forEach(item => {
+        const itemCategory = item.getAttribute('data-category');
+        if (filter === 'all' || itemCategory === filter) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // Mark all as read micro-interaction
+  const markReadBtn = document.getElementById('markAllReadBtn');
+  const unreadDots = document.querySelectorAll('.unread-dot');
+  const unreadBadge = document.getElementById('unreadCountBadge');
+
+  markReadBtn.addEventListener('click', () => {
+    unreadDots.forEach(dot => dot.remove());
+    if (unreadBadge) {
+      unreadBadge.textContent = 'All caught up';
+      unreadBadge.classList.replace('bg-primary-container', 'bg-surface-container-high');
+      unreadBadge.classList.replace('text-on-primary-container', 'text-outline');
+    }
+  });
+
+  // Toggle Quick Reply Drawer
+  function toggleReplyDrawer(drawerId) {
+    const drawer = document.getElementById(drawerId);
+    if (!drawer) return;
+    if (drawer.classList.contains('hidden')) {
+      drawer.classList.remove('hidden');
+      drawer.classList.add('flex');
+      drawer.querySelector('textarea')?.focus();
+    } else {
+      drawer.classList.add('hidden');
+      drawer.classList.remove('flex');
+    }
+  }
+
+  // Send Quick Reply
+  function sendQuickReply(drawerId) {
+    const drawer = document.getElementById(drawerId);
+    if (!drawer) return;
+    const txt = drawer.querySelector('textarea');
+    if (txt) txt.value = '';
+    drawer.classList.add('hidden');
+    drawer.classList.remove('flex');
+  }
+
+  // Follow Back Button Toggle
+  function toggleFollow(btn) {
+    if (btn.innerText.trim() === 'Follow back') {
+      btn.innerText = 'Following';
+      btn.classList.replace('bg-primary-container', 'bg-surface-container-highest');
+      btn.classList.replace('text-on-primary-container', 'text-on-surface');
+    } else {
+      btn.innerText = 'Follow back';
+      btn.classList.replace('bg-surface-container-highest', 'bg-primary-container');
+      btn.classList.replace('text-on-surface', 'text-on-primary-container');
+    }
+  }
+</script></main><aside class="hidden lg:block w-[340px] shrink-0 sticky top-0 h-screen overflow-y-auto px-space-base py-space-lg"><div class="flex flex-col gap-space-lg"><div class="flex items-center bg-surface-container-low px-space-base py-space-sm rounded-full text-on-surface-variant focus-within:text-on-surface focus-within:bg-surface-container transition-all"><span class="material-symbols-outlined mr-space-sm text-[18px]">search</span><input class="bg-transparent border-0 outline-none w-full font-body-sm text-body-sm text-on-surface placeholder:text-outline" placeholder="Search Blinkr, topics, or people" type="text"/><kbd class="font-label-xs text-label-xs px-space-xs py-space-2xs bg-surface-container-high rounded text-outline">/</kbd></div><div class="bg-surface-container-low p-space-base rounded-xl flex flex-col gap-space-md"><div class="flex items-center justify-between"><span class="font-headline-sm text-headline-sm text-on-surface">What's happening</span><span class="material-symbols-outlined text-outline cursor-pointer hover:text-on-surface text-[18px]">settings</span></div><div class="flex flex-col gap-space-md"><div class="flex justify-between items-start"><div class="flex flex-col"><span class="font-label-xs text-label-xs text-outline">Technology · Trending</span><span class="font-label-md text-label-md font-semibold text-on-surface">#TypeScript5</span><span class="font-body-sm text-body-sm text-outline">24.8K Blinks</span></div><span class="material-symbols-outlined text-outline text-[16px] cursor-pointer hover:text-on-surface">more_horiz</span></div><div class="flex justify-between items-start"><div class="flex flex-col"><span class="font-label-xs text-label-xs text-outline">Design Systems · Trending</span><span class="font-label-md text-label-md font-semibold text-on-surface">Spatial UI</span><span class="font-body-sm text-body-sm text-outline">18.2K Blinks</span></div><span class="material-symbols-outlined text-outline text-[16px] cursor-pointer hover:text-on-surface">more_horiz</span></div><div class="flex justify-between items-start"><div class="flex flex-col"><span class="font-label-xs text-label-xs text-outline">AI · Trending</span><span class="font-label-md text-label-md font-semibold text-on-surface">Autonomous Agents</span><span class="font-body-sm text-body-sm text-outline">42.1K Blinks</span></div><span class="material-symbols-outlined text-outline text-[16px] cursor-pointer hover:text-on-surface">more_horiz</span></div></div></div><div class="bg-surface-container-low p-space-base rounded-xl flex flex-col gap-space-md"><span class="font-headline-sm text-headline-sm text-on-surface">Who to follow</span><div class="flex flex-col gap-space-md"><div class="flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="w-9 h-9 rounded-full bg-surface-container-highest flex items-center justify-center font-label-md text-label-md text-primary font-bold">A</div><div class="flex flex-col min-w-0"><span class="font-label-sm text-label-sm font-semibold text-on-surface truncate">Aria Jensen</span><span class="font-body-sm text-body-sm text-outline truncate">@ariaj</span></div></div><button class="px-space-md py-space-xs bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-sm text-label-sm rounded-full transition-all">Follow</button></div><div class="flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="w-9 h-9 rounded-full bg-surface-container-highest flex items-center justify-center font-label-md text-label-md text-secondary font-bold">D</div><div class="flex flex-col min-w-0"><span class="font-label-sm text-label-sm font-semibold text-on-surface truncate">Devin Chen</span><span class="font-body-sm text-body-sm text-outline truncate">@dchen</span></div></div><button class="px-space-md py-space-xs bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-sm text-label-sm rounded-full transition-all">Follow</button></div></div></div><footer class="flex flex-wrap gap-x-space-sm gap-y-space-2xs px-space-xs text-outline font-label-xs text-label-xs"><a class="hover:text-on-surface transition-colors" href="#">Terms of Service</a><a class="hover:text-on-surface transition-colors" href="#">Privacy Policy</a><a class="hover:text-on-surface transition-colors" href="#">Cookie Policy</a><span>© 2025 Blinkr Inc.</span></footer></div></aside></div></div><nav class="md:hidden fixed bottom-0 left-0 right-0 h-14 bg-surface/90 backdrop-blur-xl z-40 flex items-center justify-around px-space-sm shadow-[0_1px_8px_rgba(0,0,0,0.04)]" data-active-classes="text-primary"><a class="flex flex-col items-center text-on-surface-variant hover:text-on-surface" data-path="home" href="#"><span class="material-symbols-outlined">home</span></a><a class="flex flex-col items-center text-on-surface-variant hover:text-on-surface" data-path="explore" href="#"><span class="material-symbols-outlined">search</span></a><button class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><span class="material-symbols-outlined">add</span></button><a aria-current="page" class="flex flex-col items-center text-primary" data-path="notifications" href="#"><span class="material-symbols-outlined">notifications</span></a><a class="flex flex-col items-center text-on-surface-variant hover:text-on-surface" data-path="profile" href="#"><span class="material-symbols-outlined">person</span></a></nav></body></html>

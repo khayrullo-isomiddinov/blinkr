@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"primary-container":"#8083ff","surface-bright":"#373940","on-tertiary":"#3c0091","on-surface-variant":"#c7c4d7","on-background":"#e2e2eb","on-primary-fixed":"#07006c","inverse-surface":"#e2e2eb","inverse-on-surface":"#2e3037","on-secondary":"#003640","background":"#111319","inverse-primary":"#494bd6","surface-container-lowest":"#0c0e14","tertiary-fixed-dim":"#d0bcff","surface-container-low":"#191b22","surface-dim":"#111319","outline-variant":"#464554","on-tertiary-fixed":"#23005c","secondary":"#4cd7f6","error-container":"#93000a","on-tertiary-fixed-variant":"#5516be","on-secondary-container":"#00424e","secondary-fixed":"#acedff","secondary-fixed-dim":"#4cd7f6","on-primary":"#1000a9","tertiary-fixed":"#e9ddff","on-error":"#690005","tertiary":"#d0bcff","error":"#ffb4ab","primary":"#c0c1ff","secondary-container":"#03b5d3","on-primary-fixed-variant":"#2f2ebe","on-error-container":"#ffdad6","on-surface":"#e2e2eb","on-secondary-fixed-variant":"#004e5c","primary-fixed":"#e1e0ff","on-tertiary-container":"#340080","surface-container-highest":"#33343b","surface-variant":"#33343b","surface-container-high":"#282a30","primary-fixed-dim":"#c0c1ff","on-primary-container":"#0d0096","surface-tint":"#c0c1ff","surface-container":"#1e1f26","on-secondary-fixed":"#001f26","tertiary-container":"#a078ff","outline":"#908fa0","surface":"#111319"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"col-feed-max":"620px","space-3xl":"3rem","space-2xs":"0.125rem","space-base":"1rem","space-sm":"0.5rem","col-sidebar-left":"260px","col-sidebar-right":"340px","space-lg":"1.25rem","space-md":"0.75rem","space-2xl":"2rem","gutter":"1rem","space-xs":"0.25rem","space-xl":"1.5rem"},"fontFamily":{"headline-lg":["Geist"],"headline-md":["Geist"],"label-md":["Geist"],"label-xs":["Geist"],"body-md":["Geist"],"headline-sm":["Geist"],"body-sm":["Geist"],"display-lg":["Geist"],"body-lg":["Geist"],"label-sm":["Geist"]},"fontSize":{"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.025em","fontWeight":"600"}],"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"-0.02em","fontWeight":"600"}],"label-md":["14px",{"lineHeight":"20px","letterSpacing":"-0.005em","fontWeight":"500"}],"label-xs":["11px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"21px","letterSpacing":"-0.006em","fontWeight":"400"}],"headline-sm":["16px",{"lineHeight":"24px","letterSpacing":"-0.015em","fontWeight":"600"}],"body-sm":["13px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"display-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.03em","fontWeight":"700"}],"body-lg":["16px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"400"}],"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"500"}]}}}}</script></head><body class="bg-background font-body-md text-body-md text-on-background min-h-screen"><header class="fixed top-0 left-0 right-0 h-14 z-40 bg-surface/80 backdrop-blur-xl md:hidden px-space-base flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex items-center gap-space-sm"><img alt="Blinkr Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WeKokrMgOU-fO4PD-1c1Ak3L0ZrurzcMPRvuztn2BTfICaB8ECOctrQxXbgOrF0CI6gofFfWeRUo7zfA1C8ue1cHzaY9iRg5KeiEFZQz5rwlnN5AURa-F0G5z4F1GfL4DSM7gb9dU_bExBZsF5utYh4vMGt8T9SmVqKu94i0Cu42l8EdVgAbTxXpHL-8m70IxRsqPCKzdI1gvvDEGkN5kzSJMo-Wdp2oyNMkBgU6_7a_GfOiOgCbVkcY4"/><span class="font-headline-sm text-headline-sm text-on-surface">Blinkr</span><span class="font-label-xs text-label-xs px-space-xs py-space-2xs bg-surface-container-high text-primary rounded-full">v2.0</span></div><div class="flex items-center gap-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBY8PG3EezAXsfMXAJCu2GNvHebOCqiHaiXzzkfdixt1ykFExI7rLG7XF8OUx9bgo_Q8qI2l5cEuRX-jHynM3VNg01PmW_jeCvy0P4e3eBeg1HiRAX_yRqlbe9ed-hEeJ8IJNxDfBHjD_hnH7tD_9C4kiwBvRMxOoQJ95jxG1xj-ksCQvcGx4V9Tj30O1AwFKiuWfX1TBY_X3Jmg2yabD95EJ9rEMiwHU8Am0jMFRBb75cWKu7S0_mryg"/></div></header><aside class="fixed left-0 top-0 h-full w-[260px] bg-surface-container-low z-30 hidden md:flex flex-col justify-between p-space-base"><div class="flex flex-col gap-space-lg"><div class="flex items-center justify-between px-space-xs"><div class="flex items-center gap-space-sm"><img alt="Blinkr Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WeKokrMgOU-fO4PD-1c1Ak3L0ZrurzcMPRvuztn2BTfICaB8ECOctrQxXbgOrF0CI6gofFfWeRUo7zfA1C8ue1cHzaY9iRg5KeiEFZQz5rwlnN5AURa-F0G5z4F1GfL4DSM7gb9dU_bExBZsF5utYh4vMGt8T9SmVqKu94i0Cu42l8EdVgAbTxXpHL-8m70IxRsqPCKzdI1gvvDEGkN5kzSJMo-Wdp2oyNMkBgU6_7a_GfOiOgCbVkcY4"/><span class="font-headline-md text-headline-md text-on-surface">Blinkr</span></div><span class="font-label-xs text-label-xs px-space-xs py-space-2xs bg-surface-container-highest text-primary font-bold rounded-full">v2.0</span></div><nav class="flex flex-col gap-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded-full"><a aria-current="page" class="flex items-center justify-between px-space-base py-space-sm transition-all bg-primary-container text-on-primary-container font-semibold rounded-full" data-path="home" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">home</span><span class="font-label-md text-label-md">Home</span></div></a><a class="flex items-center justify-between px-space-base py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="explore" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">explore</span><span class="font-label-md text-label-md">Explore</span></div></a><a class="flex items-center justify-between px-space-base py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="notifications" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="font-label-md text-label-md">Notifications</span></div><span class="px-space-xs py-space-2xs bg-primary-container text-on-primary-container font-label-xs text-label-xs rounded-full">3</span></a><a class="flex items-center justify-between px-space-base py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="messages" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">chat_bubble</span><span class="font-label-md text-label-md">Messages</span></div><span class="px-space-xs py-space-2xs bg-surface-container-high text-on-surface-variant font-label-xs text-label-xs rounded-full">5</span></a><a class="flex items-center justify-between px-space-base py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="bookmarks" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">bookmark</span><span class="font-label-md text-label-md">Bookmarks</span></div></a><a class="flex items-center justify-between px-space-base py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="profile" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">person</span><span class="font-label-md text-label-md">Profile</span></div></a><a class="flex items-center justify-between px-space-base py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="settings" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">settings</span><span class="font-label-md text-label-md">Settings</span></div></a></nav><button class="w-full mt-space-xs py-space-md px-space-base bg-primary-container hover:bg-inverse-primary text-on-primary-container hover:text-on-surface rounded-full flex items-center justify-center gap-space-sm transition-all shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><span class="material-symbols-outlined text-[20px]">add</span><span class="font-label-md text-label-md font-semibold">Blink</span><kbd class="hidden xl:inline-block font-label-xs text-label-xs px-space-xs py-space-2xs bg-surface-container-lowest/40 rounded">⌘K</kbd></button></div><div class="flex items-center justify-between p-space-sm rounded-full hover:bg-surface-container transition-all cursor-pointer"><div class="flex items-center gap-space-sm min-w-0"><img alt="Profile" class="w-9 h-9 rounded-full object-cover shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBY8PG3EezAXsfMXAJCu2GNvHebOCqiHaiXzzkfdixt1ykFExI7rLG7XF8OUx9bgo_Q8qI2l5cEuRX-jHynM3VNg01PmW_jeCvy0P4e3eBeg1HiRAX_yRqlbe9ed-hEeJ8IJNxDfBHjD_hnH7tD_9C4kiwBvRMxOoQJ95jxG1xj-ksCQvcGx4V9Tj30O1AwFKiuWfX1TBY_X3Jmg2yabD95EJ9rEMiwHU8Am0jMFRBb75cWKu7S0_mryg"/><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-2xs"><span class="font-label-sm text-label-sm font-semibold text-on-surface truncate">Julian Vance</span><span class="material-symbols-outlined text-[14px] text-secondary">verified</span></div><span class="font-body-sm text-body-sm text-outline truncate">@julian</span></div></div><span class="material-symbols-outlined text-outline hover:text-on-surface shrink-0">more_horiz</span></div></aside><div class="md:pl-[260px] min-h-screen"><div class="max-w-7xl mx-auto flex justify-center"><main class="w-full max-w-[620px] pt-14 md:pt-0 pb-20 md:pb-space-3xl px-space-base bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Sticky Feed Header & View Switcher -->
+<header class="sticky top-0 z-20 backdrop-blur-xl bg-background/85 px-space-base pt-space-md pb-space-sm flex flex-col gap-space-sm shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<h1 class="font-headline-md text-headline-md text-on-background tracking-tight">Home</h1>
+<span class="px-space-xs py-space-2xs rounded-full bg-primary-container/20 text-primary font-label-xs text-label-xs font-semibold">Pulse</span>
+</div>
+<div class="flex items-center gap-space-xs">
+<button class="w-8 h-8 rounded-full bg-surface-container hover:bg-surface-container-high flex items-center justify-center text-outline hover:text-on-surface transition-colors" id="feedPreferencesBtn" title="Feed Preferences">
+<span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+</button>
+</div>
+</div>
+<!-- Segmented Filter Bar -->
+<div class="flex items-center bg-surface-container-low p-space-2xs rounded-full relative">
+<button class="flex-1 relative py-space-xs text-center rounded-full font-label-md text-label-md text-on-surface font-semibold transition-all z-10" id="tabForYou">
+        For You
+        <span class="absolute bottom-1 left-1/2 -translate-x-1/2 w-8 h-[2.5px] rounded-full bg-primary-container shadow-[0_0_8px_rgba(128,131,255,0.8)]"></span>
+</button>
+<button class="flex-1 py-space-xs text-center rounded-full font-label-md text-label-md text-outline hover:text-on-surface transition-colors z-10" id="tabFollowing">
+        Following
+      </button>
+<button class="hidden sm:block flex-1 py-space-xs text-center rounded-full font-label-md text-label-md text-outline hover:text-on-surface transition-colors z-10" id="tabRustTech">
+        Systems & AI
+      </button>
+</div>
+</header>
+<!-- Blink Composer -->
+<section class="p-space-base bg-surface-container-lowest my-space-xs rounded-xl shadow-md">
+<div class="flex gap-space-md">
+<div class="relative shrink-0">
+<img class="w-10 h-10 rounded-full object-cover shadow-sm" data-alt="Portrait photo of a young modern developer wearing glasses with neon blue and ambient violet backlight in a minimal studio setting, cinematic tone, dark theme" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3w_QVz_ZUjQcJ-OM1P6swkrMktQmVApLPDs4tu2ZKbqkko5zfINOn5oe1yZaN1U67Yr-Rr6zhwXeMUqChhgmyGAlINkMjL5p2S4wY3Eg3Qx4BfVniK4LXdwq_kUI4FHoPH3tWUXM7ib1uOrgFLLIvW3NyHGLwIfL3ME7mah-ptkpqSWIJaXxg-ufD1eMwnPmRBeJThzuT2x_X9gvEGwCsbWEmKr78wciICOxVQ14BjB8d79k4XCv7YA"/>
+<div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 rounded-full bg-surface-container-lowest flex items-center justify-center">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary"></span>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-space-sm min-w-0">
+<div class="flex items-center gap-space-xs text-outline">
+<span class="font-label-xs text-label-xs bg-surface-container px-space-xs py-space-2xs rounded text-primary font-medium">Markdown Supported</span>
+<span class="text-[10px]">•</span>
+<span class="font-label-xs text-label-xs">LaTeX enabled</span>
+</div>
+<textarea class="w-full bg-transparent resize-none border-0 outline-none font-body-lg text-body-lg text-on-surface placeholder:text-outline/70 focus:ring-0 leading-relaxed" id="composerTextarea" placeholder="What's resonating with you today?" rows="2"></textarea>
+<!-- Dynamic Compose Expansion Meta -->
+<div class="flex flex-col gap-space-sm pt-space-xs" id="composerExtras">
+<!-- Audience Selector Pill -->
+<div class="flex items-center">
+<button class="flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-surface-container hover:bg-surface-container-high text-primary font-label-xs text-label-xs transition-colors">
+<span class="material-symbols-outlined text-[14px]">public</span>
+<span>Everyone can reply</span>
+<span class="material-symbols-outlined text-[12px] text-outline">expand_more</span>
+</button>
+</div>
+<!-- Bottom Action Toolbar -->
+<div class="flex items-center justify-between pt-space-xs">
+<div class="flex items-center gap-space-xs">
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-primary hover:bg-primary-container/15 transition-colors" title="Attach Media">
+<span class="material-symbols-outlined text-[18px]">image</span>
+</button>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-secondary hover:bg-secondary-container/15 transition-colors" title="Embed Code / Diff">
+<span class="material-symbols-outlined text-[18px]">code_blocks</span>
+</button>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-tertiary hover:bg-tertiary-container/15 transition-colors" title="Create Poll">
+<span class="material-symbols-outlined text-[18px]">ballot</span>
+</button>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-primary hover:bg-primary-container/15 transition-colors" title="Insert Emoji">
+<span class="material-symbols-outlined text-[18px]">sentiment_satisfied</span>
+</button>
+<button class="w-8 h-8 rounded-full flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors" title="Schedule">
+<span class="material-symbols-outlined text-[18px]">schedule</span>
+</button>
+</div>
+<div class="flex items-center gap-space-md">
+<!-- Character Progress Ring -->
+<div class="relative w-6 h-6 flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90" viewbox="0 0 24 24">
+<circle class="text-surface-container-high" cx="12" cy="12" fill="none" r="9" stroke="currentColor" stroke-width="2"></circle>
+<circle class="text-primary-container transition-all" cx="12" cy="12" fill="none" id="charProgress" r="9" stroke="currentColor" stroke-dasharray="56.54" stroke-dashoffset="42" stroke-linecap="round" stroke-width="2"></circle>
+</svg>
+<span class="hidden font-label-xs text-[9px] text-outline font-bold absolute" id="charCountLabel">280</span>
+</div>
+<!-- Submit Button -->
+<button class="px-space-md py-space-xs bg-primary-container hover:bg-inverse-primary active:scale-95 text-on-primary-container font-label-md text-label-md font-semibold rounded-full shadow-sm flex items-center gap-space-xs transition-all" id="publishBlinkBtn">
+<span>Blink</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Feed Stream Posts -->
+<div class="flex flex-col gap-space-xs">
+<!-- Post 0: Pinned Developer Announcement -->
+<article class="p-space-base bg-surface-container-low rounded-xl flex flex-col gap-space-sm hover:bg-surface-container/60 transition-colors shadow-sm">
+<div class="flex items-center justify-between text-outline">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[14px] text-secondary">push_pin</span>
+<span class="font-label-xs text-label-xs uppercase tracking-wider text-secondary font-bold">Pinned Changelog</span>
+</div>
+<button class="w-6 h-6 rounded-full hover:bg-surface-container flex items-center justify-center text-outline hover:text-on-surface">
+<span class="material-symbols-outlined text-[16px]">more_horiz</span>
+</button>
+</div>
+<div class="flex items-start gap-space-md">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-container to-secondary flex items-center justify-center shrink-0 shadow-md">
+<span class="font-headline-sm text-headline-sm text-on-primary-container font-bold">B</span>
+</div>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-center gap-space-xs flex-wrap">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Blinkr Engine</span>
+<span class="material-symbols-outlined text-[14px] text-secondary">verified</span>
+<span class="font-body-sm text-body-sm text-outline">@blinkr</span>
+<span class="text-outline text-body-sm">•</span>
+<span class="font-body-sm text-body-sm text-outline">2h</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface mt-space-xs leading-relaxed">
+<strong class="font-semibold text-primary">Blinkr v2.0 is officially rolling out today.</strong> Real-time threads, zero-bloat ultra-fluid UI, high-speed code snippet rendering, and local-first end-to-end caching.
+          </p>
+<!-- Changelog Pill Matrix -->
+<div class="flex flex-wrap gap-space-xs mt-space-sm">
+<span class="px-space-sm py-space-2xs rounded-full bg-surface-container-high font-label-xs text-label-xs text-primary">⚡ 120fps feed pipeline</span>
+<span class="px-space-sm py-space-2xs rounded-full bg-surface-container-high font-label-xs text-label-xs text-secondary">🔒 Decentralized Identity</span>
+<span class="px-space-sm py-space-2xs rounded-full bg-surface-container-high font-label-xs text-label-xs text-tertiary">⚙️ Rust Wasm Microkernels</span>
+</div>
+<!-- Interaction Bar -->
+<div class="flex items-center justify-between text-outline mt-space-md pt-space-xs">
+<button class="flex items-center gap-space-xs hover:text-primary transition-colors text-body-sm">
+<span class="material-symbols-outlined text-[18px]">chat_bubble_outline</span>
+<span class="font-label-sm text-label-sm">84</span>
+</button>
+<button class="flex items-center gap-space-xs hover:text-secondary transition-colors text-body-sm">
+<span class="material-symbols-outlined text-[18px]">repeat</span>
+<span class="font-label-sm text-label-sm">312</span>
+</button>
+<button class="flex items-center gap-space-xs hover:text-error transition-colors text-body-sm like-toggle-btn">
+<span class="material-symbols-outlined text-[18px]">favorite_border</span>
+<span class="font-label-sm text-label-sm like-counter">1.2K</span>
+</button>
+<button class="flex items-center gap-space-xs hover:text-primary transition-colors text-body-sm">
+<span class="material-symbols-outlined text-[18px]">bookmark_border</span>
+<span class="font-label-sm text-label-sm">410</span>
+</button>
+<button class="hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[18px]">share</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Post 1: Elena Rostova (Rust open-source synchronization) -->
+<article class="p-space-base bg-surface-container-lowest rounded-xl flex flex-col gap-space-sm hover:bg-surface-container/30 transition-colors shadow-sm">
+<div class="flex items-start gap-space-md">
+<img class="w-10 h-10 rounded-full object-cover shrink-0" data-alt="High quality studio headshot of a female software architect with short hair, warm subtle rim light, dark technological ambient background, confident and thoughtful demeanor" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhLIlngu_iZoPT9bnzb9PfZcE6_zmSXvyJA7lwaDA5eI4bXDWWNfzQaYs6hiRqbFHImRn9Ew_nNwRDriCI7p4sOiPYHCo3yoaqy-b7VNEj2IUjZn0fRud1je5zozO0y-sgJVZaPJ0yj8RuhxB1FGWTbDp_Hn5lt9XAAdZktpmNXxoolDSjyhySYyW2BLlWXYABPhBG7sdAEacxiD3GlF9_j2MQJKAkTxOYiVA97WotaeNMfYxvMpX01w"/>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs min-w-0 flex-wrap">
+<span class="font-label-md text-label-md font-semibold text-on-surface truncate">Elena Rostova</span>
+<span class="material-symbols-outlined text-[14px] text-secondary shrink-0">verified</span>
+<span class="font-body-sm text-body-sm text-outline truncate">@elena_dev</span>
+<span class="text-outline text-body-sm">•</span>
+<span class="font-body-sm text-body-sm text-outline">4h</span>
+</div>
+<button class="w-6 h-6 rounded-full hover:bg-surface-container flex items-center justify-center text-outline hover:text-on-surface shrink-0">
+<span class="material-symbols-outlined text-[16px]">more_horiz</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface mt-space-xs leading-relaxed">
+            Just open-sourced our real-time synchronization engine written in Rust. Reduced p99 latency down to <strong>1.8ms</strong> across 50k concurrent peers. The architecture breakdown is live on GitHub! 🦀⚡
+          </p>
+<!-- Technical Metrics Spark Card -->
+<div class="mt-space-sm p-space-sm rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded bg-surface-container-highest flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">speed</span>
+</div>
+<div>
+<div class="font-label-xs text-label-xs text-outline">P99 Benchmarks</div>
+<div class="font-label-md text-label-md font-semibold text-on-surface">1.84ms <span class="text-secondary font-normal text-label-xs">(-74.2%)</span></div>
+</div>
+</div>
+<!-- Lightweight SVG Sparkline -->
+<div class="w-28 h-8 flex items-center">
+<svg class="w-full h-full text-secondary" fill="none" viewbox="0 0 120 30">
+<path d="M0 24 L20 22 L40 18 L60 21 L80 10 L100 8 L120 3" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<circle cx="120" cy="3" fill="currentColor" r="3"></circle>
+</svg>
+</div>
+</div>
+<!-- Rich GitHub Card Embed -->
+<a class="mt-space-sm rounded-xl overflow-hidden bg-surface-container-low hover:bg-surface-container block transition-colors group" href="#">
+<div class="h-44 w-full relative overflow-hidden bg-surface-container-highest">
+<img class="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300" data-alt="Dark aesthetic engineering terminal showing complex rust code syntax, asynchronous memory graphs, and high-frequency network packets visualization with cyan and deep purple telemetry lines" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqk-7iaxviuJuhuoU1rWPsGJBfQ7e8DjlU9d7B6mmAfCd5PMKk5TEmiy5ZOg96odTytCMoHAmAVpfFMvkRFiEfmYxAFtQOKHNaFnF5iT80CoGc7vkv8C1pnk5EOV8eF3-h0oOjdLZAO2-01H0k5T6RlJ1Fe_Tt30x18X3zCHAzUtITMNC44Yn7phZ2meph-YccF8CCf08n9bpfUsQdaU6Lg4NGeDAzmsMUQ4WlMeNFEJDg6bjQPg6Rhw"/>
+<div class="absolute top-space-sm right-space-sm px-space-xs py-space-2xs rounded bg-surface-container-lowest/90 backdrop-blur-md flex items-center gap-space-2xs text-secondary font-label-xs text-label-xs font-semibold">
+<span class="material-symbols-outlined text-[13px]">terminal</span>
+<span>rust-sync-v2</span>
+</div>
+</div>
+<div class="p-space-sm flex flex-col gap-space-2xs">
+<div class="flex items-center justify-between">
+<span class="font-label-xs text-label-xs text-outline uppercase tracking-wider font-semibold">github.com/elena-rostova/sync-core</span>
+<div class="flex items-center gap-space-2xs text-on-surface font-label-xs text-label-xs">
+<span class="material-symbols-outlined text-[14px] text-tertiary">star</span>
+<span>3.4k stars</span>
+</div>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">sync-core: Zero-copy distributed state sync for high-load clusters</h3>
+<p class="font-body-sm text-body-sm text-outline line-clamp-1">Lock-free memory ring buffers with direct kernel epoll integration. Modular CRDT resolution.</p>
+</div>
+</a>
+<!-- Interaction Bar -->
+<div class="flex items-center justify-between text-outline mt-space-md pt-space-xs">
+<button class="flex items-center gap-space-xs hover:text-primary transition-colors text-body-sm">
+<span class="material-symbols-outlined text-[18px]">chat_bubble_outline</span>
+<span class="font-label-sm text-label-sm">42</span>
+</button>
+<button class="flex items-center gap-space-xs hover:text-secondary transition-colors text-body-sm">
+<span class="material-symbols-outlined text-[18px]">repeat</span>
+<span class="font-label-sm text-label-sm">128</span>
+</button>
+<button class="flex items-center gap-space-xs hover:text-error transition-colors text-body-sm like-toggle-btn">
+<span class="material-symbols-outlined text-[18px]">favorite_border</span>
+<span class="font-label-sm text-label-sm like-counter">892</span>
+</button>
+<button class="flex items-center gap-space-xs hover:text-primary transition-colors text-body-sm">
+<span class="material-symbols-outlined text-[18px]">bookmark_border</span>
+<span class="font-label-sm text-label-sm">145</span>
+</button>
+<button class="hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[18px]">share</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Post 2: Marcus Sterling (Design Philosophy & Quote Reply) -->
+<article class="p-space-base bg-surface-container-lowest rounded-xl flex flex-col gap-space-sm hover:bg-surface-container/30 transition-colors shadow-sm">
+<div class="flex items-start gap-space-md">
+<img class="w-10 h-10 rounded-full object-cover shrink-0" data-alt="Portrait of a modern product designer with minimalist black turtleneck, monochromatic dramatic lighting with slight electric indigo edge, clean contemporary portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuzFAdw6bLK8VLtmWYxP_hzkch9VY9fhWUN5PTNAgDOaZ-KDFSK8WLTJUSkTma3RMthZgwCbSZNd1jLzFG0QLXEa9YZbU9UnxuDRRFftAHBOrLRq-LXlcezfJ-D9ONvEtsai0um2rrOWr5Fz5NPNfmEPQx_Q8rJC_7bBGjz3vEmIqYj3WFVwqZNzSeE2NeqvnB4y37w83OEn1L80ZQTqnfno-6_YvOrlfmKpSmkiLoZWE4EJ7lXEGm9A"/>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs min-w-0 flex-wrap">
+<span class="font-label-md text-label-md font-semibold text-on-surface truncate">Marcus Sterling</span>
+<span class="font-body-sm text-body-sm text-outline truncate">@marcus_design</span>
+<span class="text-outline text-body-sm">•</span>
+<span class="font-body-sm text-body-sm text-outline">6h</span>
+</div>
+<button class="w-6 h-6 rounded-full hover:bg-surface-container flex items-center justify-center text-outline hover:text-on-surface shrink-0">
+<span class="material-symbols-outlined text-[16px]">more_horiz</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface mt-space-xs leading-relaxed">
+            Hot take: The best UI micro-interactions are the ones you feel subconsciously, not the ones that beg for your attention with 600ms bounce animations. <br/><br/>
+<em class="not-italic text-primary-container font-semibold">Restraint is the highest form of polish.</em>
+</p>
+<!-- Quote Reply Embed Card -->
+<div class="mt-space-sm p-space-md rounded-xl bg-surface-container-low flex flex-col gap-space-xs hover:bg-surface-container transition-colors cursor-pointer">
+<div class="flex items-center gap-space-xs">
+<div class="w-5 h-5 rounded-full bg-secondary flex items-center justify-center font-label-xs text-label-xs text-on-secondary font-bold">K</div>
+<span class="font-label-xs text-label-xs font-semibold text-on-surface">Kaelen Voss</span>
+<span class="font-body-sm text-body-sm text-outline">@kaelenv</span>
+<span class="text-outline text-body-sm">•</span>
+<span class="font-body-sm text-body-sm text-outline">8h</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+              "Why does every modern SaaS app feel like an animated slot machine? Where did intentional quiet typography and functional focus go?"
+            </p>
+</div>
+<!-- Interaction Bar -->
+<div class="flex items-center justify-between text-outline mt-space-md pt-space-xs">
+<button class="flex items-center gap-space-xs hover:text-primary transition-colors text-body-sm">
+<span class="material-symbols-outlined text-[18px]">chat_bubble_outline</span>
+<span class="font-label-sm text-label-sm">68</span>
+</button>
+<button class="flex items-center gap-space-xs hover:text-secondary transition-colors text-body-sm">
+<span class="material-symbols-outlined text-[18px]">repeat</span>
+<span class="font-label-sm text-label-sm">215</span>
+</button>
+<button class="flex items-center gap-space-xs hover:text-error transition-colors text-body-sm like-toggle-btn">
+<span class="material-symbols-outlined text-[18px]">favorite_border</span>
+<span class="font-label-sm text-label-sm like-counter">1.5K</span>
+</button>
+<button class="flex items-center gap-space-xs hover:text-primary transition-colors text-body-sm">
+<span class="material-symbols-outlined text-[18px]">bookmark_border</span>
+<span class="font-label-sm text-label-sm">318</span>
+</button>
+<button class="hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[18px]">share</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+<!-- Post 3: Sarah Chen (System Design & High-density Media Grid) -->
+<article class="p-space-base bg-surface-container-lowest rounded-xl flex flex-col gap-space-sm hover:bg-surface-container/30 transition-colors shadow-sm">
+<div class="flex items-start gap-space-md">
+<img class="w-10 h-10 rounded-full object-cover shrink-0" data-alt="Portrait of an Asian female systems engineer with sleek glasses smiling calmly, softly lit warm modern architectural office background with subtle blue gradients" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJjS4hA6FfR7I4o87f9Is7i6qPZr0uLYMu2cWL5c_9FTx_Waka64TUGYXDwc0ITpFO1cApmvf7B2DZpSNnVQyTSMQlLAEbBIglgYNHj6LiSxAbGTP_VbOPwWGJiygiWpQC6XITsoA-1XLZKVphSETDUAX1m8K898WcGs-JV26gvrD-V0PMEy8FC8abCacJLtdqhUKMCR6HZUFhD3n0vnHaraAHDBAttHp88zptJ6nKG3yDyqU2WgRTVg"/>
+<div class="flex flex-col flex-1 min-w-0">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs min-w-0 flex-wrap">
+<span class="font-label-md text-label-md font-semibold text-on-surface truncate">Sarah Chen</span>
+<span class="material-symbols-outlined text-[14px] text-secondary shrink-0">verified</span>
+<span class="font-body-sm text-body-sm text-outline truncate">@sarahc</span>
+<span class="text-outline text-body-sm">•</span>
+<span class="font-body-sm text-body-sm text-outline">10h</span>
+</div>
+<button class="w-6 h-6 rounded-full hover:bg-surface-container flex items-center justify-center text-outline hover:text-on-surface shrink-0">
+<span class="material-symbols-outlined text-[16px]">more_horiz</span>
+</button>
+</div>
+<p class="font-body-md text-body-md text-on-surface mt-space-xs leading-relaxed">
+            Multi-region database topology diagrams for our upcoming migration. Switching to active-active read replicas with consensus via Raft over QUIC. Thoughts on failure domain isolation here?
+          </p>
+<div class="flex items-center gap-space-xs mt-space-2xs">
+<a class="font-label-xs text-label-xs text-secondary hover:underline" href="#">#SystemDesign</a>
+<a class="font-label-xs text-label-xs text-secondary hover:underline" href="#">#DistributedSystems</a>
+<a class="font-label-xs text-label-xs text-secondary hover:underline" href="#">#Infra</a>
+</div>
+<!-- Multi-Asset Visual Grid -->
+<div class="grid grid-cols-2 gap-space-xs mt-space-sm rounded-xl overflow-hidden">
+<div class="relative h-44 group cursor-pointer overflow-hidden bg-surface-container-low">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="High quality technical architectural schematic of distributed multi-region cloud cluster nodes, cyan and neon purple vectors on dark obsidian blueprint background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDO0dAVOC2YJLhaYv9hgee4SvsjL-VbpFPo5GN4RmZeaHbZBMW4e4J-k73ZKwOZvxDYEjjrRRjD1xgyNOoth3vTqPU1CZTP3ZrIWUXtpLGB9dHamxSBSFI2BdE4bGSDHSFfjkHNwQCXHra4HtIY8NMcouawRxZY468ZVO8RCnLac06TwSj_98STWxg02MIo5i6gkLxecDOL9YI7DU38HcKXJGIFNXTV2_orVKnvBFRPxKTK5cdIF8pC5w"/>
+<span class="absolute bottom-2 left-2 px-space-xs py-space-2xs rounded bg-surface-container-lowest/80 backdrop-blur font-label-xs text-[10px] text-on-surface">Region A (us-east)</span>
+</div>
+<div class="relative h-44 group cursor-pointer overflow-hidden bg-surface-container-low">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Detailed server rack diagram with fiber optic routing metrics, illuminated neon indicator lights and dark futuristic engineering setup visualization" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4l3Tc_jORV3uZWhDOPd9EVUgRbXKr421nPy-C3JeQzSTMZ8st_9fO8gFbJ6HhjMdlc0na8HiGbWUKU0r8WoixH8X5r1qD6KD0TgckbO8F7k2by7zjHV3mAqVBJySRskKoTOEJ9YdHt1etqmXf3GqWKfdS33miS5zyWC299XlYNIFqerhBx19TsuC5ODjuYZgLza3MtQQw4r07IaJpFhB22BtJhk7u3AqBopiU-TddmAQ9uDG05ddlPg"/>
+<span class="absolute bottom-2 left-2 px-space-xs py-space-2xs rounded bg-surface-container-lowest/80 backdrop-blur font-label-xs text-[10px] text-on-surface">Region B (eu-central)</span>
+</div>
+</div>
+<!-- Interaction Bar -->
+<div class="flex items-center justify-between text-outline mt-space-md pt-space-xs">
+<button class="flex items-center gap-space-xs hover:text-primary transition-colors text-body-sm">
+<span class="material-symbols-outlined text-[18px]">chat_bubble_outline</span>
+<span class="font-label-sm text-label-sm">53</span>
+</button>
+<button class="flex items-center gap-space-xs hover:text-secondary transition-colors text-body-sm">
+<span class="material-symbols-outlined text-[18px]">repeat</span>
+<span class="font-label-sm text-label-sm">79</span>
+</button>
+<button class="flex items-center gap-space-xs hover:text-error transition-colors text-body-sm like-toggle-btn">
+<span class="material-symbols-outlined text-[18px]">favorite_border</span>
+<span class="font-label-sm text-label-sm like-counter">624</span>
+</button>
+<button class="flex items-center gap-space-xs hover:text-primary transition-colors text-body-sm">
+<span class="material-symbols-outlined text-[18px]">bookmark_border</span>
+<span class="font-label-sm text-label-sm">91</span>
+</button>
+<button class="hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[18px]">share</span>
+</button>
+</div>
+</div>
+</div>
+</article>
+</div>
+<!-- Feed Bottom Stream Loading Pill -->
+<div class="py-space-xl flex items-center justify-center">
+<div class="flex items-center gap-space-sm px-space-md py-space-xs rounded-full bg-surface-container-low text-outline">
+<span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span>
+<span class="font-label-xs text-label-xs uppercase tracking-wider font-semibold">Live stream active • Catching new Blinks</span>
+</div>
+</div>
+</div>
+<script>
+  // Dynamic Textarea Auto-expand & Character counter indicator
+  const composer = document.getElementById('composerTextarea');
+  const progressRing = document.getElementById('charProgress');
+  const publishBtn = document.getElementById('publishBlinkBtn');
+
+  if (composer && progressRing) {
+    const maxChars = 280;
+    const circumference = 2 * Math.PI * 9; // radius = 9, ~56.54
+
+    composer.addEventListener('input', () => {
+      // Auto-resize
+      composer.style.height = 'auto';
+      composer.style.height = composer.scrollHeight + 'px';
+
+      // Ring progress calculation
+      const length = composer.value.length;
+      const progress = Math.min(length / maxChars, 1);
+      const offset = circumference - (progress * circumference);
+      progressRing.style.strokeDashoffset = offset;
+
+      if (length > maxChars) {
+        progressRing.classList.remove('text-primary-container');
+        progressRing.classList.add('text-error');
+        publishBtn.disabled = true;
+        publishBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      } else {
+        progressRing.classList.remove('text-error');
+        progressRing.classList.add('text-primary-container');
+        publishBtn.disabled = false;
+        publishBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+    });
+  }
+
+  // Interactive Tab Toggle for Segmented Control
+  const tabForYou = document.getElementById('tabForYou');
+  const tabFollowing = document.getElementById('tabFollowing');
+  const tabRust = document.getElementById('tabRustTech');
+
+  const tabs = [tabForYou, tabFollowing, tabRust].filter(Boolean);
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => {
+        t.classList.remove('text-on-surface', 'font-semibold');
+        t.classList.add('text-outline');
+        const indicator = t.querySelector('span');
+        if (indicator) indicator.remove();
+      });
+
+      tab.classList.add('text-on-surface', 'font-semibold');
+      tab.classList.remove('text-outline');
+
+      const span = document.createElement('span');
+      span.className = 'absolute bottom-1 left-1/2 -translate-x-1/2 w-8 h-[2.5px] rounded-full bg-primary-container shadow-[0_0_8px_rgba(128,131,255,0.8)]';
+      tab.appendChild(span);
+    });
+  });
+
+  // Like Button Micro-interaction Bounce & Toggle
+  const likeButtons = document.querySelectorAll('.like-toggle-btn');
+  likeButtons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const icon = btn.querySelector('.material-symbols-outlined');
+      const counter = btn.querySelector('.like-counter');
+      const isLiked = btn.dataset.liked === 'true';
+
+      if (!isLiked) {
+        btn.dataset.liked = 'true';
+        btn.classList.add('text-error');
+        icon.textContent = 'favorite';
+        icon.style.fontVariationSettings = "'FILL' 1";
+        icon.classList.add('scale-125', 'transition-transform');
+        setTimeout(() => icon.classList.remove('scale-125'), 150);
+      } else {
+        btn.dataset.liked = 'false';
+        btn.classList.remove('text-error');
+        icon.textContent = 'favorite_border';
+        icon.style.fontVariationSettings = "'FILL' 0";
+      }
+    });
+  });
+</script></main><aside class="hidden lg:block w-[340px] shrink-0 sticky top-0 h-screen overflow-y-auto px-space-base py-space-lg"><div class="flex flex-col gap-space-lg"><div class="flex items-center bg-surface-container-low px-space-base py-space-sm rounded-full text-on-surface-variant focus-within:text-on-surface focus-within:bg-surface-container transition-all"><span class="material-symbols-outlined mr-space-sm text-[18px]">search</span><input class="bg-transparent border-0 outline-none w-full font-body-sm text-body-sm text-on-surface placeholder:text-outline" placeholder="Search Blinkr, topics, or people" type="text"/><kbd class="font-label-xs text-label-xs px-space-xs py-space-2xs bg-surface-container-high rounded text-outline">/</kbd></div><div class="bg-surface-container-low p-space-base rounded-xl flex flex-col gap-space-md"><div class="flex items-center justify-between"><span class="font-headline-sm text-headline-sm text-on-surface">What's happening</span><span class="material-symbols-outlined text-outline cursor-pointer hover:text-on-surface text-[18px]">settings</span></div><div class="flex flex-col gap-space-md"><div class="flex justify-between items-start"><div class="flex flex-col"><span class="font-label-xs text-label-xs text-outline">Technology · Trending</span><span class="font-label-md text-label-md font-semibold text-on-surface">#TypeScript5</span><span class="font-body-sm text-body-sm text-outline">24.8K Blinks</span></div><span class="material-symbols-outlined text-outline text-[16px] cursor-pointer hover:text-on-surface">more_horiz</span></div><div class="flex justify-between items-start"><div class="flex flex-col"><span class="font-label-xs text-label-xs text-outline">Design Systems · Trending</span><span class="font-label-md text-label-md font-semibold text-on-surface">Spatial UI</span><span class="font-body-sm text-body-sm text-outline">18.2K Blinks</span></div><span class="material-symbols-outlined text-outline text-[16px] cursor-pointer hover:text-on-surface">more_horiz</span></div><div class="flex justify-between items-start"><div class="flex flex-col"><span class="font-label-xs text-label-xs text-outline">AI · Trending</span><span class="font-label-md text-label-md font-semibold text-on-surface">Autonomous Agents</span><span class="font-body-sm text-body-sm text-outline">42.1K Blinks</span></div><span class="material-symbols-outlined text-outline text-[16px] cursor-pointer hover:text-on-surface">more_horiz</span></div></div></div><div class="bg-surface-container-low p-space-base rounded-xl flex flex-col gap-space-md"><span class="font-headline-sm text-headline-sm text-on-surface">Who to follow</span><div class="flex flex-col gap-space-md"><div class="flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="w-9 h-9 rounded-full bg-surface-container-highest flex items-center justify-center font-label-md text-label-md text-primary font-bold">A</div><div class="flex flex-col min-w-0"><span class="font-label-sm text-label-sm font-semibold text-on-surface truncate">Aria Jensen</span><span class="font-body-sm text-body-sm text-outline truncate">@ariaj</span></div></div><button class="px-space-md py-space-xs bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-sm text-label-sm rounded-full transition-all">Follow</button></div><div class="flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="w-9 h-9 rounded-full bg-surface-container-highest flex items-center justify-center font-label-md text-label-md text-secondary font-bold">D</div><div class="flex flex-col min-w-0"><span class="font-label-sm text-label-sm font-semibold text-on-surface truncate">Devin Chen</span><span class="font-body-sm text-body-sm text-outline truncate">@dchen</span></div></div><button class="px-space-md py-space-xs bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-sm text-label-sm rounded-full transition-all">Follow</button></div></div></div><footer class="flex flex-wrap gap-x-space-sm gap-y-space-2xs px-space-xs text-outline font-label-xs text-label-xs"><a class="hover:text-on-surface transition-colors" href="#">Terms of Service</a><a class="hover:text-on-surface transition-colors" href="#">Privacy Policy</a><a class="hover:text-on-surface transition-colors" href="#">Cookie Policy</a><span>© 2025 Blinkr Inc.</span></footer></div></aside></div></div><nav class="md:hidden fixed bottom-0 left-0 right-0 h-14 bg-surface/90 backdrop-blur-xl z-40 flex items-center justify-around px-space-sm shadow-[0_1px_8px_rgba(0,0,0,0.04)]" data-active-classes="text-primary"><a aria-current="page" class="flex flex-col items-center text-primary" data-path="home" href="#"><span class="material-symbols-outlined">home</span></a><a class="flex flex-col items-center text-on-surface-variant hover:text-on-surface" data-path="explore" href="#"><span class="material-symbols-outlined">search</span></a><button class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><span class="material-symbols-outlined">add</span></button><a class="flex flex-col items-center text-on-surface-variant hover:text-on-surface" data-path="notifications" href="#"><span class="material-symbols-outlined">notifications</span></a><a class="flex flex-col items-center text-on-surface-variant hover:text-on-surface" data-path="profile" href="#"><span class="material-symbols-outlined">person</span></a></nav></body></html>

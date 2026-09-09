@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={"darkMode":"class","theme":{"extend":{"colors":{"primary-container":"#8083ff","surface-bright":"#373940","on-tertiary":"#3c0091","on-surface-variant":"#c7c4d7","on-background":"#e2e2eb","on-primary-fixed":"#07006c","inverse-surface":"#e2e2eb","inverse-on-surface":"#2e3037","on-secondary":"#003640","background":"#111319","inverse-primary":"#494bd6","surface-container-lowest":"#0c0e14","tertiary-fixed-dim":"#d0bcff","surface-container-low":"#191b22","surface-dim":"#111319","outline-variant":"#464554","on-tertiary-fixed":"#23005c","secondary":"#4cd7f6","error-container":"#93000a","on-tertiary-fixed-variant":"#5516be","on-secondary-container":"#00424e","secondary-fixed":"#acedff","secondary-fixed-dim":"#4cd7f6","on-primary":"#1000a9","tertiary-fixed":"#e9ddff","on-error":"#690005","tertiary":"#d0bcff","error":"#ffb4ab","primary":"#c0c1ff","secondary-container":"#03b5d3","on-primary-fixed-variant":"#2f2ebe","on-error-container":"#ffdad6","on-surface":"#e2e2eb","on-secondary-fixed-variant":"#004e5c","primary-fixed":"#e1e0ff","on-tertiary-container":"#340080","surface-container-highest":"#33343b","surface-variant":"#33343b","surface-container-high":"#282a30","primary-fixed-dim":"#c0c1ff","on-primary-container":"#0d0096","surface-tint":"#c0c1ff","surface-container":"#1e1f26","on-secondary-fixed":"#001f26","tertiary-container":"#a078ff","outline":"#908fa0","surface":"#111319"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"col-feed-max":"620px","space-3xl":"3rem","space-2xs":"0.125rem","space-base":"1rem","space-sm":"0.5rem","col-sidebar-left":"260px","col-sidebar-right":"340px","space-lg":"1.25rem","space-md":"0.75rem","space-2xl":"2rem","gutter":"1rem","space-xs":"0.25rem","space-xl":"1.5rem"},"fontFamily":{"headline-lg":["Geist"],"headline-md":["Geist"],"label-md":["Geist"],"label-xs":["Geist"],"body-md":["Geist"],"headline-sm":["Geist"],"body-sm":["Geist"],"display-lg":["Geist"],"body-lg":["Geist"],"label-sm":["Geist"]},"fontSize":{"headline-lg":["24px",{"lineHeight":"32px","letterSpacing":"-0.025em","fontWeight":"600"}],"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"-0.02em","fontWeight":"600"}],"label-md":["14px",{"lineHeight":"20px","letterSpacing":"-0.005em","fontWeight":"500"}],"label-xs":["11px",{"lineHeight":"14px","letterSpacing":"0.04em","fontWeight":"600"}],"body-md":["14px",{"lineHeight":"21px","letterSpacing":"-0.006em","fontWeight":"400"}],"headline-sm":["16px",{"lineHeight":"24px","letterSpacing":"-0.015em","fontWeight":"600"}],"body-sm":["13px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"display-lg":["32px",{"lineHeight":"40px","letterSpacing":"-0.03em","fontWeight":"700"}],"body-lg":["16px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"400"}],"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.01em","fontWeight":"500"}]}}}}</script></head><body class="bg-background font-body-md text-body-md text-on-background min-h-screen"><header class="fixed top-0 left-0 right-0 h-14 z-40 bg-surface/80 backdrop-blur-xl md:hidden px-space-base flex items-center justify-between shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="flex items-center gap-space-sm"><img alt="Blinkr Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WeKokrMgOU-fO4PD-1c1Ak3L0ZrurzcMPRvuztn2BTfICaB8ECOctrQxXbgOrF0CI6gofFfWeRUo7zfA1C8ue1cHzaY9iRg5KeiEFZQz5rwlnN5AURa-F0G5z4F1GfL4DSM7gb9dU_bExBZsF5utYh4vMGt8T9SmVqKu94i0Cu42l8EdVgAbTxXpHL-8m70IxRsqPCKzdI1gvvDEGkN5kzSJMo-Wdp2oyNMkBgU6_7a_GfOiOgCbVkcY4"/><span class="font-headline-sm text-headline-sm text-on-surface">Blinkr</span><span class="font-label-xs text-label-xs px-space-xs py-space-2xs bg-surface-container-high text-primary rounded-full">v2.0</span></div><div class="flex items-center gap-space-sm"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBY8PG3EezAXsfMXAJCu2GNvHebOCqiHaiXzzkfdixt1ykFExI7rLG7XF8OUx9bgo_Q8qI2l5cEuRX-jHynM3VNg01PmW_jeCvy0P4e3eBeg1HiRAX_yRqlbe9ed-hEeJ8IJNxDfBHjD_hnH7tD_9C4kiwBvRMxOoQJ95jxG1xj-ksCQvcGx4V9Tj30O1AwFKiuWfX1TBY_X3Jmg2yabD95EJ9rEMiwHU8Am0jMFRBb75cWKu7S0_mryg"/></div></header><aside class="fixed left-0 top-0 h-full w-[260px] bg-surface-container-low z-30 hidden md:flex flex-col justify-between p-space-base"><div class="flex flex-col gap-space-lg"><div class="flex items-center justify-between px-space-xs"><div class="flex items-center gap-space-sm"><img alt="Blinkr Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1WeKokrMgOU-fO4PD-1c1Ak3L0ZrurzcMPRvuztn2BTfICaB8ECOctrQxXbgOrF0CI6gofFfWeRUo7zfA1C8ue1cHzaY9iRg5KeiEFZQz5rwlnN5AURa-F0G5z4F1GfL4DSM7gb9dU_bExBZsF5utYh4vMGt8T9SmVqKu94i0Cu42l8EdVgAbTxXpHL-8m70IxRsqPCKzdI1gvvDEGkN5kzSJMo-Wdp2oyNMkBgU6_7a_GfOiOgCbVkcY4"/><span class="font-headline-md text-headline-md text-on-surface">Blinkr</span></div><span class="font-label-xs text-label-xs px-space-xs py-space-2xs bg-surface-container-highest text-primary font-bold rounded-full">v2.0</span></div><nav class="flex flex-col gap-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-semibold rounded-full"><a class="flex items-center justify-between px-space-base py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="home" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">home</span><span class="font-label-md text-label-md">Home</span></div></a><a aria-current="page" class="flex items-center justify-between px-space-base py-space-sm transition-all bg-primary-container text-on-primary-container font-semibold rounded-full" data-path="explore" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">explore</span><span class="font-label-md text-label-md">Explore</span></div></a><a class="flex items-center justify-between px-space-base py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="notifications" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="font-label-md text-label-md">Notifications</span></div><span class="px-space-xs py-space-2xs bg-primary-container text-on-primary-container font-label-xs text-label-xs rounded-full">3</span></a><a class="flex items-center justify-between px-space-base py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="messages" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">chat_bubble</span><span class="font-label-md text-label-md">Messages</span></div><span class="px-space-xs py-space-2xs bg-surface-container-high text-on-surface-variant font-label-xs text-label-xs rounded-full">5</span></a><a class="flex items-center justify-between px-space-base py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="bookmarks" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">bookmark</span><span class="font-label-md text-label-md">Bookmarks</span></div></a><a class="flex items-center justify-between px-space-base py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="profile" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">person</span><span class="font-label-md text-label-md">Profile</span></div></a><a class="flex items-center justify-between px-space-base py-space-sm rounded-full text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="settings" href="#"><div class="flex items-center gap-space-md"><span class="material-symbols-outlined text-[20px]">settings</span><span class="font-label-md text-label-md">Settings</span></div></a></nav><button class="w-full mt-space-xs py-space-md px-space-base bg-primary-container hover:bg-inverse-primary text-on-primary-container hover:text-on-surface rounded-full flex items-center justify-center gap-space-sm transition-all shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><span class="material-symbols-outlined text-[20px]">add</span><span class="font-label-md text-label-md font-semibold">Blink</span><kbd class="hidden xl:inline-block font-label-xs text-label-xs px-space-xs py-space-2xs bg-surface-container-lowest/40 rounded">⌘K</kbd></button></div><div class="flex items-center justify-between p-space-sm rounded-full hover:bg-surface-container transition-all cursor-pointer"><div class="flex items-center gap-space-sm min-w-0"><img alt="Profile" class="w-9 h-9 rounded-full object-cover shrink-0" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBY8PG3EezAXsfMXAJCu2GNvHebOCqiHaiXzzkfdixt1ykFExI7rLG7XF8OUx9bgo_Q8qI2l5cEuRX-jHynM3VNg01PmW_jeCvy0P4e3eBeg1HiRAX_yRqlbe9ed-hEeJ8IJNxDfBHjD_hnH7tD_9C4kiwBvRMxOoQJ95jxG1xj-ksCQvcGx4V9Tj30O1AwFKiuWfX1TBY_X3Jmg2yabD95EJ9rEMiwHU8Am0jMFRBb75cWKu7S0_mryg"/><div class="flex flex-col min-w-0"><div class="flex items-center gap-space-2xs"><span class="font-label-sm text-label-sm font-semibold text-on-surface truncate">Julian Vance</span><span class="material-symbols-outlined text-[14px] text-secondary">verified</span></div><span class="font-body-sm text-body-sm text-outline truncate">@julian</span></div></div><span class="material-symbols-outlined text-outline hover:text-on-surface shrink-0">more_horiz</span></div></aside><div class="md:pl-[260px] min-h-screen"><div class="max-w-7xl mx-auto flex justify-center"><main class="w-full max-w-[620px] pt-14 md:pt-0 pb-20 md:pb-space-3xl px-space-base bg-background min-h-screen"><div class="flex flex-col w-full">
+<!-- Sticky Discovery Sub-Header with Instant Filter Pills -->
+<div class="sticky top-14 md:top-0 z-20 bg-surface/90 backdrop-blur-md pt-space-xs pb-space-sm shadow-sm">
+<div class="flex flex-col gap-space-sm">
+<!-- Search Bar -->
+<div class="relative flex items-center w-full bg-surface-container-high rounded-full px-space-md py-space-xs group focus-within:bg-surface-container-highest transition-all duration-200">
+<span class="material-symbols-outlined text-outline text-[20px] mr-space-xs group-focus-within:text-primary transition-colors">travel_explore</span>
+<input class="w-full bg-transparent border-0 outline-none font-body-sm text-body-sm text-on-surface placeholder:text-outline" id="explore-search" placeholder="Explore topics, tags, algorithms, or authors..." type="text"/>
+<div class="flex items-center gap-space-2xs shrink-0">
+<span class="font-label-xs text-label-xs px-space-xs py-space-2xs rounded-full bg-surface-container-low text-outline">⌘F</span>
+</div>
+</div>
+<!-- Horizontal Scrolling Filter Chips -->
+<div class="flex items-center gap-space-xs overflow-x-auto no-scrollbar scroll-smooth py-space-2xs">
+<button class="chip-btn px-space-md py-space-2xs rounded-full font-label-sm text-label-sm whitespace-nowrap bg-primary-container text-on-primary-container font-semibold transition-all shadow-sm" data-filter="trending">
+          🔥 Trending
+        </button>
+<button class="chip-btn px-space-md py-space-2xs rounded-full font-label-sm text-label-sm whitespace-nowrap bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" data-filter="tech">
+          Technology
+        </button>
+<button class="chip-btn px-space-md py-space-2xs rounded-full font-label-sm text-label-sm whitespace-nowrap bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" data-filter="design">
+          Design & UI
+        </button>
+<button class="chip-btn px-space-md py-space-2xs rounded-full font-label-sm text-label-sm whitespace-nowrap bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" data-filter="startups">
+          Startups
+        </button>
+<button class="chip-btn px-space-md py-space-2xs rounded-full font-label-sm text-label-sm whitespace-nowrap bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" data-filter="oss">
+          Open Source
+        </button>
+<button class="chip-btn px-space-md py-space-2xs rounded-full font-label-sm text-label-sm whitespace-nowrap bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all" data-filter="ai">
+          AI & ML
+        </button>
+</div>
+</div>
+</div>
+<!-- Main Explore Feed Body -->
+<div class="flex flex-col gap-space-xl mt-space-md">
+<!-- Hero Spotlight Story (Curated Highlight) -->
+<article class="relative overflow-hidden rounded-xl bg-surface-container-low shadow-md group cursor-pointer transition-transform duration-300 hover:scale-[1.008]">
+<div class="bg-cover bg-center w-full h-56 relative flex flex-col justify-end p-space-lg" data-alt="Abstract dynamic 3D rendering of luminous glass shards and violet laser beams crossing in dark space with glowing cyan nodes representing distributed compute islands, hyper-detailed cyberpunk tech aesthetic." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAVOYAn6dhBkIRIyYTY4lXRxhcBkr3p-f_kK5X4YT0Xr4rpUa7-j_ameYnYvjGQUs1xkawelzoVAVa-QiojFER93fxPtbY3Curi2iJVPfkklRLa9uTJky49vy-K6J-zaVuWWDgHwfY89hRatEO24ZPMUDeCqMJ_X8UELeNJHCJ0EQrFfguygr0bt6kPIbgxrv1gmEh8kco7Dpwd1obewAtxBC5VSvsp-Z6dWsiKCfKmoc84JG7PLy9LOg')">
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/70 to-transparent"></div>
+<div class="relative z-10 flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-xs text-label-xs px-space-xs py-space-2xs bg-secondary-container text-on-secondary-container rounded font-bold uppercase tracking-wider">
+              Editorial Spotlight
+            </span>
+<span class="font-label-xs text-label-xs text-secondary-fixed flex items-center gap-space-2xs">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span> Live Stream
+            </span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface tracking-tight group-hover:text-primary transition-colors">
+            Next-Gen Frontend Architectures: How teams migrate to edge compute & islands
+          </h2>
+<div class="flex items-center justify-between mt-space-2xs">
+<div class="flex items-center gap-space-xs">
+<div class="flex -space-x-space-xs">
+<div class="w-5 h-5 rounded-full bg-primary flex items-center justify-center font-label-xs text-label-xs text-on-primary font-bold">K</div>
+<div class="w-5 h-5 rounded-full bg-secondary flex items-center justify-center font-label-xs text-label-xs text-on-secondary font-bold">M</div>
+<div class="w-5 h-5 rounded-full bg-tertiary flex items-center justify-center font-label-xs text-label-xs text-on-tertiary font-bold">S</div>
+</div>
+<span class="font-body-sm text-body-sm text-outline font-medium">12.4k Blinks discussing right now</span>
+</div>
+<span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Trending Radar: Asymmetric Bento Matrix -->
+<section class="flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface">Trending Radar</span>
+<span class="font-label-xs text-label-xs px-space-xs py-space-2xs rounded-full bg-surface-container-highest text-secondary font-semibold">Real-time</span>
+</div>
+<button class="font-label-sm text-label-sm text-primary hover:underline flex items-center">View all metrics</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-sm">
+<!-- Trending #1 Card -->
+<div class="flex flex-col justify-between p-space-base rounded-xl bg-surface-container-low hover:bg-surface-container transition-all group cursor-pointer shadow-sm relative overflow-hidden">
+<div class="absolute right-0 top-0 w-24 h-24 bg-gradient-to-bl from-primary/10 via-transparent to-transparent pointer-events-none"></div>
+<div class="flex flex-col gap-space-2xs">
+<div class="flex items-center justify-between">
+<span class="font-label-xs text-label-xs text-outline font-semibold tracking-wider uppercase">01 · Technology</span>
+<span class="font-label-xs text-label-xs px-space-xs py-space-2xs bg-surface-container-highest text-primary rounded-full font-bold">+284% velocity</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors flex items-center gap-space-xs">
+              #TypeScript5_8
+              <span class="material-symbols-outlined text-[16px] text-secondary">trending_up</span>
+</h3>
+<p class="font-body-sm text-body-sm text-outline line-clamp-2 mt-space-2xs">
+              Major compiler speedups & granular return type inferences hit beta. Benchmark repos showing 40% cold-build reduction.
+            </p>
+</div>
+<!-- Inline Sparkline Data Graphic -->
+<div class="flex items-center justify-between mt-space-md pt-space-xs">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface-variant">42.1K Blinks</span>
+<svg class="w-20 h-6 text-secondary" fill="none" viewbox="0 0 100 30">
+<path d="M0 25 L20 22 L40 24 L60 14 L80 16 L100 4" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</div>
+</div>
+<!-- Trending #2 Card -->
+<div class="flex flex-col justify-between p-space-base rounded-xl bg-surface-container-low hover:bg-surface-container transition-all group cursor-pointer shadow-sm relative overflow-hidden">
+<div class="flex flex-col gap-space-2xs">
+<div class="flex items-center justify-between">
+<span class="font-label-xs text-label-xs text-outline font-semibold tracking-wider uppercase">02 · Design & Craft</span>
+<span class="material-symbols-outlined text-outline text-[16px]">more_horiz</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+              Linear Rebrand & Design Systems
+            </h3>
+<p class="font-body-sm text-body-sm text-outline line-clamp-2 mt-space-2xs">
+              Deconstructing the mathematical grids and typographic hierarchy of the new brand system release.
+            </p>
+</div>
+<div class="flex items-center justify-between mt-space-md pt-space-xs">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface-variant">28.4K Blinks</span>
+<svg class="w-20 h-6 text-primary" fill="none" viewbox="0 0 100 30">
+<path d="M0 20 L25 21 L50 15 L75 18 L100 8" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</div>
+</div>
+<!-- Trending #3 Card -->
+<div class="flex flex-col justify-between p-space-base rounded-xl bg-surface-container-low hover:bg-surface-container transition-all group cursor-pointer shadow-sm">
+<div class="flex flex-col gap-space-2xs">
+<div class="flex items-center justify-between">
+<span class="font-label-xs text-label-xs text-outline font-semibold tracking-wider uppercase">03 · Systems Programming</span>
+<span class="font-label-xs text-label-xs text-outline">Trending 4h</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+              #RustLang
+            </h3>
+<p class="font-body-sm text-body-sm text-outline line-clamp-2 mt-space-2xs">
+              Linux kernel formalizes deeper Rust integrations. New discussions on memory safety guarantees without garbage collection.
+            </p>
+</div>
+<div class="flex items-center justify-between mt-space-md pt-space-xs">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface-variant">19.2K Blinks</span>
+<svg class="w-20 h-6 text-tertiary" fill="none" viewbox="0 0 100 30">
+<path d="M0 28 L30 20 L55 22 L75 10 L100 6" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</div>
+</div>
+<!-- Trending #4 Card -->
+<div class="flex flex-col justify-between p-space-base rounded-xl bg-surface-container-low hover:bg-surface-container transition-all group cursor-pointer shadow-sm">
+<div class="flex flex-col gap-space-2xs">
+<div class="flex items-center justify-between">
+<span class="font-label-xs text-label-xs text-outline font-semibold tracking-wider uppercase">04 · Web Dev</span>
+<span class="font-label-xs text-label-xs text-outline">Trending 2h</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+              Next.js 15 App Router Patterns
+            </h3>
+<p class="font-body-sm text-body-sm text-outline line-clamp-2 mt-space-2xs">
+              Async request headers, caching changes, and zero-bundle-size React Server Actions best practices.
+            </p>
+</div>
+<div class="flex items-center justify-between mt-space-md pt-space-xs">
+<span class="font-label-sm text-label-sm font-semibold text-on-surface-variant">15.7K Blinks</span>
+<svg class="w-20 h-6 text-secondary-container" fill="none" viewbox="0 0 100 30">
+<path d="M0 22 L20 18 L50 20 L70 12 L100 5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</div>
+</div>
+</div>
+</section>
+<!-- Curated Suggested Creators Carousel/Grid -->
+<section class="flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface">Pioneers to Follow</span>
+<span class="material-symbols-outlined text-primary text-[18px]">auto_awesome</span>
+</div>
+<span class="font-label-xs text-label-xs text-outline font-semibold">Matched to your stack</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-sm">
+<!-- Creator 1 Card -->
+<div class="p-space-base rounded-xl bg-surface-container-low flex flex-col justify-between gap-space-md hover:bg-surface-container transition-all">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<img class="w-11 h-11 rounded-full object-cover shrink-0 ring-2 ring-primary/20" data-alt="Close-up moody studio portrait of a Scandinavian software engineer in a minimal charcoal mockneck against a deep midnight background, cinematic sidelighting with cool indigo edge glows." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYCXsNcaF1t8qaQ5JW7x8okWoWWPzaUK6qY0XpLGbhj0jM7mOmAZQvfBFojwAmbZI0O4p2PndYAb_zsVCAu1_Chz7huSvVY3qk23iDSp-Ri5yVrIMMJkoRzS7s5PzQuAHxu_72XoNfeZSdZk9bthtCSNm5eEkbxXaUt1cI2b6ag_ahqs-Z5ZGNw9U-hRJXyuP5jLtXNBfzllEVJ6pvi8XpNVveLqSZHtPGAycQR4izNI0aaT4odn4HwQ"/>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-2xs">
+<span class="font-label-md text-label-md font-semibold text-on-surface truncate">Elena Rostova</span>
+<span class="material-symbols-outlined text-secondary text-[15px]">verified</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline truncate">@elena_rust · Distributed Systems</span>
+</div>
+</div>
+<button class="follow-btn px-space-md py-space-xs rounded-full bg-primary-container text-on-primary-container hover:bg-inverse-primary hover:text-on-surface font-label-sm text-label-sm font-semibold transition-all">
+                Follow
+              </button>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Core contributor to async runtimes. Building deterministic consensus engines at edge clusters.
+            </p>
+</div>
+<!-- Creator Recent Post Snippet -->
+<div class="bg-surface-container-high/60 p-space-sm rounded-lg flex flex-col gap-space-2xs">
+<span class="font-label-xs text-label-xs text-outline font-bold flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-[13px] text-tertiary">chat_bubble</span> TOP BLINK
+            </span>
+<p class="font-body-sm text-body-sm text-on-surface line-clamp-2 italic">
+              "Actor models paired with WebAssembly will outlive container virtualization for 80% of microservice workloads."
+            </p>
+</div>
+</div>
+<!-- Creator 2 Card -->
+<div class="p-space-base rounded-xl bg-surface-container-low flex flex-col justify-between gap-space-md hover:bg-surface-container transition-all">
+<div class="flex flex-col gap-space-sm">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<img class="w-11 h-11 rounded-full object-cover shrink-0 ring-2 ring-secondary/20" data-alt="Editorial headshot of an Asian design engineer smiling warmly in an architectural concrete studio bathed in soft blue natural window light, sharp focus on eyes, minimalist tech style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9cOLF2-ojyaMpvDMhuesYObCd0qFXDKkhVZHkoOrsCrkHDUHQTyHja1eBcCKp3WUFhJrCb7RPLr2wDqpzq6hZNAuHSO3lnbbytDp96B8fVTX4LADOleiuCTFuKzk37cQgFXiVnkwvOiCjpvQkbwFI-Qp138YRZPckTiAuRTiHLiiUbnTVb5tFnO7K2xBPuqA44XK70EZ5Ckqhq5HSMkCO8dlIeUzdHdef9GOiGqq2c9TbSbHHAeJbNw"/>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-2xs">
+<span class="font-label-md text-label-md font-semibold text-on-surface truncate">Marcus K.</span>
+<span class="material-symbols-outlined text-secondary text-[15px]">verified</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline truncate">@mk_design · Interface Engineer</span>
+</div>
+</div>
+<button class="follow-btn px-space-md py-space-xs rounded-full bg-surface-container-highest text-on-surface hover:bg-surface-bright font-label-sm text-label-sm font-semibold transition-all">
+                Follow
+              </button>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+              Exploring spatial micro-interactions, CSS subgrid quirks, and zero-layout-shift design primitives.
+            </p>
+</div>
+<!-- Creator Recent Post Snippet -->
+<div class="bg-surface-container-high/60 p-space-sm rounded-lg flex flex-col gap-space-2xs">
+<span class="font-label-xs text-label-xs text-outline font-bold flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-[13px] text-secondary">chat_bubble</span> TOP BLINK
+            </span>
+<p class="font-body-sm text-body-sm text-on-surface line-clamp-2 italic">
+              "Hairline borders combined with variable elevation shadows create far higher cognitive legibility than borderless blobs."
+            </p>
+</div>
+</div>
+</div>
+</section>
+<!-- Popular Blinks Stream (Discovery Algorithmic Feed) -->
+<section class="flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="font-headline-sm text-headline-sm text-on-surface">Popular Blinks</span>
+<span class="font-label-xs text-label-xs px-space-xs py-space-2xs bg-surface-container-highest text-outline font-bold rounded">Algorithm: High-Signal</span>
+</div>
+<div class="flex items-center gap-space-xs text-outline hover:text-on-surface cursor-pointer">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+<span class="font-label-sm text-label-sm">Tune stream</span>
+</div>
+</div>
+<!-- Feed Stream Container -->
+<div class="flex flex-col gap-space-base">
+<!-- Feed Item 1 (With Visual Preview & Badge) -->
+<article class="p-space-base rounded-xl bg-surface-container-low hover:bg-surface-container transition-all flex flex-col gap-space-sm shadow-sm">
+<!-- Curated Badge Row -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-xs text-label-xs px-space-xs py-space-2xs rounded bg-surface-container-highest text-secondary font-semibold flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-[13px]">bolt</span> Featured in Tech
+              </span>
+<span class="font-label-xs text-label-xs text-outline">18m ago</span>
+</div>
+<span class="material-symbols-outlined text-outline hover:text-on-surface text-[16px] cursor-pointer">more_horiz</span>
+</div>
+<!-- Author Header -->
+<div class="flex items-center gap-space-sm">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Photorealistic close portrait of a thoughtful African tech visionary with amber rim glasses and subtle ambient violet studio reflections, dark background, sharp clean resolution." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBnqe694Vr5pF1BEmnHzu3c7TN60agiotenEl8WULMwqsveXPjghPG-dcY7fMswMowRkTUEYS4g1leBUhbs8hjk1laVZBhqV9ncOQNiQfieAb1aCMfKuHhkdoWT2XDgo1sKxTWYYyHxCrhy97CoZx7sVkYQDcjtw6MQgpt9lHagrwGJljiKjvinUOcRelj1WHa2HQroiZK4Ut-9xipq2Zdzw74xBctI3_VuODc0YsdEARrYAE00nTwRBA"/>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-2xs">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Tariq Thorne</span>
+<span class="material-symbols-outlined text-[14px] text-secondary">verified</span>
+<span class="font-body-sm text-body-sm text-outline">@tariq_t</span>
+</div>
+<span class="font-label-xs text-label-xs text-outline truncate">Founding Engineer @ VectorDB</span>
+</div>
+</div>
+<!-- Content -->
+<p class="font-body-md text-body-md text-on-surface">
+            We just benchmarked our new in-memory HNSW index using SIMD instructions on Apple Silicon and Graviton4. The throughput jump is staggering: 100k queries/sec per core at <2ms p99 latency without vector quantization loss.
+          </p>
+<!-- Rich Visual Attachment -->
+<div class="w-full rounded-xl overflow-hidden bg-surface-container-lowest p-space-md flex flex-col gap-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-xs text-label-xs text-outline uppercase tracking-wider font-semibold">Latency vs Throughput Benchmark</span>
+<span class="font-label-xs text-label-xs text-secondary font-mono">SIMD_VEC_AVX512</span>
+</div>
+<!-- Minimal SVG Bar comparison -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between font-label-xs text-label-xs">
+<span class="text-on-surface-variant">Baseline Scalar</span>
+<span class="text-outline font-mono">18.4k qps</span>
+</div>
+<div class="w-full bg-surface-container-high h-2 rounded-full overflow-hidden">
+<div class="bg-outline h-full w-[20%] rounded-full"></div>
+</div>
+<div class="flex items-center justify-between font-label-xs text-label-xs pt-space-2xs">
+<span class="text-on-surface font-semibold">Graviton4 Neon/SVE</span>
+<span class="text-secondary font-mono font-bold">104.2k qps (+466%)</span>
+</div>
+<div class="w-full bg-surface-container-high h-2.5 rounded-full overflow-hidden">
+<div class="bg-gradient-to-r from-primary via-secondary to-secondary-container h-full w-[88%] rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Interaction Bar -->
+<div class="flex items-center justify-between pt-space-xs text-outline font-label-sm text-label-sm">
+<button class="action-btn flex items-center gap-space-xs hover:text-secondary transition-colors group">
+<span class="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">chat_bubble</span>
+<span>142</span>
+</button>
+<button class="action-btn flex items-center gap-space-xs hover:text-tertiary transition-colors group">
+<span class="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">repeat</span>
+<span>89</span>
+</button>
+<button class="action-btn flex items-center gap-space-xs hover:text-error transition-colors group">
+<span class="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">favorite</span>
+<span>1.8K</span>
+</button>
+<button class="action-btn flex items-center gap-space-xs hover:text-primary transition-colors group">
+<span class="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">bookmark</span>
+<span>523</span>
+</button>
+<button class="action-btn flex items-center gap-space-xs hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[18px]">share</span>
+</button>
+</div>
+</article>
+<!-- Feed Item 2 (Trending Discussion Badge) -->
+<article class="p-space-base rounded-xl bg-surface-container-low hover:bg-surface-container transition-all flex flex-col gap-space-sm shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-xs text-label-xs px-space-xs py-space-2xs rounded bg-surface-container-highest text-tertiary font-semibold flex items-center gap-space-2xs">
+<span class="material-symbols-outlined text-[13px]">local_fire_department</span> Trending Discussion
+              </span>
+<span class="font-label-xs text-label-xs text-outline">1h ago</span>
+</div>
+<span class="material-symbols-outlined text-outline hover:text-on-surface text-[16px] cursor-pointer">more_horiz</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary-container to-on-tertiary flex items-center justify-center font-headline-sm text-headline-sm text-on-primary font-bold">
+              K
+            </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-2xs">
+<span class="font-label-md text-label-md font-semibold text-on-surface">Kassandra Wu</span>
+<span class="material-symbols-outlined text-[14px] text-secondary">verified</span>
+<span class="font-body-sm text-body-sm text-outline">@kasswu</span>
+</div>
+<span class="font-label-xs text-label-xs text-outline truncate">Product Architect & Angel Investor</span>
+</div>
+</div>
+<p class="font-body-md text-body-md text-on-surface">
+            Hot take: The obsession with single-page applications for simple content hubs was a 7-year detour. Island architecture with progressive hydration is the true web native compromise we should have started with.
+          </p>
+<!-- Embedded Quote / Reference Card -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest flex flex-col gap-space-2xs">
+<div class="flex items-center gap-space-xs">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="font-label-xs text-label-xs text-primary font-semibold">Quoted from RFC-089: Zero Runtime Core</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">
+              "Static HTML delivered in under 12ms p95, islands activated on visible viewport intersection only."
+            </p>
+</div>
+<!-- Interaction Bar -->
+<div class="flex items-center justify-between pt-space-xs text-outline font-label-sm text-label-sm">
+<button class="action-btn flex items-center gap-space-xs hover:text-secondary transition-colors group">
+<span class="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">chat_bubble</span>
+<span>486</span>
+</button>
+<button class="action-btn flex items-center gap-space-xs hover:text-tertiary transition-colors group">
+<span class="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">repeat</span>
+<span>312</span>
+</button>
+<button class="action-btn flex items-center gap-space-xs hover:text-error transition-colors group">
+<span class="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">favorite</span>
+<span>4.1K</span>
+</button>
+<button class="action-btn flex items-center gap-space-xs hover:text-primary transition-colors group">
+<span class="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">bookmark</span>
+<span>918</span>
+</button>
+<button class="action-btn flex items-center gap-space-xs hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[18px]">share</span>
+</button>
+</div>
+</article>
+</div>
+</section>
+<!-- Load More Trigger / Continuous Signal -->
+<div class="py-space-md flex flex-col items-center justify-center gap-space-xs">
+<button class="px-space-xl py-space-sm rounded-full bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-label-sm text-label-sm font-semibold flex items-center gap-space-xs transition-all shadow-sm">
+<span class="material-symbols-outlined text-[18px] animate-spin text-primary">sync</span>
+<span>Fetching fresh radar signals</span>
+</button>
+<span class="font-label-xs text-label-xs text-outline">Updated 4 seconds ago</span>
+</div>
+</div>
+</div>
+<script>
+  // Interactive Filter Chips
+  document.querySelectorAll('.chip-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.chip-btn').forEach(b => {
+        b.className = 'chip-btn px-space-md py-space-2xs rounded-full font-label-sm text-label-sm whitespace-nowrap bg-surface-container text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all';
+      });
+      this.className = 'chip-btn px-space-md py-space-2xs rounded-full font-label-sm text-label-sm whitespace-nowrap bg-primary-container text-on-primary-container font-semibold transition-all shadow-sm';
+    });
+  });
+
+  // Follow Button Toggle Micro-interaction
+  document.querySelectorAll('.follow-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const isFollowing = this.textContent.trim() === 'Following';
+      if (isFollowing) {
+        this.textContent = 'Follow';
+        this.className = 'follow-btn px-space-md py-space-xs rounded-full bg-primary-container text-on-primary-container hover:bg-inverse-primary hover:text-on-surface font-label-sm text-label-sm font-semibold transition-all';
+      } else {
+        this.textContent = 'Following';
+        this.className = 'follow-btn px-space-md py-space-xs rounded-full bg-surface-container-highest text-on-surface-variant hover:text-error hover:bg-surface-bright font-label-sm text-label-sm font-semibold transition-all';
+      }
+    });
+  });
+
+  // Hotkey focus on search input (CMD/CTRL+F)
+  window.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'f') {
+      const searchInput = document.getElementById('explore-search');
+      if (searchInput) {
+        e.preventDefault();
+        searchInput.focus();
+      }
+    }
+  });
+</script></main><aside class="hidden lg:block w-[340px] shrink-0 sticky top-0 h-screen overflow-y-auto px-space-base py-space-lg"><div class="flex flex-col gap-space-lg"><div class="flex items-center bg-surface-container-low px-space-base py-space-sm rounded-full text-on-surface-variant focus-within:text-on-surface focus-within:bg-surface-container transition-all"><span class="material-symbols-outlined mr-space-sm text-[18px]">search</span><input class="bg-transparent border-0 outline-none w-full font-body-sm text-body-sm text-on-surface placeholder:text-outline" placeholder="Search Blinkr, topics, or people" type="text"/><kbd class="font-label-xs text-label-xs px-space-xs py-space-2xs bg-surface-container-high rounded text-outline">/</kbd></div><div class="bg-surface-container-low p-space-base rounded-xl flex flex-col gap-space-md"><div class="flex items-center justify-between"><span class="font-headline-sm text-headline-sm text-on-surface">What's happening</span><span class="material-symbols-outlined text-outline cursor-pointer hover:text-on-surface text-[18px]">settings</span></div><div class="flex flex-col gap-space-md"><div class="flex justify-between items-start"><div class="flex flex-col"><span class="font-label-xs text-label-xs text-outline">Technology · Trending</span><span class="font-label-md text-label-md font-semibold text-on-surface">#TypeScript5</span><span class="font-body-sm text-body-sm text-outline">24.8K Blinks</span></div><span class="material-symbols-outlined text-outline text-[16px] cursor-pointer hover:text-on-surface">more_horiz</span></div><div class="flex justify-between items-start"><div class="flex flex-col"><span class="font-label-xs text-label-xs text-outline">Design Systems · Trending</span><span class="font-label-md text-label-md font-semibold text-on-surface">Spatial UI</span><span class="font-body-sm text-body-sm text-outline">18.2K Blinks</span></div><span class="material-symbols-outlined text-outline text-[16px] cursor-pointer hover:text-on-surface">more_horiz</span></div><div class="flex justify-between items-start"><div class="flex flex-col"><span class="font-label-xs text-label-xs text-outline">AI · Trending</span><span class="font-label-md text-label-md font-semibold text-on-surface">Autonomous Agents</span><span class="font-body-sm text-body-sm text-outline">42.1K Blinks</span></div><span class="material-symbols-outlined text-outline text-[16px] cursor-pointer hover:text-on-surface">more_horiz</span></div></div></div><div class="bg-surface-container-low p-space-base rounded-xl flex flex-col gap-space-md"><span class="font-headline-sm text-headline-sm text-on-surface">Who to follow</span><div class="flex flex-col gap-space-md"><div class="flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="w-9 h-9 rounded-full bg-surface-container-highest flex items-center justify-center font-label-md text-label-md text-primary font-bold">A</div><div class="flex flex-col min-w-0"><span class="font-label-sm text-label-sm font-semibold text-on-surface truncate">Aria Jensen</span><span class="font-body-sm text-body-sm text-outline truncate">@ariaj</span></div></div><button class="px-space-md py-space-xs bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-sm text-label-sm rounded-full transition-all">Follow</button></div><div class="flex items-center justify-between"><div class="flex items-center gap-space-sm"><div class="w-9 h-9 rounded-full bg-surface-container-highest flex items-center justify-center font-label-md text-label-md text-secondary font-bold">D</div><div class="flex flex-col min-w-0"><span class="font-label-sm text-label-sm font-semibold text-on-surface truncate">Devin Chen</span><span class="font-body-sm text-body-sm text-outline truncate">@dchen</span></div></div><button class="px-space-md py-space-xs bg-surface-container-highest hover:bg-surface-bright text-on-surface font-label-sm text-label-sm rounded-full transition-all">Follow</button></div></div></div><footer class="flex flex-wrap gap-x-space-sm gap-y-space-2xs px-space-xs text-outline font-label-xs text-label-xs"><a class="hover:text-on-surface transition-colors" href="#">Terms of Service</a><a class="hover:text-on-surface transition-colors" href="#">Privacy Policy</a><a class="hover:text-on-surface transition-colors" href="#">Cookie Policy</a><span>© 2025 Blinkr Inc.</span></footer></div></aside></div></div><nav class="md:hidden fixed bottom-0 left-0 right-0 h-14 bg-surface/90 backdrop-blur-xl z-40 flex items-center justify-around px-space-sm shadow-[0_1px_8px_rgba(0,0,0,0.04)]" data-active-classes="text-primary"><a class="flex flex-col items-center text-on-surface-variant hover:text-on-surface" data-path="home" href="#"><span class="material-symbols-outlined">home</span></a><a aria-current="page" class="flex flex-col items-center text-primary" data-path="explore" href="#"><span class="material-symbols-outlined">search</span></a><button class="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><span class="material-symbols-outlined">add</span></button><a class="flex flex-col items-center text-on-surface-variant hover:text-on-surface" data-path="notifications" href="#"><span class="material-symbols-outlined">notifications</span></a><a class="flex flex-col items-center text-on-surface-variant hover:text-on-surface" data-path="profile" href="#"><span class="material-symbols-outlined">person</span></a></nav></body></html>
