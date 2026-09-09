@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Auth } from 'aws-amplify';
+import Logo from './Logo';
 
 const NAV_ITEMS = [
   { key: 'home', label: 'Home', icon: 'home', to: '/' },
@@ -28,11 +29,12 @@ export default function Sidebar({ user, active, onComposeClick }) {
       <div className="flex flex-col gap-space-lg">
         <div className="flex items-center justify-between px-space-xs">
           <div className="flex items-center gap-space-sm">
-            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary-container text-on-primary-container font-headline-sm font-bold">
-              B
-            </span>
+            <Logo size="md" />
             <span className="font-headline-md text-headline-md text-on-surface">Blinkr</span>
           </div>
+          <span className="font-label-xs text-label-xs px-space-xs py-space-2xs bg-surface-container-highest text-primary font-bold rounded-full">
+            v2.0
+          </span>
         </div>
 
         <nav className="flex flex-col gap-space-xs">

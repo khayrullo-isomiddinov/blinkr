@@ -59,6 +59,13 @@ export default function Composer({ user, setActivities, composerRef }) {
           {initial}
         </span>
         <div className="flex-1 flex flex-col gap-space-sm min-w-0">
+          <div className="flex items-center gap-space-xs text-outline">
+            <span className="font-label-xs text-label-xs bg-surface-container px-space-xs py-space-2xs rounded text-primary font-medium">
+              Markdown Supported
+            </span>
+            <span className="text-[10px]">•</span>
+            <span className="font-label-xs text-label-xs">LaTeX enabled</span>
+          </div>
           <textarea
             ref={composerRef}
             className="w-full bg-transparent resize-none border-0 outline-none font-body-lg text-body-lg text-on-surface placeholder:text-outline/70 focus:ring-0 leading-relaxed"
@@ -68,11 +75,33 @@ export default function Composer({ user, setActivities, composerRef }) {
             onChange={onChange}
           />
           {error && <div className="font-body-sm text-body-sm text-error">{error}</div>}
+          <div className="flex items-center">
+            <button
+              type="button"
+              className="flex items-center gap-space-xs px-space-sm py-space-2xs rounded-full bg-surface-container hover:bg-surface-container-high text-primary font-label-xs text-label-xs transition-colors"
+            >
+              <span className="material-symbols-outlined text-[14px]">public</span>
+              <span>Everyone can reply</span>
+              <span className="material-symbols-outlined text-[12px] text-outline">expand_more</span>
+            </button>
+          </div>
           <div className="flex items-center justify-between pt-space-xs">
-            <div className="flex items-center gap-space-xs text-outline">
-              <span className="material-symbols-outlined text-[18px] opacity-50">image</span>
-              <span className="material-symbols-outlined text-[18px] opacity-50">code_blocks</span>
-              <span className="material-symbols-outlined text-[18px] opacity-50">sentiment_satisfied</span>
+            <div className="flex items-center gap-space-xs">
+              <span className="w-8 h-8 rounded-full flex items-center justify-center text-primary hover:bg-primary-container/15 transition-colors">
+                <span className="material-symbols-outlined text-[18px]">image</span>
+              </span>
+              <span className="w-8 h-8 rounded-full flex items-center justify-center text-secondary hover:bg-secondary-container/15 transition-colors">
+                <span className="material-symbols-outlined text-[18px]">code_blocks</span>
+              </span>
+              <span className="w-8 h-8 rounded-full flex items-center justify-center text-tertiary hover:bg-tertiary-container/15 transition-colors">
+                <span className="material-symbols-outlined text-[18px]">ballot</span>
+              </span>
+              <span className="w-8 h-8 rounded-full flex items-center justify-center text-primary hover:bg-primary-container/15 transition-colors">
+                <span className="material-symbols-outlined text-[18px]">sentiment_satisfied</span>
+              </span>
+              <span className="w-8 h-8 rounded-full flex items-center justify-center text-outline hover:text-on-surface hover:bg-surface-container transition-colors">
+                <span className="material-symbols-outlined text-[18px]">schedule</span>
+              </span>
             </div>
             <div className="flex items-center gap-space-md">
               <div className="relative w-6 h-6 flex items-center justify-center">
@@ -91,6 +120,11 @@ export default function Composer({ user, setActivities, composerRef }) {
                     strokeWidth="2"
                   />
                 </svg>
+                {length > MAX_CHARS - 40 && (
+                  <span className="font-label-xs text-[9px] text-outline font-bold absolute">
+                    {MAX_CHARS - length}
+                  </span>
+                )}
               </div>
               <button
                 type="submit"
