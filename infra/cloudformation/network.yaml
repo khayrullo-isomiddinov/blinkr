@@ -125,8 +125,15 @@ Resources:
       Port: 80
       Protocol: HTTP
       DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref FrontendTargetGroup
+        - !If
+          - HasCertificate
+          - Type: redirect
+            RedirectConfig:
+              Protocol: HTTPS
+              Port: '443'
+              StatusCode: HTTP_301
+          - Type: forward
+            TargetGroupArn: !Ref FrontendTargetGroup
 
   FrontendTargetGroupGreen:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
@@ -164,8 +171,15 @@ Resources:
       Port: 8080
       Protocol: HTTP
       DefaultActions:
-        - Type: forward
-          TargetGroupArn: !Ref BackendTargetGroup
+        - !If
+          - HasCertificate
+          - Type: redirect
+            RedirectConfig:
+              Protocol: HTTPS
+              Port: '8443'
+              StatusCode: HTTP_301
+          - Type: forward
+            TargetGroupArn: !Ref BackendTargetGroup
 
   HttpsListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
