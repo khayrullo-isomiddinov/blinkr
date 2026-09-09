@@ -1,5 +1,3 @@
-import './App.css';
-
 import HomeFeedPage from './pages/HomeFeedPage';
 import ExplorePage from './pages/ExplorePage';
 import NotificationsFeedPage from './pages/NotificationsFeedPage';
