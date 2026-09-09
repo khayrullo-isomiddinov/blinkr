@@ -1,24 +1,19 @@
 import './MessageGroupsPage.css';
 import React from "react";
 
-import DesktopNavigation  from '../components/DesktopNavigation';
-import MessageGroupFeed from '../components/MessageGroupFeed';
-
-// [TODO] Authenication
-import Cookies from 'js-cookie'
+import AppShell from '../components/layout/AppShell';
+import MessageGroupFeed from '../components/messages/MessageGroupFeed';
+import { useAuthUser } from '../lib/useAuthUser';
+import { apiFetch } from '../lib/api';
 
 export default function MessageGroupsPage() {
   const [messageGroups, setMessageGroups] = React.useState([]);
-  const [popped, setPopped] = React.useState([]);
-  const [user, setUser] = React.useState(null);
   const dataFetchedRef = React.useRef(false);
+  const user = useAuthUser();
 
   const loadData = async () => {
     try {
-      const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/message_groups`
-      const res = await fetch(backend_url, {
-        method: "GET"
-      });
+      const res = await apiFetch('/api/message_groups');
       let resJson = await res.json();
       if (res.status === 200) {
         setMessageGroups(resJson)
@@ -28,17 +23,6 @@ export default function MessageGroupsPage() {
     } catch (err) {
       console.log(err);
     }
-  };  
-
-  const checkAuth = async () => {
-    console.log('checkAuth')
-    // [TODO] Authenication
-    if (Cookies.get('user.logged_in')) {
-      setUser({
-        display_name: Cookies.get('user.name'),
-        handle: Cookies.get('user.username')
-      })
-    }
   };
 
   React.useEffect(()=>{
@@ -47,16 +31,12 @@ export default function MessageGroupsPage() {
     dataFetchedRef.current = true;
 
     loadData();
-    checkAuth();
   }, [])
   return (
-    <article>
-      <DesktopNavigation user={user} active={'home'} setPopped={setPopped} />
+    <AppShell user={user} active="messages">
       <section className='message_groups'>
         <MessageGroupFeed message_groups={messageGroups} />
       </section>
-      <div className='content'>
-      </div>
-    </article>
+    </AppShell>
   );
 }
