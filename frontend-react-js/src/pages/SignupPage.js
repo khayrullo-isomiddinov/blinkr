@@ -1,9 +1,10 @@
-import './SignupPage.css';
 import React from "react";
-import Logo from '../components/layout/Logo';
 import { Link } from "react-router-dom";
 
 import { Auth } from 'aws-amplify';
+import AuthLayout from '../components/auth/AuthLayout';
+import AuthField from '../components/auth/AuthField';
+import AuthError from '../components/auth/AuthError';
 
 export default function SignupPage() {
 
@@ -46,71 +47,28 @@ export default function SignupPage() {
     setPassword(event.target.value);
   }
 
-  let el_errors;
-  if (errors){
-    el_errors = <div className='errors'>{errors}</div>;
-  }
-
   return (
-    <article className='signup-article'>
-      <div className='signup-info'>
-        <Logo size="lg" />
-      </div>
-      <div className='signup-wrapper'>
-        <form 
-          className='signup_form'
-          onSubmit={onsubmit}
+    <AuthLayout
+      title="Sign up to create a Blinkr account"
+      footer={
+        <span>
+          Already have an account? <Link to="/signin" className="text-primary hover:underline">Sign in</Link>
+        </span>
+      }
+    >
+      <form onSubmit={onsubmit} className="flex flex-col gap-space-md">
+        <AuthField label="Name" type="text" value={name} onChange={name_onchange} autoComplete="name" />
+        <AuthField label="Email" type="text" value={email} onChange={email_onchange} autoComplete="email" />
+        <AuthField label="Username" type="text" value={username} onChange={username_onchange} autoComplete="username" />
+        <AuthField label="Password" type="password" value={password} onChange={password_onchange} autoComplete="new-password" />
+        <AuthError>{errors}</AuthError>
+        <button
+          type="submit"
+          className="mt-space-xs px-space-lg py-space-sm bg-primary-container hover:bg-inverse-primary text-on-primary-container hover:text-on-surface font-label-md text-label-md font-semibold rounded-full transition-all"
         >
-          <h2>Sign up to create a Blinkr account</h2>
-          <div className='fields'>
-            <div className='field text_field name'>
-              <label>Name</label>
-              <input
-                type="text"
-                value={name}
-                onChange={name_onchange} 
-              />
-            </div>
-
-            <div className='field text_field email'>
-              <label>Email</label>
-              <input
-                type="text"
-                value={email}
-                onChange={email_onchange} 
-              />
-            </div>
-
-            <div className='field text_field username'>
-              <label>Username</label>
-              <input
-                type="text"
-                value={username}
-                onChange={username_onchange} 
-              />
-            </div>
-
-            <div className='field text_field password'>
-              <label>Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={password_onchange} 
-              />
-            </div>
-          </div>
-          {el_errors}
-          <div className='submit'>
-            <button type='submit'>Sign Up</button>
-          </div>
-        </form>
-        <div className="already-have-an-account">
-          <span>
-            Already have an account?
-          </span>
-          <Link to="/signin">Sign in!</Link>
-        </div>
-      </div>
-    </article>
+          Sign Up
+        </button>
+      </form>
+    </AuthLayout>
   );
 }

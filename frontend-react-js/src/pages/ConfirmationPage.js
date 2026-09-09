@@ -1,9 +1,10 @@
-import './ConfirmationPage.css';
 import React from "react";
 import { useSearchParams } from 'react-router-dom';
-import Logo from '../components/layout/Logo';
 
 import { Auth } from 'aws-amplify';
+import AuthLayout from '../components/auth/AuthLayout';
+import AuthField from '../components/auth/AuthField';
+import AuthError from '../components/auth/AuthError';
 
 export default function ConfirmationPage() {
   const [email, setEmail] = React.useState('');
@@ -42,19 +43,6 @@ export default function ConfirmationPage() {
     return false
   }
 
-  let el_errors;
-  if (errors){
-    el_errors = <div className='errors'>{errors}</div>;
-  }
-
-
-  let code_button;
-  if (codeSent){
-    code_button = <div className="sent-message">A new activation code has been sent to your email</div>
-  } else {
-    code_button = <button className="resend" onClick={resend_code}>Resend Activation Code</button>;
-  }
-
   React.useEffect(()=>{
     const email_param = searchParams.get('email');
     if (email_param) {
@@ -63,41 +51,27 @@ export default function ConfirmationPage() {
   }, [])
 
   return (
-    <article className="confirm-article">
-      <div className='recover-info'>
-        <Logo size="lg" />
-      </div>
-      <div className='recover-wrapper'>
-        <form
-          className='confirm_form'
-          onSubmit={onsubmit}
+    <AuthLayout title="Confirm your email">
+      <form onSubmit={onsubmit} className="flex flex-col gap-space-md">
+        <AuthField label="Email" type="text" value={email} onChange={email_onchange} autoComplete="email" />
+        <AuthField label="Confirmation Code" type="text" value={code} onChange={code_onchange} autoComplete="one-time-code" />
+        <AuthError>{errors}</AuthError>
+        <button
+          type="submit"
+          className="px-space-lg py-space-sm bg-primary-container hover:bg-inverse-primary text-on-primary-container hover:text-on-surface font-label-md text-label-md font-semibold rounded-full transition-all"
         >
-          <h2>Confirm your Email</h2>
-          <div className='fields'>
-            <div className='field text_field email'>
-              <label>Email</label>
-              <input
-                type="text"
-                value={email}
-                onChange={email_onchange} 
-              />
-            </div>
-            <div className='field text_field code'>
-              <label>Confirmation Code</label>
-              <input
-                type="text"
-                value={code}
-                onChange={code_onchange} 
-              />
-            </div>
-          </div>
-          {el_errors}
-          <div className='submit'>
-            <button type='submit'>Confirm Email</button>
-          </div>
-        </form>
-      </div>
-      {code_button}
-    </article>
+          Confirm Email
+        </button>
+      </form>
+      {codeSent ? (
+        <div className="font-body-sm text-body-sm text-secondary text-center">
+          A new activation code has been sent to your email.
+        </div>
+      ) : (
+        <button onClick={resend_code} className="font-label-sm text-label-sm text-primary hover:underline">
+          Resend activation code
+        </button>
+      )}
+    </AuthLayout>
   );
 }

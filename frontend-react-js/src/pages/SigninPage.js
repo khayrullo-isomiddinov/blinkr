@@ -1,9 +1,10 @@
-import './SigninPage.css';
 import React from "react";
-import Logo from '../components/layout/Logo';
 import { Link } from "react-router-dom";
 
 import { Auth } from 'aws-amplify';
+import AuthLayout from '../components/auth/AuthLayout';
+import AuthField from '../components/auth/AuthField';
+import AuthError from '../components/auth/AuthError';
 
 export default function SigninPage() {
 
@@ -38,55 +39,29 @@ export default function SigninPage() {
     setPassword(event.target.value);
   }
 
-  let el_errors;
-  if (errors){
-    el_errors = <div className='errors'>{errors}</div>;
-  }
-
   return (
-    <article className="signin-article">
-      <div className='signin-info'>
-        <Logo size="lg" />
-      </div>
-      <div className='signin-wrapper'>
-        <form 
-          className='signin_form'
-          onSubmit={onsubmit}
-        >
-          <h2>Sign into your Blinkr account</h2>
-          <div className='fields'>
-            <div className='field text_field username'>
-              <label>Email</label>
-              <input
-                type="text"
-                value={email}
-                onChange={email_onchange} 
-              />
-            </div>
-            <div className='field text_field password'>
-              <label>Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={password_onchange} 
-              />
-            </div>
-          </div>
-          {el_errors}
-          <div className='submit'>
-            <Link to="/forgot" className="forgot-link">Forgot Password?</Link>
-            <button type='submit'>Sign In</button>
-          </div>
-
-        </form>
-        <div className="dont-have-an-account">
-          <span>
-            Don't have an account?
-          </span>
-          <Link to="/signup">Sign up!</Link>
+    <AuthLayout
+      title="Sign into your Blinkr account"
+      footer={
+        <span>
+          Don't have an account? <Link to="/signup" className="text-primary hover:underline">Sign up</Link>
+        </span>
+      }
+    >
+      <form onSubmit={onsubmit} className="flex flex-col gap-space-md">
+        <AuthField label="Email" type="text" value={email} onChange={email_onchange} autoComplete="email" />
+        <AuthField label="Password" type="password" value={password} onChange={password_onchange} autoComplete="current-password" />
+        <AuthError>{errors}</AuthError>
+        <div className="flex items-center justify-between pt-space-xs">
+          <Link to="/forgot" className="font-label-sm text-label-sm text-primary hover:underline">Forgot password?</Link>
+          <button
+            type="submit"
+            className="px-space-lg py-space-sm bg-primary-container hover:bg-inverse-primary text-on-primary-container hover:text-on-surface font-label-md text-label-md font-semibold rounded-full transition-all"
+          >
+            Sign In
+          </button>
         </div>
-      </div>
-
-    </article>
+      </form>
+    </AuthLayout>
   );
 }
