@@ -5,7 +5,7 @@ import Logo from './Logo';
 
 const NAV_ITEMS = [
   { key: 'home', label: 'Home', icon: 'home', to: '/' },
-  { key: 'explore', label: 'Explore', icon: 'explore', to: null },
+  { key: 'explore', label: 'Explore', icon: 'explore', to: '/explore' },
   { key: 'notifications', label: 'Notifications', icon: 'notifications', to: '/notifications' },
   { key: 'messages', label: 'Messages', icon: 'chat_bubble', to: '/messages' },
   { key: 'bookmarks', label: 'Bookmarks', icon: 'bookmark', to: null },

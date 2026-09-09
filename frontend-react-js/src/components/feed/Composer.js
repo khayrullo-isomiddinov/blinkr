@@ -1,4 +1,5 @@
 import React from 'react';
+import { apiFetch } from '../../lib/api';
 
 const MAX_CHARS = 280;
 const CIRCUMFERENCE = 2 * Math.PI * 9;
@@ -25,8 +26,7 @@ export default function Composer({ user, setActivities, composerRef }) {
     setSubmitting(true);
     setError('');
     try {
-      const backend_url = `${process.env.REACT_APP_BACKEND_URL}/api/activities`;
-      const res = await fetch(backend_url, {
+      const res = await apiFetch('/api/activities', {
         method: 'POST',
         headers: {
           Accept: 'application/json',

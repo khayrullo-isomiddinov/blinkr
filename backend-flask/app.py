@@ -107,7 +107,8 @@ cognito_jwt_token = CognitoJwtToken(
   region=os.getenv("AWS_DEFAULT_REGION")
 )
 
-@app.route("/api/message_groups", methods=['GET'])
+@app.route("/api/message_groups", methods=['GET','OPTIONS'])
+@cross_origin()
 def data_message_groups():
   user_handle  = 'andrewbrown'
   model = MessageGroups.run(user_handle=user_handle)
@@ -116,7 +117,8 @@ def data_message_groups():
   else:
     return model['data'], 200
 
-@app.route("/api/messages/@<string:handle>", methods=['GET'])
+@app.route("/api/messages/@<string:handle>", methods=['GET','OPTIONS'])
+@cross_origin()
 def data_messages(handle):
   user_sender_handle = 'andrewbrown'
   user_receiver_handle = request.args.get('user_reciever_handle')
@@ -160,7 +162,8 @@ def data_home():
   data = HomeActivities.run(logger=LOGGER, cognito_user_id=cognito_user_id)
   return data, 200
 
-@app.route("/api/activities/@<string:handle>", methods=['GET'])
+@app.route("/api/activities/@<string:handle>", methods=['GET','OPTIONS'])
+@cross_origin()
 def data_handle(handle):
   model = UserActivities.run(handle)
   if model['errors'] is not None:

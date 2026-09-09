@@ -1,29 +1,27 @@
-from datetime import datetime, timedelta, timezone
-from aws_xray_sdk.core import xray_recorder
+from lib.db import query_array_json
+
 
 class UserActivities:
   def run(user_handle):
-    with xray_recorder.in_subsegment('user_activities_run') as subsegment:
-      model = {
-        'errors': None,
-        'data': None
-      }
+    if user_handle is None or len(user_handle) < 1:
+      return {'errors': ['blank_user_handle'], 'data': None}
 
-      now = datetime.now(timezone.utc).astimezone()
-      subsegment.put_annotation('user_handle', user_handle)
-
-      if user_handle == None or len(user_handle) < 1:
-        model['errors'] = ['blank_user_handle']
-        subsegment.put_metadata('model', model)
-      else:
-        now = datetime.now()
-        results = [{
-          'uuid': '248959df-3079-4947-b847-9e0892d1bab4',
-          'handle':  'Andrew Brown',
-          'message': 'Cloud is fun!',
-          'created_at': (now - timedelta(days=1)).isoformat(),
-          'expires_at': (now + timedelta(days=31)).isoformat()
-        }]
-        model['data'] = results
-        subsegment.put_metadata('model', model)
-      return model
+    sql = """
+      SELECT
+        activities.uuid,
+        users.display_name,
+        users.handle,
+        activities.message,
+        activities.replies_count,
+        activities.reposts_count,
+        activities.likes_count,
+        activities.reply_to_activity_uuid,
+        activities.expires_at,
+        activities.created_at
+      FROM public.activities
+      LEFT JOIN public.users ON users.uuid = activities.user_uuid
+      WHERE users.handle = %s
+      ORDER BY activities.created_at DESC
+    """
+    results = query_array_json(sql, (user_handle,))
+    return {'errors': None, 'data': results}

@@ -10,9 +10,9 @@ export default function MobileNav({ active, onComposeClick }) {
       <Link to="/" className={linkClass('home')}>
         <span className="material-symbols-outlined">home</span>
       </Link>
-      <span className="flex flex-col items-center text-outline">
+      <Link to="/explore" className={linkClass('explore')}>
         <span className="material-symbols-outlined">search</span>
-      </span>
+      </Link>
       <button
         onClick={onComposeClick}
         className="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shadow-sm"
