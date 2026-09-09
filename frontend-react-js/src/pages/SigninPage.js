@@ -1,6 +1,6 @@
 import './SigninPage.css';
 import React from "react";
-import {ReactComponent as Logo} from '../components/svg/logo.svg';
+import Logo from '../components/layout/Logo';
 import { Link } from "react-router-dom";
 
 import { Auth } from 'aws-amplify';
@@ -46,14 +46,14 @@ export default function SigninPage() {
   return (
     <article className="signin-article">
       <div className='signin-info'>
-        <Logo className='logo' />
+        <Logo size="lg" />
       </div>
       <div className='signin-wrapper'>
         <form 
           className='signin_form'
           onSubmit={onsubmit}
         >
-          <h2>Sign into your Cruddur account</h2>
+          <h2>Sign into your Blinkr account</h2>
           <div className='fields'>
             <div className='field text_field username'>
               <label>Email</label>

@@ -1,6 +1,6 @@
 import './SignupPage.css';
 import React from "react";
-import {ReactComponent as Logo} from '../components/svg/logo.svg';
+import Logo from '../components/layout/Logo';
 import { Link } from "react-router-dom";
 
 import { Auth } from 'aws-amplify';
@@ -54,14 +54,14 @@ export default function SignupPage() {
   return (
     <article className='signup-article'>
       <div className='signup-info'>
-        <Logo className='logo' />
+        <Logo size="lg" />
       </div>
       <div className='signup-wrapper'>
         <form 
           className='signup_form'
           onSubmit={onsubmit}
         >
-          <h2>Sign up to create a Cruddur account</h2>
+          <h2>Sign up to create a Blinkr account</h2>
           <div className='fields'>
             <div className='field text_field name'>
               <label>Name</label>

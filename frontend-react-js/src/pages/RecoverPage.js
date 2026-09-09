@@ -1,6 +1,6 @@
 import './RecoverPage.css';
 import React from "react";
-import {ReactComponent as Logo} from '../components/svg/logo.svg';
+import Logo from '../components/layout/Logo';
 import { Link } from "react-router-dom";
 
 import { Auth } from 'aws-amplify';
@@ -146,7 +146,7 @@ export default function RecoverPage() {
   return (
     <article className="recover-article">
       <div className='recover-info'>
-        <Logo className='logo' />
+        <Logo size="lg" />
       </div>
       <div className='recover-wrapper'>
         {form}
