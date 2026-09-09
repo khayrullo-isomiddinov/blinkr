@@ -8,12 +8,21 @@ Parameters:
     Type: List<AWS::EC2::Subnet::Id>
   RdsSecurityGroupId:
     Type: AWS::EC2::SecurityGroup::Id
+  CertificateArn:
+    Type: String
+    Default: ''
+    Description: >
+      ACM certificate ARN for blinkr.fit (eu-central-1). Leave blank until the
+      certificate is ISSUED -- HTTPS listeners are only created once this is set.
+
+Conditions:
+  HasCertificate: !Not [!Equals [!Ref CertificateArn, '']]
 
 Resources:
   AlbSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: blinkr ALB - allow inbound HTTP from internet
+      GroupDescription: blinkr ALB - allow inbound HTTP/HTTPS from internet
       VpcId: !Ref VpcId
       SecurityGroupIngress:
         - IpProtocol: tcp
@@ -23,6 +32,14 @@ Resources:
         - IpProtocol: tcp
           FromPort: 8080
           ToPort: 8080
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 8443
+          ToPort: 8443
           CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
@@ -146,6 +163,32 @@ Resources:
       LoadBalancerArn: !Ref ApplicationLoadBalancer
       Port: 8080
       Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref BackendTargetGroup
+
+  HttpsListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Condition: HasCertificate
+    Properties:
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn: !Ref CertificateArn
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref FrontendTargetGroup
+
+  BackendHttpsListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Condition: HasCertificate
+    Properties:
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 8443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn: !Ref CertificateArn
       DefaultActions:
         - Type: forward
           TargetGroupArn: !Ref BackendTargetGroup
