@@ -1,9 +1,0 @@
-.messages.content {
-  display: flex;
-  flex-direction: column;
-}
-
-.message_feed {
-  flex-grow: 1;
-  overflow: auto;
-}

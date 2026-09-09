@@ -1,11 +1,10 @@
-import './MessageGroupPage.css';
 import React from "react";
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 
 import AppShell from '../components/layout/AppShell';
-import MessageGroupFeed from '../components/messages/MessageGroupFeed';
-import MessagesFeed from '../components/messages/MessageFeed';
-import MessagesForm from '../components/messages/MessageForm';
+import ConversationList from '../components/messages/ConversationList';
+import MessageBubble from '../components/messages/MessageBubble';
+import MessageComposer from '../components/messages/MessageComposer';
 import { useAuthUser } from '../lib/useAuthUser';
 import { apiFetch } from '../lib/api';
 
@@ -16,51 +15,42 @@ export default function MessageGroupPage() {
   const params = useParams();
   const user = useAuthUser();
 
-  const loadMessageGroupsData = async () => {
-    try {
-      const res = await apiFetch('/api/message_groups');
-      let resJson = await res.json();
-      if (res.status === 200) {
-        setMessageGroups(resJson)
-      } else {
-        console.log(res)
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const loadMessageGroupData = async () => {
-    try {
-      const handle = `@${params.handle}`;
-      const res = await apiFetch(`/api/messages/${handle}`);
-      let resJson = await res.json();
-      if (res.status === 200) {
-        setMessages(resJson)
-      } else {
-        console.log(res)
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   React.useEffect(()=>{
-    //prevents double call
     if (dataFetchedRef.current) return;
     dataFetchedRef.current = true;
 
-    loadMessageGroupsData();
-    loadMessageGroupData();
-  }, [])
+    apiFetch('/api/message_groups')
+      .then((res) => res.json())
+      .then((resJson) => setMessageGroups(resJson))
+      .catch((err) => console.log(err));
+
+    apiFetch(`/api/messages/@${params.handle}`)
+      .then((res) => res.json())
+      .then((resJson) => setMessages(resJson))
+      .catch((err) => console.log(err));
+  }, [params.handle])
+
   return (
-    <AppShell user={user} active="messages">
-      <section className='message_groups'>
-        <MessageGroupFeed message_groups={messageGroups} />
-      </section>
-      <div className='messages'>
-        <MessagesFeed messages={messages} />
-        <MessagesForm setMessages={setMessages} />
+    <AppShell user={user} active="messages" wide>
+      <ConversationList groups={messageGroups} activeHandle={params.handle} />
+      <div className="flex-1 flex flex-col min-w-0">
+        <div className="flex items-center gap-space-sm p-space-sm border-b border-outline-variant/30 shrink-0">
+          <Link to="/messages" className="md:hidden w-8 h-8 rounded-full flex items-center justify-center hover:bg-surface-container">
+            <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+          </Link>
+          <span className="font-headline-sm text-headline-sm text-on-surface">@{params.handle}</span>
+        </div>
+        <div className="flex-1 overflow-y-auto flex flex-col gap-space-sm p-space-md">
+          {messages.map((message) => (
+            <MessageBubble key={message.uuid} message={message} isMine={!!user && message.handle === user.handle} />
+          ))}
+          {messages.length === 0 && (
+            <div className="flex-1 flex items-center justify-center text-outline font-label-sm text-label-sm">
+              No messages yet -- say hi!
+            </div>
+          )}
+        </div>
+        <MessageComposer setMessages={setMessages} />
       </div>
     </AppShell>
   );
