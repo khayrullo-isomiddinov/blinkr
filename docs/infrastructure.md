@@ -13,15 +13,24 @@ Region: `eu-central-1` throughout. Account: `792026110723`.
 | S3 + Lambda avatar pipeline (+ DynamoDB) | live |
 | CodePipeline + CodeBuild | live, native ECS rolling deploy |
 | CodeDeploy (blue/green) | **blocked** -- see below |
+| Route 53 + ACM (custom domain, HTTPS) | live |
 
-No custom domain / Route 53 / ACM. The app is reachable only via the ALB's own DNS name, over HTTP (not HTTPS). This is a deliberate scope cut, not an oversight -- revisit if this ever needs to be public-facing for real users.
+Custom domain `blinkr.fit` is live over HTTPS via Route 53 + ACM. Port 80 (frontend) and port 8080 (backend) both 301-redirect to their HTTPS counterparts (443 / 8443).
 
 ## How to reach it
 
-- Frontend: `http://blinkr-alb-2112977045.eu-central-1.elb.amazonaws.com`
-- Backend API: `http://blinkr-alb-2112977045.eu-central-1.elb.amazonaws.com:8080`
+- Frontend: `https://blinkr.fit` (`http://blinkr.fit` redirects here)
+- Backend API: `https://blinkr.fit:8443` (`http://blinkr.fit:8080` redirects here)
+- Raw ALB DNS name (still works directly, plain HTTP, no cert coverage): `http://blinkr-alb-2112977045.eu-central-1.elb.amazonaws.com`
 
-The backend is on its own listener/port (8080) rather than an `/api/*` path rule on port 80. This wasn't the original plan -- see "Design decisions" below for why.
+The backend is on its own listener/port (8080/8443) rather than an `/api/*` path rule on port 80/443. This wasn't the original plan -- see "Design decisions" below for why.
+
+## Route 53 + ACM
+
+- Hosted zone: `blinkr.fit`, zone ID `Z10430672K07ETSA6OYXU`. Domain registered at Namecheap; nameservers point at the Route 53 zone's 4 NS records.
+- ACM certificate (region `eu-central-1`, matching the ALB -- ACM certs used by an ALB listener must be in the same region as the ALB): `arn:aws:acm:eu-central-1:792026110723:certificate/146217d5-ea1c-4be0-ad5b-b9d8c6201c0c`, covers `blinkr.fit` and `*.blinkr.fit` (so `www.blinkr.fit` is covered by the wildcard SAN), DNS-validated with the CNAME record living in the hosted zone itself.
+- `blinkr.fit` and `www.blinkr.fit` are Route 53 ALIAS A records pointed at the ALB.
+- `network.yaml`'s `CertificateArn` parameter gates the HTTPS listeners behind a `HasCertificate` condition, so the stack still deploys cleanly with no cert (plain HTTP, no redirect) if the parameter is ever left blank again.
 
 ## CloudFormation stacks
 
