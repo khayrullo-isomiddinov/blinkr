@@ -6,9 +6,7 @@ const SIZES = {
   lg: 'w-28 h-28 rounded-3xl',
 };
 
-// Bespoke "blink" mark: a stylized eye (lens outline + pupil), evoking the
-// brand name directly. Pure inline SVG so it scales crisply at every size
-// and inherits color via currentColor -- no external asset dependency.
+// Stylized eye mark, inline SVG so it scales cleanly at every size.
 export default function Logo({ size = 'sm' }) {
   return (
     <span
