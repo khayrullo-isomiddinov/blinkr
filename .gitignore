@@ -5,6 +5,4 @@ node_modules/
 .env
 
 # tooling
-.claude/
-CLAUDE.md
 .mcp.json
