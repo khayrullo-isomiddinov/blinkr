@@ -161,9 +161,7 @@ Resources:
       HealthyThresholdCount: 2
       UnhealthyThresholdCount: 3
 
-  # CodeDeploy's ECS blue/green swap operates on a whole listener's default
-  # action, not on individual path-based rules -- so the backend gets its own
-  # listener (port 8080) rather than an /api/* rule on the port-80 listener.
+  # own listener since CodeDeploy blue/green swaps a whole listener, not a path rule
   BackendListener:
     Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
