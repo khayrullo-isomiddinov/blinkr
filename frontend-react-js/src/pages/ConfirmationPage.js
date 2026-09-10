@@ -1,7 +1,8 @@
 import React from "react";
 import { useSearchParams } from 'react-router-dom';
 
-import { Auth } from 'aws-amplify';
+import { confirmSignUp, resendConfirmationCode } from '../lib/auth';
+import { describeAuthError } from '../lib/authErrors';
 import AuthLayout from '../components/auth/AuthLayout';
 import AuthField from '../components/auth/AuthField';
 import AuthError from '../components/auth/AuthError';
@@ -25,17 +26,14 @@ export default function ConfirmationPage() {
     setUsername(event.target.value);
   }
 
-  // Cognito's email alias only resolves to the account's real username
-  // *after* confirmation, so ConfirmSignUp/ResendSignUp must be called
-  // with the username -- passing email here fails with
-  // "Username/client id combination not found" on unconfirmed accounts.
+  // Cognito needs the real username here, not the email alias, pre-confirmation.
   const resend_code = async (event) => {
     setErrors('')
     try {
-      await Auth.resendSignUp(username);
+      await resendConfirmationCode(username);
       setCodeSent(true);
     } catch (error) {
-      setErrors(error.message)
+      setErrors(describeAuthError(error))
     }
   }
 
@@ -43,10 +41,10 @@ export default function ConfirmationPage() {
     event.preventDefault();
     setErrors('')
     try {
-      await Auth.confirmSignUp(username, code);
+      await confirmSignUp(username, code);
       window.location.href = "/signin"
     } catch (error) {
-      setErrors(error.message)
+      setErrors(describeAuthError(error))
     }
     return false
   }

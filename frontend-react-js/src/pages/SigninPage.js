@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { Auth } from 'aws-amplify';
+import { signIn } from '../lib/auth';
+import { describeAuthError } from '../lib/authErrors';
 import AuthLayout from '../components/auth/AuthLayout';
 import AuthField from '../components/auth/AuthField';
 import AuthError from '../components/auth/AuthError';
@@ -16,17 +17,14 @@ export default function SigninPage() {
     event.preventDefault();
     setErrors('')
     try {
-      const cognito_user = await Auth.signIn({
-        username: email,
-        password: password,
-      });
+      const cognito_user = await signIn(email, password);
       localStorage.setItem('access_token', cognito_user.signInUserSession.accessToken.jwtToken);
       window.location.href = "/"
     } catch (error) {
       if (error.code === 'UserNotConfirmedException') {
         window.location.href = `/confirm?email=${email}`
       } else {
-        setErrors(error.message)
+        setErrors(describeAuthError(error))
       }
     }
     return false

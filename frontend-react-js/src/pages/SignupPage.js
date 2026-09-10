@@ -1,7 +1,8 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
-import { Auth } from 'aws-amplify';
+import { signUp } from '../lib/auth';
+import { describeAuthError } from '../lib/authErrors';
 import AuthLayout from '../components/auth/AuthLayout';
 import AuthField from '../components/auth/AuthField';
 import AuthError from '../components/auth/AuthError';
@@ -14,22 +15,23 @@ export default function SignupPage() {
   const [password, setPassword] = React.useState('');
   const [errors, setErrors] = React.useState('');
 
+  const [searchParams] = useSearchParams();
+
+  React.useEffect(() => {
+    const email_param = searchParams.get('email');
+    if (email_param) {
+      setEmail(email_param)
+    }
+  }, [])
+
   const onsubmit = async (event) => {
     event.preventDefault();
     setErrors('')
     try {
-      await Auth.signUp({
-        username: username,
-        password: password,
-        attributes: {
-          email: email,
-          name: name,
-          preferred_username: username,
-        },
-      });
+      await signUp({ name, email, username, password });
       window.location.href = `/confirm?email=${email}&username=${username}`
     } catch (error) {
-      setErrors(error.message)
+      setErrors(describeAuthError(error))
     }
     return false
   }

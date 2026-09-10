@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Auth } from 'aws-amplify';
+import { signOut as authSignOut } from '../../lib/auth';
 import Logo from './Logo';
 
 const NAV_ITEMS = [
@@ -15,7 +15,7 @@ const NAV_ITEMS = [
 export default function Sidebar({ user, active, onComposeClick }) {
   const signOut = async () => {
     try {
-      await Auth.signOut({ global: true });
+      await authSignOut();
       window.location.href = '/';
     } catch (error) {
       console.log('error signing out: ', error);

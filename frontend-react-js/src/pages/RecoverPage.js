@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-import { Auth } from 'aws-amplify';
+import { forgotPassword, forgotPasswordSubmit } from '../lib/auth';
+import { describeAuthError } from '../lib/authErrors';
 import AuthLayout from '../components/auth/AuthLayout';
 import AuthField from '../components/auth/AuthField';
 import AuthError from '../components/auth/AuthError';
@@ -19,10 +20,10 @@ export default function RecoverPage() {
     event.preventDefault();
     setErrors('')
     try {
-      await Auth.forgotPassword(username);
+      await forgotPassword(username);
       setFormState('confirm_code');
     } catch (error) {
-      setErrors(error.message)
+      setErrors(describeAuthError(error))
     }
     return false
   }
@@ -34,10 +35,10 @@ export default function RecoverPage() {
       return false
     }
     try {
-      await Auth.forgotPasswordSubmit(username, code, password);
+      await forgotPasswordSubmit(username, code, password);
       setFormState('success');
     } catch (error) {
-      setErrors(error.message)
+      setErrors(describeAuthError(error))
     }
     return false
   }
