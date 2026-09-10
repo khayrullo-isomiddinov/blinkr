@@ -27,7 +27,7 @@ export default function SignupPage() {
           preferred_username: username,
         },
       });
-      window.location.href = `/confirm?email=${email}`
+      window.location.href = `/confirm?email=${email}&username=${username}`
     } catch (error) {
       setErrors(error.message)
     }

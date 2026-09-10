@@ -8,6 +8,7 @@ import AuthError from '../components/auth/AuthError';
 
 export default function ConfirmationPage() {
   const [email, setEmail] = React.useState('');
+  const [username, setUsername] = React.useState('');
   const [code, setCode] = React.useState('');
   const [errors, setErrors] = React.useState('');
   const [codeSent, setCodeSent] = React.useState(false);
@@ -20,11 +21,18 @@ export default function ConfirmationPage() {
   const email_onchange = (event) => {
     setEmail(event.target.value);
   }
+  const username_onchange = (event) => {
+    setUsername(event.target.value);
+  }
 
+  // Cognito's email alias only resolves to the account's real username
+  // *after* confirmation, so ConfirmSignUp/ResendSignUp must be called
+  // with the username -- passing email here fails with
+  // "Username/client id combination not found" on unconfirmed accounts.
   const resend_code = async (event) => {
     setErrors('')
     try {
-      await Auth.resendSignUp(email);
+      await Auth.resendSignUp(username);
       setCodeSent(true);
     } catch (error) {
       setErrors(error.message)
@@ -35,7 +43,7 @@ export default function ConfirmationPage() {
     event.preventDefault();
     setErrors('')
     try {
-      await Auth.confirmSignUp(email, code);
+      await Auth.confirmSignUp(username, code);
       window.location.href = "/signin"
     } catch (error) {
       setErrors(error.message)
@@ -48,12 +56,17 @@ export default function ConfirmationPage() {
     if (email_param) {
       setEmail(email_param)
     }
+    const username_param = searchParams.get('username');
+    if (username_param) {
+      setUsername(username_param)
+    }
   }, [])
 
   return (
     <AuthLayout title="Confirm your email">
       <form onSubmit={onsubmit} className="flex flex-col gap-space-md">
         <AuthField label="Email" type="text" value={email} onChange={email_onchange} autoComplete="email" />
+        <AuthField label="Username" type="text" value={username} onChange={username_onchange} autoComplete="username" />
         <AuthField label="Confirmation Code" type="text" value={code} onChange={code_onchange} autoComplete="one-time-code" />
         <AuthError>{errors}</AuthError>
         <button
