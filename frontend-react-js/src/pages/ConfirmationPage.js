@@ -3,9 +3,6 @@ import { useSearchParams } from 'react-router-dom';
 
 import { confirmSignUp, resendConfirmationCode } from '../lib/auth';
 import { describeAuthError } from '../lib/authErrors';
-import AuthLayout from '../components/auth/AuthLayout';
-import AuthField from '../components/auth/AuthField';
-import AuthError from '../components/auth/AuthError';
 
 export default function ConfirmationPage() {
   const [email, setEmail] = React.useState('');
@@ -15,16 +12,6 @@ export default function ConfirmationPage() {
   const [codeSent, setCodeSent] = React.useState(false);
 
   const [searchParams] = useSearchParams();
-
-  const code_onchange = (event) => {
-    setCode(event.target.value);
-  }
-  const email_onchange = (event) => {
-    setEmail(event.target.value);
-  }
-  const username_onchange = (event) => {
-    setUsername(event.target.value);
-  }
 
   // Cognito needs the real username here, not the email alias, pre-confirmation.
   const resend_code = async (event) => {
@@ -58,31 +45,33 @@ export default function ConfirmationPage() {
     if (username_param) {
       setUsername(username_param)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
-    <AuthLayout title="Confirm your email">
-      <form onSubmit={onsubmit} className="flex flex-col gap-space-md">
-        <AuthField label="Email" type="text" value={email} onChange={email_onchange} autoComplete="email" />
-        <AuthField label="Username" type="text" value={username} onChange={username_onchange} autoComplete="username" />
-        <AuthField label="Confirmation Code" type="text" value={code} onChange={code_onchange} autoComplete="one-time-code" />
-        <AuthError>{errors}</AuthError>
-        <button
-          type="submit"
-          className="px-space-lg py-space-sm bg-primary-container hover:bg-inverse-primary text-on-primary-container hover:text-on-surface font-label-md text-label-md font-semibold rounded-full transition-all"
-        >
-          Confirm Email
-        </button>
+    <div>
+      <h1>Confirm your email</h1>
+      <form onSubmit={onsubmit}>
+        <div>
+          <label htmlFor="email">Email</label>
+          <input id="email" type="text" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        </div>
+        <div>
+          <label htmlFor="username">Username</label>
+          <input id="username" type="text" autoComplete="username" value={username} onChange={(e) => setUsername(e.target.value)} />
+        </div>
+        <div>
+          <label htmlFor="code">Confirmation Code</label>
+          <input id="code" type="text" autoComplete="one-time-code" value={code} onChange={(e) => setCode(e.target.value)} />
+        </div>
+        {errors && <div>{errors}</div>}
+        <button type="submit">Confirm Email</button>
       </form>
       {codeSent ? (
-        <div className="font-body-sm text-body-sm text-secondary text-center">
-          A new activation code has been sent to your email.
-        </div>
+        <div>A new activation code has been sent to your email.</div>
       ) : (
-        <button onClick={resend_code} className="font-label-sm text-label-sm text-primary hover:underline">
-          Resend activation code
-        </button>
+        <button onClick={resend_code}>Resend activation code</button>
       )}
-    </AuthLayout>
+    </div>
   );
 }
