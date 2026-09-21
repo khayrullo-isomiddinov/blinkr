@@ -37,6 +37,10 @@ from repositories.create_workout_session import CreateWorkoutSession
 from repositories.show_workout_session import ShowWorkoutSession
 from repositories.workout_sessions import WorkoutSessions
 from repositories.complete_workout_session import CompleteWorkoutSession
+from repositories.create_session_exercise import CreateSessionExercise
+from repositories.session_exercises import SessionExercises
+from repositories.create_set import CreateSet
+from repositories.sets import Sets
 
 # CloudWatch Logs ----------
 LOGGER = logging.getLogger(__name__)
@@ -227,6 +231,165 @@ def data_complete_workout_session(session_id):
   if session is None:
     return {'errors': ['workout_session_not_found']}, 404
   return session, 200
+
+@app.route("/api/workout-sessions/<string:session_id>/exercises", methods=['GET'])
+def data_session_exercises(session_id):
+  try:
+    user = resolve_current_user(request.headers, cognito_jwt_token)
+  except AuthError as e:
+    return {'errors': [str(e)]}, 401
+
+  try:
+    uuid.UUID(session_id)
+  except ValueError:
+    return {'errors': ['workout_session_not_found']}, 404
+
+  if ShowWorkoutSession.run(session_id, user['uuid']) is None:
+    return {'errors': ['workout_session_not_found']}, 404
+
+  return SessionExercises.run(session_id), 200
+
+@app.route("/api/workout-sessions/<string:session_id>/exercises", methods=['POST', 'OPTIONS'])
+def data_create_session_exercise(session_id):
+  try:
+    user = resolve_current_user(request.headers, cognito_jwt_token)
+  except AuthError as e:
+    return {'errors': [str(e)]}, 401
+
+  try:
+    uuid.UUID(session_id)
+  except ValueError:
+    return {'errors': ['workout_session_not_found']}, 404
+
+  if ShowWorkoutSession.run(session_id, user['uuid']) is None:
+    return {'errors': ['workout_session_not_found']}, 404
+
+  body = request.get_json(silent=True) or {}
+  exercise_id = body.get('exercise_id')
+  exercise_order = body.get('exercise_order')
+  notes = body.get('notes')
+
+  errors = []
+  if not exercise_id:
+    errors.append('exercise_id_blank')
+  elif not isinstance(exercise_id, str):
+    errors.append('exercise_id_invalid')
+  if exercise_order is None:
+    errors.append('exercise_order_blank')
+  elif not isinstance(exercise_order, int) or isinstance(exercise_order, bool):
+    errors.append('exercise_order_invalid')
+  if errors:
+    return errors, 422
+
+  try:
+    session_exercise = CreateSessionExercise.run(session_id, exercise_id, exercise_order, notes)
+  except psycopg2.errors.ForeignKeyViolation:
+    return ['exercise_not_found'], 404
+  except psycopg2.errors.UniqueViolation:
+    return ['exercise_order_taken'], 409
+  except psycopg2.errors.DataError:
+    return ['exercise_id_invalid'], 422
+  except psycopg2.errors.CheckViolation:
+    return ['exercise_order_invalid'], 422
+
+  return session_exercise, 201
+
+@app.route("/api/workout-sessions/<string:session_id>/exercises/<string:session_exercise_id>/sets", methods=['GET'])
+def data_sets(session_id, session_exercise_id):
+  try:
+    user = resolve_current_user(request.headers, cognito_jwt_token)
+  except AuthError as e:
+    return {'errors': [str(e)]}, 401
+
+  try:
+    uuid.UUID(session_id)
+  except ValueError:
+    return {'errors': ['workout_session_not_found']}, 404
+
+  try:
+    uuid.UUID(session_exercise_id)
+  except ValueError:
+    return {'errors': ['session_exercise_not_found']}, 404
+
+  session = ShowWorkoutSession.run(session_id, user['uuid'])
+  if session is None:
+    return {'errors': ['workout_session_not_found']}, 404
+
+  if not any(se['id'] == session_exercise_id for se in session['session_exercises']):
+    return {'errors': ['session_exercise_not_found']}, 404
+
+  return Sets.run(session_exercise_id), 200
+
+@app.route(
+  "/api/workout-sessions/<string:session_id>/exercises/<string:session_exercise_id>/sets",
+  methods=['POST', 'OPTIONS']
+)
+def data_create_set(session_id, session_exercise_id):
+  try:
+    user = resolve_current_user(request.headers, cognito_jwt_token)
+  except AuthError as e:
+    return {'errors': [str(e)]}, 401
+
+  try:
+    uuid.UUID(session_id)
+  except ValueError:
+    return {'errors': ['workout_session_not_found']}, 404
+
+  try:
+    uuid.UUID(session_exercise_id)
+  except ValueError:
+    return {'errors': ['session_exercise_not_found']}, 404
+
+  session = ShowWorkoutSession.run(session_id, user['uuid'])
+  if session is None:
+    return {'errors': ['workout_session_not_found']}, 404
+
+  if not any(se['id'] == session_exercise_id for se in session['session_exercises']):
+    return {'errors': ['session_exercise_not_found']}, 404
+
+  body = request.get_json(silent=True) or {}
+  reps = body.get('reps')
+  weight = body.get('weight')
+  weight_unit = body.get('weight_unit')
+  set_order = body.get('set_order')
+  set_type = body.get('set_type')
+
+  errors = []
+  if reps is None:
+    errors.append('reps_blank')
+  elif isinstance(reps, bool) or not isinstance(reps, int):
+    errors.append('reps_invalid')
+
+  if set_order is None:
+    errors.append('set_order_blank')
+  elif isinstance(set_order, bool) or not isinstance(set_order, int):
+    errors.append('set_order_invalid')
+
+  if weight is not None and (isinstance(weight, bool) or not isinstance(weight, (int, float))):
+    errors.append('weight_invalid')
+
+  if weight_unit is not None and not isinstance(weight_unit, str):
+    errors.append('weight_unit_invalid')
+
+  if set_type is not None and not isinstance(set_type, str):
+    errors.append('set_type_invalid')
+
+  if errors:
+    return errors, 422
+
+  if set_type is None:
+    set_type = 'working'
+
+  try:
+    created_set = CreateSet.run(session_exercise_id, set_order, reps, weight, weight_unit, set_type)
+  except psycopg2.errors.UniqueViolation:
+    return ['set_order_taken'], 409
+  except psycopg2.errors.CheckViolation:
+    return ['set_invalid'], 422
+  except psycopg2.errors.DataError:
+    return ['set_invalid'], 422
+
+  return created_set, 201
 
 if __name__ == "__main__":
   app.run(debug=True)
