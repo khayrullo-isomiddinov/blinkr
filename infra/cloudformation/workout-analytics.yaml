@@ -22,6 +22,11 @@ Parameters:
     Default: eu-central-1
   WorkoutEventsQueueArn:
     Type: String
+  Psycopg2LayerArn:
+    Type: String
+    Description: >
+      Versioned ARN of the psycopg2 layer (python3.12 / x86_64), printed by
+      `infra/lambda/workout-analytics-consumer/build-layer.sh publish`.
   DatabaseUrlParameterName:
     Type: String
     Default: /blinkr/database_url
@@ -106,6 +111,12 @@ Resources:
     Properties:
       FunctionName: blinkr-workout-analytics-consumer
       Runtime: python3.12
+      # Explicit (this is also the default) so it can't silently drift from
+      # the x86_64 psycopg2 layer below.
+      Architectures:
+        - x86_64
+      Layers:
+        - !Ref Psycopg2LayerArn
       Handler: handler.handler
       Role: !GetAtt WorkoutAnalyticsConsumerRole.Arn
       Timeout: 30

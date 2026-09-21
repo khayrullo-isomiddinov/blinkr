@@ -6,3 +6,5 @@ node_modules/
 
 # tooling
 .mcp.json
+# lambda layer build output
+infra/lambda/*/build/

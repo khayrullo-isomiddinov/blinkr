@@ -29,6 +29,7 @@ from flask import got_request_exception
 # Cognito JWT ----------
 from lib.cognito_jwt_token import CognitoJwtToken
 from lib.auth import resolve_current_user, AuthError
+from admin.routes import register_admin_routes
 
 from repositories.create_exercise import CreateExercise
 from repositories.show_exercise import ShowExercise
@@ -121,6 +122,9 @@ cognito_jwt_token = CognitoJwtToken(
   user_pool_client_id=os.getenv("AWS_COGNITO_USER_POOL_CLIENT_ID"),
   region=os.getenv("AWS_DEFAULT_REGION")
 )
+
+# Admin ----------
+register_admin_routes(app, cognito_jwt_token)
 
 # Events ----------
 event_publisher = build_event_publisher()
