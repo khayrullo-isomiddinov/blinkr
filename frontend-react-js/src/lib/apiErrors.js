@@ -13,6 +13,9 @@ const MESSAGES = {
   set_order_taken: 'That set number is already taken. Refresh and try again.',
   workout_session_not_found: 'That workout was not found.',
   session_exercise_not_found: 'That exercise is not part of this workout.',
+  avatar_invalid: 'That image could not be used. Try a JPG, PNG or WebP photo.',
+  avatar_too_large: 'That image is too large. Try a smaller photo.',
+  display_name_invalid: 'Enter a name of up to 50 characters.',
   network_error: 'Could not reach the server. Check your connection and try again.',
   missing_session: 'Your session has ended. Please sign in again.',
 };

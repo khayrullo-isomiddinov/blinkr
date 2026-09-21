@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { signIn, clearSession } from '../../lib/auth';
 import { describeAuthError } from '../../lib/authErrors';
+import { LegalLinks } from '../../components/PublicPage';
 
 // Only ever go back to an in-app path, never an arbitrary URL.
 function safeDestination(from) {
@@ -95,6 +96,7 @@ export default function SignInPage() {
         <p className="text-center text-sm text-fg-mute mt-4">
           New here? <Link to="/signup">Create an account</Link>
         </p>
+        <LegalLinks className="mt-6 justify-center" />
       </div>
     </div>
   );

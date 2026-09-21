@@ -34,7 +34,7 @@ export default function AdminLayout() {
   const [menuOpen, setMenuOpen] = React.useState(false);
 
   return (
-    <div className="min-h-screen md:flex bg-gray-950 text-gray-100">
+    <div className="dark min-h-screen md:flex bg-gray-950 text-gray-100">
       <a href="#admin-main" className="sr-only focus:not-sr-only focus:absolute focus:m-2 focus:px-3 focus:py-2 focus:bg-gray-800 focus:rounded">
         Skip to content
       </a>

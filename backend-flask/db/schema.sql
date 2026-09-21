@@ -14,6 +14,9 @@ CREATE TABLE public.users (
   display_name TEXT NOT NULL,
   handle TEXT NOT NULL UNIQUE,
   cognito_user_id TEXT NOT NULL,
+  avatar BYTEA,
+  avatar_content_type TEXT,
+  avatar_updated_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT current_timestamp NOT NULL
 );
 

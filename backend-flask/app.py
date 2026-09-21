@@ -8,8 +8,11 @@ from lib.observability import init_observability
 from admin.routes import register_admin_routes
 from api.exercises import register_exercise_routes
 from api.workout_sessions import register_workout_session_routes
+from api.profile import register_profile_routes
 
 app = Flask(__name__)
+# Room for a base64 profile picture (capped again in api/profile.py) and nothing much larger.
+app.config['MAX_CONTENT_LENGTH'] = 1024 * 1024
 init_observability(app)
 
 frontend = os.getenv('FRONTEND_URL')
@@ -38,6 +41,7 @@ cognito_jwt_token = CognitoJwtToken(
 register_admin_routes(app, cognito_jwt_token)
 register_exercise_routes(app)
 register_workout_session_routes(app, cognito_jwt_token)
+register_profile_routes(app, cognito_jwt_token)
 
 
 @app.route("/health", methods=['GET'])

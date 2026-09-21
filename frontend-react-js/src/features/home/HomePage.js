@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useSession } from '../auth/useSession';
+import { LegalLinks } from '../../components/PublicPage';
 
 export default function HomePage() {
   const status = useSession();
@@ -21,6 +22,7 @@ export default function HomePage() {
           </div>
         )}
       </div>
+      <LegalLinks className="mx-auto w-full max-w-xl" />
     </div>
   );
 }

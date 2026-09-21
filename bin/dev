@@ -27,6 +27,10 @@ if [ "$HAS_WORKOUT" != "t" ]; then
   psql "$DATABASE_URL" -q -f db/seed.sql
 fi
 
+for migration in db/migrations/*.sql; do
+  psql "$DATABASE_URL" -q -f "$migration" >/dev/null
+done
+
 echo "== starting API on :4567"
 venv/bin/python -m flask --app app run --host 127.0.0.1 --port 4567 &
 API_PID=$!

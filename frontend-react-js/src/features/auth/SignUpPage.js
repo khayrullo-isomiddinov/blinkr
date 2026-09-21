@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signUp, confirmSignUp, resendConfirmationCode } from '../../lib/auth';
 import { describeAuthError } from '../../lib/authErrors';
+import { LegalLinks } from '../../components/PublicPage';
 
 export default function SignUpPage() {
   const navigate = useNavigate();
@@ -96,6 +97,7 @@ export default function SignUpPage() {
         <p className="text-center text-sm text-fg-mute mt-4">
           Already have an account? <Link to="/signin">Sign in</Link>
         </p>
+        <LegalLinks className="mt-6 justify-center" />
       </div>
     </div>
   );

@@ -4,6 +4,35 @@
 
 /* Element defaults. Kept in the base layer so any utility or component class overrides them. */
 @layer base {
+  /* Light is the default palette; <html class="dark"> switches every token below. */
+  :root {
+    --ink-950: 250 247 242;
+    --ink-900: 255 255 255;
+    --ink-800: 240 235 228;
+    --ink-700: 228 221 211;
+    --ink-600: 213 204 192;
+    --ink-500: 191 181 168;
+    --fg: 28 25 23;
+    --fg-soft: 68 64 60;
+    --fg-mute: 107 100 92;
+    --accent: 217 72 15;
+    --accent-ink: 255 255 255;
+  }
+
+  .dark {
+    --ink-950: 15 14 13;
+    --ink-900: 25 23 22;
+    --ink-800: 38 34 31;
+    --ink-700: 42 39 36;
+    --ink-600: 58 52 47;
+    --ink-500: 74 66 60;
+    --fg: 244 239 232;
+    --fg-soft: 207 199 189;
+    --fg-mute: 160 150 139;
+    --accent: 255 107 53;
+    --accent-ink: 20 17 15;
+  }
+
   body {
     @apply bg-ink-950 text-fg font-sans antialiased;
   }
@@ -16,7 +45,7 @@
 /* Shared building blocks. Page-specific layout stays in Tailwind utilities on the element. */
 @layer components {
   .card {
-    @apply rounded-[10px] bg-ink-900;
+    @apply rounded-[10px] border border-ink-700 bg-ink-900;
   }
 
   .field-label {
@@ -44,7 +73,7 @@
   }
 
   .stepper-btn {
-    @apply flex w-11 flex-none items-center justify-center rounded-lg bg-ink-800 text-fg hover:bg-ink-600 lg:w-[52px];
+    @apply flex w-9 flex-none items-center justify-center rounded-lg bg-ink-800 text-fg hover:bg-ink-600 sm:w-11 lg:w-[52px];
   }
 
   .seg-btn {
@@ -55,11 +84,18 @@
     @apply bg-accent font-semibold text-accent-ink hover:bg-accent;
   }
 
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 min-h-[44px] px-4 rounded-lg bg-red-600 text-white text-sm
+      font-semibold hover:bg-red-500 hover:no-underline disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
   .alert-error {
-    @apply px-3 py-2 rounded-lg bg-red-950 border border-red-900 text-red-300 text-sm;
+    @apply px-3 py-2 rounded-lg border text-sm bg-red-50 border-red-200 text-red-800
+      dark:bg-red-950 dark:border-red-900 dark:text-red-300;
   }
 
   .alert-success {
-    @apply px-3 py-2 rounded-lg bg-emerald-950 border border-emerald-900 text-emerald-300 text-sm;
+    @apply px-3 py-2 rounded-lg border text-sm bg-emerald-50 border-emerald-200 text-emerald-800
+      dark:bg-emerald-950 dark:border-emerald-900 dark:text-emerald-300;
   }
 }

@@ -7,6 +7,11 @@ import AppLayout from './layouts/AppLayout';
 import WorkoutsPage from './features/workouts/WorkoutsPage';
 import WorkoutPage from './features/workouts/WorkoutPage';
 import ExercisesPage from './features/exercises/ExercisesPage';
+import ProfilePage from './features/profile/ProfilePage';
+import SettingsPage from './features/settings/SettingsPage';
+import SupportPage from './features/support/SupportPage';
+import PrivacyPage from './features/legal/PrivacyPage';
+import TermsPage from './features/legal/TermsPage';
 import RequireAdmin from './features/admin/RequireAdmin';
 import AdminLayout from './features/admin/AdminLayout';
 import OverviewPage from './features/admin/pages/OverviewPage';
@@ -18,6 +23,9 @@ export const appRoutes = [
   { path: '/', element: <HomePage /> },
   { path: '/signin', element: <SignInPage /> },
   { path: '/signup', element: <SignUpPage /> },
+  { path: '/support', element: <SupportPage /> },
+  { path: '/privacy', element: <PrivacyPage /> },
+  { path: '/terms', element: <TermsPage /> },
   {
     element: (
       <RequireAuth>
@@ -28,6 +36,8 @@ export const appRoutes = [
       { path: '/workouts', element: <WorkoutsPage /> },
       { path: '/workouts/:id', element: <WorkoutPage /> },
       { path: '/exercises', element: <ExercisesPage /> },
+      { path: '/profile', element: <ProfilePage /> },
+      { path: '/settings', element: <SettingsPage /> },
     ],
   },
   {

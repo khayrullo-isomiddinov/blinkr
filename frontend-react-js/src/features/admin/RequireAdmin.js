@@ -12,7 +12,7 @@ export function useAdmin() {
 
 function Notice({ title, children }) {
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-gray-950 text-gray-100">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-gray-950 text-gray-100 dark">
       <div className="max-w-md w-full bg-gray-900 border border-gray-800 rounded-lg p-6">
         <h1 className="text-lg font-semibold mb-2">{title}</h1>
         {children}
@@ -50,7 +50,7 @@ export default function RequireAdmin({ children }) {
 
   if (state.status === 'checking') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-950 text-gray-100" role="status">
+      <div className="min-h-screen flex items-center justify-center bg-gray-950 text-gray-100 dark" role="status">
         <p className="text-gray-400 text-sm">Checking access...</p>
       </div>
     );

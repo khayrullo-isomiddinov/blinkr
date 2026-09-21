@@ -52,7 +52,7 @@ function Stepper({ id, label, value, onChange, step, inputMode }) {
     onChange(String(Math.max(0, Math.round((base + direction * step) * 100) / 100)));
   };
   return (
-    <div>
+    <div className="min-w-0">
       <label htmlFor={id} className="field-label">{label}</label>
       <div className="flex h-[60px] gap-1">
         <button type="button" aria-label={`Decrease ${label.toLowerCase()}`} onClick={() => bump(-1)} className="stepper-btn"><Minus width={20} height={20} /></button>
@@ -62,7 +62,7 @@ function Stepper({ id, label, value, onChange, step, inputMode }) {
           onChange={(e) => onChange(e.target.value)}
           inputMode={inputMode}
           placeholder="0"
-          className="min-w-0 flex-1 bg-transparent text-center font-display text-[32px] font-extrabold tabular-nums text-fg placeholder-ink-500 focus:outline-none"
+          className="w-full min-w-0 flex-1 bg-transparent text-center font-display text-[26px] font-extrabold tabular-nums text-fg placeholder-ink-500 focus:outline-none sm:text-[32px]"
         />
         <button type="button" aria-label={`Increase ${label.toLowerCase()}`} onClick={() => bump(1)} className="stepper-btn"><Plus width={20} height={20} /></button>
       </div>
@@ -112,7 +112,7 @@ function SetComposer({ sessionId, exercise, onLogged }) {
         {last && <span className="text-[13px] text-fg-mute">Prev {formatSet(last)}</span>}
       </div>
       {error && <div role="alert" className="alert-error">{error}</div>}
-      <div className="grid grid-cols-[1.3fr_1fr] gap-3 lg:grid-cols-[1.3fr_1fr_auto] lg:items-end lg:gap-4">
+      <div className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-3 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto] lg:items-end lg:gap-4">
         <Stepper id="set-weight" label="Weight" value={weight} onChange={setWeight} step={unit === 'kg' ? 2.5 : 5} inputMode="decimal" />
         <Stepper id="set-reps" label="Reps" value={reps} onChange={setReps} step={1} inputMode="numeric" />
         <div role="group" aria-label="Unit" className="col-span-2 grid grid-cols-2 gap-1 rounded-lg bg-ink-950 p-1 lg:col-span-1 lg:h-[60px] lg:w-[132px]">

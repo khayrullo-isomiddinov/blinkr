@@ -62,3 +62,9 @@ export function forgotPasswordSubmit(username, code, newPassword) {
 export function currentAuthenticatedUser() {
   return Auth.currentAuthenticatedUser({ bypassCache: false });
 }
+
+// Removes the Cognito account itself (the app's own data is deleted through the API first).
+export async function deleteCognitoAccount() {
+  await Auth.deleteUser();
+  localStorage.removeItem('access_token');
+}
