@@ -48,6 +48,10 @@
     @apply rounded-[10px] border border-ink-700 bg-ink-900;
   }
 
+  .eyebrow {
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-fg-mute;
+  }
+
   .field-label {
     @apply block text-xs font-medium uppercase tracking-wider text-fg-mute mb-1.5;
   }

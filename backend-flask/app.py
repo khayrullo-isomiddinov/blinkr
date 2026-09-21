@@ -9,6 +9,7 @@ from admin.routes import register_admin_routes
 from api.exercises import register_exercise_routes
 from api.workout_sessions import register_workout_session_routes
 from api.profile import register_profile_routes
+from api.planning import register_planning_routes
 
 app = Flask(__name__)
 # Room for a base64 profile picture (capped again in api/profile.py) and nothing much larger.
@@ -42,6 +43,7 @@ register_admin_routes(app, cognito_jwt_token)
 register_exercise_routes(app)
 register_workout_session_routes(app, cognito_jwt_token)
 register_profile_routes(app, cognito_jwt_token)
+register_planning_routes(app, cognito_jwt_token)
 
 
 @app.route("/health", methods=['GET'])

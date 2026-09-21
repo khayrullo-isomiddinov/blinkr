@@ -4,6 +4,7 @@ import { apiRequest, ApiError } from '../../lib/api';
 import { describeApiError } from '../../lib/apiErrors';
 import { useLoad } from '../../lib/useLoad';
 import { formatDay, formatClock, formatDuration, formatElapsed } from '../../lib/format';
+import { formatTarget } from '../../lib/calendar';
 import { Loading, LoadError } from '../../components/PageState';
 import { ChevronLeft, ChevronRight, Plus, Minus, Check } from '../../components/icons';
 
@@ -70,11 +71,46 @@ function Stepper({ id, label, value, onChange, step, inputMode }) {
   );
 }
 
+// The heaviest set (then most reps) of a list of sets.
+function topSet(sets) {
+  return [...sets].sort((a, b) => (Number(b.weight) || 0) - (Number(a.weight) || 0) || b.reps - a.reps)[0];
+}
+
+// What the plan asked for, next to what was actually done last time. Either can be missing.
+function TargetPanel({ exercise }) {
+  const planned = Boolean(exercise.target_sets);
+  const last = exercise.last_time;
+  if (!planned && !last) return null;
+  const done = exercise.sets.length;
+  return (
+    <div className={`mb-3 grid gap-3 ${planned && last ? 'grid-cols-2' : 'grid-cols-1'}`}>
+      {planned && (
+        <div className="card p-3">
+          <p className="field-label">Target</p>
+          <p className="font-display text-xl font-bold tabular-nums">{formatTarget(exercise)}</p>
+          <p className="mt-1 text-xs text-fg-mute">{done >= exercise.target_sets ? 'All planned sets done' : `Set ${done + 1} of ${exercise.target_sets}`}</p>
+        </div>
+      )}
+      {last && (
+        <div className="card p-3">
+          <p className="field-label">Last time</p>
+          <p className="font-display text-xl font-bold tabular-nums">{formatSet(topSet(last.sets))}</p>
+          <p className="mt-1 text-xs text-fg-mute">
+            {new Date(last.performed_at).toLocaleDateString([], { month: 'short', day: 'numeric' })} · {last.sets.length} {last.sets.length === 1 ? 'set' : 'sets'}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SetComposer({ sessionId, exercise, onLogged }) {
   const last = exercise.sets[exercise.sets.length - 1];
-  const [reps, setReps] = React.useState(last ? String(last.reps) : '');
-  const [weight, setWeight] = React.useState(last && last.weight != null ? String(Number(last.weight)) : '');
-  const [unit, setUnit] = React.useState((last && last.weight_unit) || 'kg');
+  const planned = exercise.target_sets ? exercise : null;
+  // First set of a planned exercise starts from the target; after that, from the previous set.
+  const [reps, setReps] = React.useState(last ? String(last.reps) : planned ? String(planned.target_reps_max ?? planned.target_reps_min ?? '') : '');
+  const [weight, setWeight] = React.useState(last ? (last.weight != null ? String(Number(last.weight)) : '') : planned && planned.target_weight != null ? String(Number(planned.target_weight)) : '');
+  const [unit, setUnit] = React.useState((last && last.weight_unit) || (planned && planned.target_weight_unit) || 'kg');
   const [setType, setSetType] = React.useState('working');
   const [error, setError] = React.useState('');
   const [saving, setSaving] = React.useState(false);
@@ -187,6 +223,7 @@ function AddExercisePanel({ sessionId, session, library, onAdded, onCancel }) {
 }
 
 function MobileHeader({ session, locked, elapsed }) {
+  const plan = session.plan_name ? `${session.plan_name} · ` : '';
   return (
     <header className="flex items-center gap-1 px-4 py-2 pl-1 lg:hidden">
       <Link to="/workouts" aria-label="Back to workouts" className="flex h-11 w-11 items-center justify-center text-fg hover:no-underline">
@@ -194,7 +231,7 @@ function MobileHeader({ session, locked, elapsed }) {
       </Link>
       <div className="min-w-0 flex-1">
         <h1 className="font-display text-[19px] font-bold leading-tight">{formatDay(session.started_at)}</h1>
-        <p className="text-[13px] text-fg-mute">{locked ? `${formatClock(session.started_at)} – ${formatClock(session.completed_at)}` : `Started ${formatClock(session.started_at)}`}</p>
+        <p className="text-[13px] text-fg-mute">{locked ? `${plan}${formatClock(session.started_at)} – ${formatClock(session.completed_at)}` : `${plan}Started ${formatClock(session.started_at)}`}</p>
       </div>
       {locked ? (
         <div className="text-right">
@@ -326,6 +363,7 @@ export default function WorkoutPage() {
                   <h2 className="font-display text-[29px] font-extrabold leading-[1.05] tracking-tight lg:text-4xl">{selected.exercise_name}</h2>
                   <p className="mt-1 text-sm capitalize text-fg-mute lg:text-[15px]">{selected.exercise_muscle_group} · {setCount(selected)} logged</p>
                 </div>
+                <TargetPanel exercise={selected} />
                 <SetRows sets={selected.sets} />
                 <SetComposer key={`${selected.id}:${selected.sets.length}`} sessionId={id} exercise={selected} onLogged={reload} />
               </section>
@@ -344,7 +382,7 @@ export default function WorkoutPage() {
                       className="grid h-[60px] w-full grid-cols-[1fr_auto_1.25rem] items-center gap-2 border-t border-ink-700 text-left text-fg"
                     >
                       <span className="font-display text-[19px] font-bold lg:text-xl">{exercise.exercise_name}</span>
-                      <span className="text-[13px] text-fg-mute lg:text-sm">{last ? `${setCount(exercise)} · ${formatSet(last)}` : 'No sets yet'}</span>
+                      <span className="text-[13px] text-fg-mute lg:text-sm">{last ? `${setCount(exercise)} · ${formatSet(last)}` : exercise.target_sets ? formatTarget(exercise) : 'No sets yet'}</span>
                       <ChevronRight width={18} height={18} className="text-fg-mute" />
                     </button>
                   );
@@ -361,6 +399,7 @@ export default function WorkoutPage() {
 
           <aside aria-label="Workout" className="sticky top-8 hidden self-start pt-[52px] lg:block">
             <div className="card p-5">
+              {session.plan_name && <p className="eyebrow mb-1 text-accent">{session.plan_name}</p>}
               <p className="font-display text-lg font-bold">{formatDay(session.started_at)}</p>
               <p className="mt-0.5 text-[13px] text-fg-mute">Started {formatClock(session.started_at)} · In progress</p>
               <p className="mt-[18px] text-[11px] uppercase tracking-wider text-fg-mute">Elapsed</p>

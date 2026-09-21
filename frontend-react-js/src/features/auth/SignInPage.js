@@ -7,7 +7,7 @@ import { Logo } from '../../components/Logo';
 
 // Only ever go back to an in-app path, never an arbitrary URL.
 function safeDestination(from) {
-  return typeof from === 'string' && from.startsWith('/') && !from.startsWith('//') ? from : '/workouts';
+  return typeof from === 'string' && from.startsWith('/') && !from.startsWith('//') ? from : '/calendar';
 }
 
 export default function SignInPage() {

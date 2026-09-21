@@ -11,3 +11,7 @@ export const Dumbbell = (props) => <svg {...base} {...props}><path d="M6.5 6.5v1
 export const SignOut = (props) => <svg {...base} {...props}><path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9" /></svg>;
 export const Minus = (props) => <svg {...base} strokeWidth={2.5} {...props}><path d="M5 12h14" /></svg>;
 export const Check = (props) => <svg {...base} strokeWidth={3} {...props}><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>;
+export const CalendarIcon = (props) => <svg {...base} {...props}><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></svg>;
+export const ChevronUp = (props) => <svg {...base} {...props}><path d="M5 15l7-7 7 7" /></svg>;
+export const ChevronDown = (props) => <svg {...base} {...props}><path d="M5 9l7 7 7-7" /></svg>;
+export const Close = (props) => <svg {...base} {...props}><path d="M6 6l12 12M18 6L6 18" /></svg>;

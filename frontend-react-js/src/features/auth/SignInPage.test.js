@@ -12,7 +12,7 @@ function renderSignIn(entry = '/signin') {
   const router = createMemoryRouter(
     [
       { path: '/signin', element: <SignInPage /> },
-      { path: '/workouts', element: <p>workouts home</p> },
+      { path: '/calendar', element: <p>calendar home</p> },
       { path: '/admin', element: <p>admin home</p> },
       { path: '/admin/events', element: <p>events page</p> },
     ],
@@ -39,13 +39,13 @@ test('has labelled fields and the submit button is disabled until both are fille
   expect(button).toBeEnabled();
 });
 
-test('successful sign-in goes to /workouts', async () => {
+test('successful sign-in goes to /calendar', async () => {
   signIn.mockResolvedValue({});
   const router = renderSignIn();
 
   fillAndSubmit('  khayrullo  ', 'pw');
 
-  await waitFor(() => expect(router.state.location.pathname).toBe('/workouts'));
+  await waitFor(() => expect(router.state.location.pathname).toBe('/calendar'));
   expect(signIn).toHaveBeenCalledWith('khayrullo', 'pw');
 });
 
@@ -60,7 +60,7 @@ test('ignores a non-local "from" destination', async () => {
   signIn.mockResolvedValue({});
   const router = renderSignIn({ pathname: '/signin', state: { from: '//evil.example/x' } });
   fillAndSubmit();
-  await waitFor(() => expect(router.state.location.pathname).toBe('/workouts'));
+  await waitFor(() => expect(router.state.location.pathname).toBe('/calendar'));
 });
 
 test('shows a loading state and blocks a second submit while signing in', async () => {

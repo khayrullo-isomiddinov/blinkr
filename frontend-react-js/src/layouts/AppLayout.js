@@ -5,7 +5,7 @@ import { useStartWorkout } from '../features/workouts/useStartWorkout';
 import { ProfileProvider, useProfile } from '../features/profile/ProfileContext';
 import Avatar from '../components/Avatar';
 import { Logo } from '../components/Logo';
-import { ListIcon, Dumbbell } from '../components/icons';
+import { CalendarIcon, ListIcon, Dumbbell } from '../components/icons';
 
 const topLink = ({ isActive }) =>
   `rounded-lg px-3.5 py-2 text-[15px] hover:no-underline ${isActive ? 'bg-ink-800 font-semibold text-fg' : 'text-fg-mute hover:text-fg'}`;
@@ -23,8 +23,9 @@ function Shell() {
   return (
     <div className="min-h-screen">
       <header className={`${onWorkout ? 'hidden lg:flex' : 'flex'} h-14 items-center gap-4 border-b border-ink-700 px-4 sm:h-[68px] sm:gap-8 sm:px-12`}>
-        <Link to="/workouts" aria-label="Blinkr, workouts" className="hover:no-underline"><Logo size={30} /></Link>
+        <Link to="/calendar" aria-label="Blinkr, calendar" className="hover:no-underline"><Logo size={30} /></Link>
         <nav aria-label="Main" className="hidden flex-1 gap-1 sm:flex">
+          <NavLink to="/calendar" className={topLink}>Calendar</NavLink>
           <NavLink to="/workouts" className={topLink}>Workouts</NavLink>
           <NavLink to="/exercises" className={topLink}>Exercises</NavLink>
         </nav>
@@ -47,8 +48,9 @@ function Shell() {
 
       <nav
         aria-label="Main"
-        className={`${onWorkout ? 'hidden' : 'grid'} fixed inset-x-0 bottom-0 z-30 h-[68px] grid-cols-3 border-t border-ink-700 bg-ink-900 sm:hidden`}
+        className={`${onWorkout ? 'hidden' : 'grid'} fixed inset-x-0 bottom-0 z-30 h-[68px] grid-cols-4 border-t border-ink-700 bg-ink-900 sm:hidden`}
       >
+        <NavLink to="/calendar" className={tabLink}><CalendarIcon width={24} height={24} />Calendar</NavLink>
         <NavLink to="/workouts" className={tabLink}><ListIcon width={24} height={24} />Workouts</NavLink>
         <NavLink to="/exercises" className={tabLink}><Dumbbell width={24} height={24} />Exercises</NavLink>
         <NavLink to="/profile" className={tabLink}><Avatar profile={profile} size={24} />Profile</NavLink>

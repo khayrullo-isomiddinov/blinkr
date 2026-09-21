@@ -6,7 +6,7 @@ import { Logo, LogoMark } from '../../components/Logo';
 
 export default function HomePage() {
   const status = useSession();
-  if (status === 'in') return <Navigate to="/workouts" replace />;
+  if (status === 'in') return <Navigate to="/calendar" replace />;
 
   return (
     <div className="flex min-h-screen flex-col px-6 py-6">

@@ -30,7 +30,7 @@ function WorkoutRow({ session }) {
       >
         <span>
           <span className="block font-display text-lg font-bold">{formatDay(session.started_at)}</span>
-          <span className="mt-0.5 block text-[13px] text-fg-mute">Started {formatClock(session.started_at)}</span>
+          <span className="mt-0.5 block text-[13px] text-fg-mute">{session.plan_name ? `${session.plan_name} · ` : ''}Started {formatClock(session.started_at)}</span>
         </span>
         <span className={`font-display text-base font-bold ${active ? 'text-accent' : 'text-fg'}`}>
           {active ? 'In progress' : formatDuration(session.started_at, session.completed_at)}

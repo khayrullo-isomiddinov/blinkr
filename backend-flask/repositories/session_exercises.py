@@ -10,6 +10,11 @@ class SessionExercises:
         session_exercises.exercise_id,
         session_exercises.exercise_order,
         session_exercises.notes,
+        session_exercises.target_sets,
+        session_exercises.target_reps_min,
+        session_exercises.target_reps_max,
+        session_exercises.target_weight,
+        session_exercises.target_weight_unit,
         exercises.name AS exercise_name,
         exercises.muscle_group AS exercise_muscle_group
       FROM public.session_exercises

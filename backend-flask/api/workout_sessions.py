@@ -45,7 +45,11 @@ def register_workout_session_routes(app, cognito_jwt_token):
   @bp.route('/api/workout-sessions', methods=['GET'])
   @user_required
   def data_workout_sessions(user):
-    return WorkoutSessions.run(user['uuid']), 200
+    # Optional ?from=&to= (ISO timestamps): sessions that began in [from, to). The calendar asks for one local week.
+    try:
+      return WorkoutSessions.run(user['uuid'], request.args.get('from'), request.args.get('to')), 200
+    except psycopg2.errors.DataError:
+      return ['range_invalid'], 422
 
   @bp.route('/api/workout-sessions/<string:session_id>', methods=['GET'])
   @user_required
