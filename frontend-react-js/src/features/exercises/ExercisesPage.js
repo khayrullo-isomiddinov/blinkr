@@ -1,9 +1,8 @@
 import React from 'react';
-import { apiRequest } from '../lib/api';
-import { describeApiError } from '../lib/apiErrors';
-import { useLoad } from '../lib/useLoad';
-import { Loading, LoadError } from './PageState';
-import { cardClass, inputClass, labelClass, primaryButton, errorBox } from '../lib/ui';
+import { apiRequest } from '../../lib/api';
+import { describeApiError } from '../../lib/apiErrors';
+import { useLoad } from '../../lib/useLoad';
+import { Loading, LoadError } from '../../components/PageState';
 
 const MUSCLE_GROUPS = ['chest', 'back', 'legs', 'shoulders', 'arms', 'core'];
 
@@ -32,25 +31,25 @@ function NewExerciseForm({ onCreated }) {
   }
 
   return (
-    <form onSubmit={submit} className={`${cardClass} p-4 mb-8`}>
+    <form onSubmit={submit} className="card p-4 mb-8">
       <h2 className="text-sm font-semibold text-gray-200 mb-3">Add an exercise</h2>
-      {error && <div role="alert" className={`${errorBox} mb-3`}>{error}</div>}
+      {error && <div role="alert" className="alert-error mb-3">{error}</div>}
       <div className="grid gap-3 sm:grid-cols-4">
         <div className="sm:col-span-2">
-          <label htmlFor="ex-name" className={labelClass}>Name</label>
-          <input id="ex-name" required value={form.name} onChange={set('name')} className={inputClass} />
+          <label htmlFor="ex-name" className="field-label">Name</label>
+          <input id="ex-name" required value={form.name} onChange={set('name')} className="input" />
         </div>
         <div>
-          <label htmlFor="ex-group" className={labelClass}>Muscle group</label>
-          <input id="ex-group" required list="muscle-groups" value={form.muscle_group} onChange={set('muscle_group')} className={inputClass} />
+          <label htmlFor="ex-group" className="field-label">Muscle group</label>
+          <input id="ex-group" required list="muscle-groups" value={form.muscle_group} onChange={set('muscle_group')} className="input" />
           <datalist id="muscle-groups">{MUSCLE_GROUPS.map((g) => <option key={g} value={g} />)}</datalist>
         </div>
         <div>
-          <label htmlFor="ex-equipment" className={labelClass}>Equipment (optional)</label>
-          <input id="ex-equipment" value={form.equipment} onChange={set('equipment')} className={inputClass} />
+          <label htmlFor="ex-equipment" className="field-label">Equipment (optional)</label>
+          <input id="ex-equipment" value={form.equipment} onChange={set('equipment')} className="input" />
         </div>
       </div>
-      <button type="submit" disabled={saving || !form.name.trim() || !form.muscle_group.trim()} className={`${primaryButton} mt-4`}>
+      <button type="submit" disabled={saving || !form.name.trim() || !form.muscle_group.trim()} className="btn-primary mt-4">
         {saving ? 'Adding...' : 'Add exercise'}
       </button>
     </form>
@@ -68,7 +67,7 @@ export default function ExercisesPage() {
       {status === 'loading' && <Loading label="Loading exercises" />}
       {status === 'error' && <LoadError error={error} onRetry={reload} />}
       {status === 'ready' && data.length === 0 && (
-        <div className={`${cardClass} p-6 text-sm text-gray-400`}>No exercises yet. Add your first one above.</div>
+        <div className="card p-6 text-sm text-gray-400">No exercises yet. Add your first one above.</div>
       )}
       {status === 'ready' && data.length > 0 && (
         <div className="overflow-x-auto rounded-lg border border-gray-800">

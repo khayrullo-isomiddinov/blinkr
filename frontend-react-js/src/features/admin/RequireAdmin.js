@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { apiRequest, ApiError } from '../lib/api';
-import { useSignOut } from '../lib/useSignOut';
+import { apiRequest, ApiError } from '../../lib/api';
+import { useSignOut } from '../auth/useSignOut';
 
 const AdminContext = React.createContext(null);
 
@@ -21,7 +21,6 @@ function Notice({ title, children }) {
   );
 }
 
-const buttonClass = 'mt-4 px-4 py-2 rounded text-sm font-semibold bg-gray-800 border border-gray-700 hover:bg-gray-700';
 
 // The backend decides who is an admin; the token is never inspected here.
 export default function RequireAdmin({ children }) {
@@ -65,7 +64,7 @@ export default function RequireAdmin({ children }) {
     return (
       <Notice title="Admin access required">
         <p className="text-sm text-gray-400">You are signed in, but this account is not an administrator.</p>
-        <button type="button" onClick={signOut} className={buttonClass}>Sign out</button>
+        <button type="button" onClick={signOut} className="btn-secondary mt-4">Sign out</button>
       </Notice>
     );
   }
@@ -74,7 +73,7 @@ export default function RequireAdmin({ children }) {
     return (
       <Notice title="Admin console unavailable">
         <p className="text-sm text-gray-400">The console could not be loaded. Try again in a moment.</p>
-        <button type="button" onClick={() => setAttempt((n) => n + 1)} className={buttonClass}>Retry</button>
+        <button type="button" onClick={() => setAttempt((n) => n + 1)} className="btn-secondary mt-4">Retry</button>
       </Notice>
     );
   }

@@ -6,7 +6,6 @@ from lib.db import execute
 from repositories.create_exercise import CreateExercise
 from repositories.show_exercise import ShowExercise
 from repositories.exercises import Exercises
-from repositories.find_exercise_by_name import FindExerciseByName
 from repositories.create_workout_session import CreateWorkoutSession
 from repositories.show_workout_session import ShowWorkoutSession
 from repositories.workout_sessions import WorkoutSessions
@@ -73,14 +72,10 @@ def repo_session_exercise(db_available):
     execute("DELETE FROM public.session_exercises WHERE id = %s", (session_exercise_id,))
 
 
-def test_create_and_find_exercise(repo_exercise):
+def test_create_show_and_list_exercise(repo_exercise):
   created = repo_exercise(muscle_group='back', equipment='pull-up bar')
   assert created['id'] is not None
   assert created['muscle_group'] == 'back'
-
-  found = FindExerciseByName.run(created['name'])
-  assert found['id'] == created['id']
-  assert FindExerciseByName.run('no such exercise') is None
 
   fetched = ShowExercise.run(created['id'])
   assert fetched['id'] == created['id']

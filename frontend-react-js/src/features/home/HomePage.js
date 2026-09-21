@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { useSession } from '../lib/useSession';
-import { primaryButton, secondaryButton } from '../lib/ui';
+import { useSession } from '../auth/useSession';
 
 export default function HomePage() {
   const status = useSession();
@@ -14,8 +13,8 @@ export default function HomePage() {
         <p className="text-gray-300 mb-8">Log your workouts, track every set, and see your training add up.</p>
         {status === 'out' && (
           <div className="flex justify-center gap-3">
-            <Link to="/signup" className={`${primaryButton} !text-white hover:!text-white`}>Create account</Link>
-            <Link to="/signin" className={`${secondaryButton} !text-gray-200`}>Sign in</Link>
+            <Link to="/signup" className="btn-primary">Create account</Link>
+            <Link to="/signin" className="btn-secondary">Sign in</Link>
           </div>
         )}
       </div>

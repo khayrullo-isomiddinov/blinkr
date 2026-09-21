@@ -1,16 +1,16 @@
 import React from 'react';
-import HomePage from './pages/HomePage';
-import SignInPage from './pages/SignInPage';
-import SignUpPage from './pages/SignUpPage';
-import RequireAuth from './app/RequireAuth';
-import AppLayout from './app/AppLayout';
-import WorkoutsPage from './app/WorkoutsPage';
-import WorkoutPage from './app/WorkoutPage';
-import ExercisesPage from './app/ExercisesPage';
-import RequireAdmin from './admin/RequireAdmin';
-import AdminLayout from './admin/AdminLayout';
-import OverviewPage from './admin/pages/OverviewPage';
-import ComingNextPage from './admin/pages/ComingNextPage';
+import HomePage from './features/home/HomePage';
+import SignInPage from './features/auth/SignInPage';
+import SignUpPage from './features/auth/SignUpPage';
+import RequireAuth from './features/auth/RequireAuth';
+import AppLayout from './layouts/AppLayout';
+import WorkoutsPage from './features/workouts/WorkoutsPage';
+import WorkoutPage from './features/workouts/WorkoutPage';
+import ExercisesPage from './features/exercises/ExercisesPage';
+import RequireAdmin from './features/admin/RequireAdmin';
+import AdminLayout from './features/admin/AdminLayout';
+import OverviewPage from './features/admin/pages/OverviewPage';
+import ComingNextPage from './features/admin/pages/ComingNextPage';
 
 // Kept separate from App.js so tests can mount the same route table in a memory router.
 // Every /admin/* route is a child of the RequireAdmin parent, so none can be added outside the gate.

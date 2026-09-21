@@ -145,6 +145,7 @@ def _fake_urlopen(url, *args, **kwargs):
 with mock.patch('urllib.request.urlopen', _fake_urlopen):
   import app as app_module
 
+from events.in_memory_publisher import InMemoryEventPublisher
 from lib.db import execute
 
 flask_app = app_module.app
@@ -247,7 +248,7 @@ def test_completion_succeeds_even_when_configured_publisher_would_fail(client, m
   def _always_fails(event):
     raise RuntimeError('SQS is unavailable')
 
-  monkeypatch.setattr(app_module.event_publisher, 'publish', _always_fails)
+  monkeypatch.setattr(InMemoryEventPublisher, 'publish', _always_fails)
 
   response = client.patch(f"/api/workout-sessions/{created['id']}/complete", headers=_auth_headers(user))
   assert response.status_code == 200

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useSession } from '../lib/useSession';
+import { useSession } from './useSession';
 
 export default function RequireAuth({ children }) {
   const status = useSession();

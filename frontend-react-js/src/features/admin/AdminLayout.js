@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, Outlet } from 'react-router-dom';
 import { useAdmin } from './RequireAdmin';
-import { useSignOut } from '../lib/useSignOut';
+import { useSignOut } from '../auth/useSignOut';
 
 const NAV_ITEMS = [
   { to: '/admin', label: 'Overview', end: true },

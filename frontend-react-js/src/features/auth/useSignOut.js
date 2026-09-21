@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { signOut } from './auth';
+import { signOut } from '../../lib/auth';
 
 // Signs out, then always returns to /signin -- even if the sign-out call itself fails.
 export function useSignOut() {

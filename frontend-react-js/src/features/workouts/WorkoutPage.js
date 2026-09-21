@@ -1,12 +1,10 @@
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { apiRequest } from '../lib/api';
-import { ApiError } from '../lib/api';
-import { describeApiError } from '../lib/apiErrors';
-import { useLoad } from '../lib/useLoad';
-import { Loading, LoadError } from './PageState';
-import { formatWhen, formatDuration } from './WorkoutsPage';
-import { cardClass, inputClass, labelClass, primaryButton, secondaryButton, errorBox } from '../lib/ui';
+import { apiRequest, ApiError } from '../../lib/api';
+import { describeApiError } from '../../lib/apiErrors';
+import { useLoad } from '../../lib/useLoad';
+import { Loading, LoadError } from '../../components/PageState';
+import { formatWhen, formatDuration } from '../../lib/format';
 
 const SET_TYPES = ['working', 'warmup', 'drop', 'failure'];
 const nextNumber = (items, field) => items.reduce((max, item) => Math.max(max, item[field]), 0) + 1;
@@ -50,30 +48,30 @@ function AddSetForm({ sessionId, sessionExercise, onAdded }) {
   const id = (name) => `${name}-${sessionExercise.id}`;
   return (
     <form onSubmit={submit} className="mt-4 pt-4 border-t border-gray-800">
-      {error && <div role="alert" className={`${errorBox} mb-3`}>{error}</div>}
+      {error && <div role="alert" className="alert-error mb-3">{error}</div>}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 items-end">
         <div>
-          <label htmlFor={id('reps')} className={labelClass}>Reps</label>
-          <input id={id('reps')} inputMode="numeric" value={reps} onChange={(e) => setReps(e.target.value)} className={inputClass} />
+          <label htmlFor={id('reps')} className="field-label">Reps</label>
+          <input id={id('reps')} inputMode="numeric" value={reps} onChange={(e) => setReps(e.target.value)} className="input" />
         </div>
         <div>
-          <label htmlFor={id('weight')} className={labelClass}>Weight</label>
-          <input id={id('weight')} inputMode="decimal" value={weight} onChange={(e) => setWeight(e.target.value)} className={inputClass} placeholder="optional" />
+          <label htmlFor={id('weight')} className="field-label">Weight</label>
+          <input id={id('weight')} inputMode="decimal" value={weight} onChange={(e) => setWeight(e.target.value)} className="input" placeholder="optional" />
         </div>
         <div>
-          <label htmlFor={id('unit')} className={labelClass}>Unit</label>
-          <select id={id('unit')} value={unit} onChange={(e) => setUnit(e.target.value)} className={inputClass}>
+          <label htmlFor={id('unit')} className="field-label">Unit</label>
+          <select id={id('unit')} value={unit} onChange={(e) => setUnit(e.target.value)} className="input">
             <option value="kg">kg</option>
             <option value="lb">lb</option>
           </select>
         </div>
         <div>
-          <label htmlFor={id('type')} className={labelClass}>Type</label>
-          <select id={id('type')} value={setType} onChange={(e) => setSetType(e.target.value)} className={inputClass}>
+          <label htmlFor={id('type')} className="field-label">Type</label>
+          <select id={id('type')} value={setType} onChange={(e) => setSetType(e.target.value)} className="input">
             {SET_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
-        <button type="submit" disabled={saving} className={primaryButton}>{saving ? 'Adding...' : 'Add set'}</button>
+        <button type="submit" disabled={saving} className="btn-primary">{saving ? 'Adding...' : 'Add set'}</button>
       </div>
     </form>
   );
@@ -82,7 +80,7 @@ function AddSetForm({ sessionId, sessionExercise, onAdded }) {
 function ExerciseCard({ sessionId, sessionExercise, locked, onChanged }) {
   const { sets } = sessionExercise;
   return (
-    <section className={`${cardClass} p-4`} aria-label={sessionExercise.exercise_name}>
+    <section className="card p-4" aria-label={sessionExercise.exercise_name}>
       <div className="flex items-baseline justify-between gap-2 mb-3">
         <h2 className="font-semibold text-gray-100">{sessionExercise.exercise_name}</h2>
         <span className="text-xs uppercase tracking-wide text-gray-500">{sessionExercise.exercise_muscle_group}</span>
@@ -144,19 +142,19 @@ function AddExercise({ sessionId, session, onAdded }) {
 
   if (library.status === 'error') return <LoadError error={library.error} onRetry={library.reload} />;
   if (library.status === 'ready' && library.data.length === 0) {
-    return <p className={`${cardClass} p-4 text-sm text-gray-400`}>Your exercise library is empty. <Link to="/exercises">Add an exercise</Link> first.</p>;
+    return <p className="card p-4 text-sm text-gray-400">Your exercise library is empty. <Link to="/exercises">Add an exercise</Link> first.</p>;
   }
 
   return (
-    <form onSubmit={add} className={`${cardClass} p-4`}>
-      {error && <div role="alert" className={`${errorBox} mb-3`}>{error}</div>}
-      <label htmlFor="add-exercise" className={labelClass}>Add an exercise</label>
+    <form onSubmit={add} className="card p-4">
+      {error && <div role="alert" className="alert-error mb-3">{error}</div>}
+      <label htmlFor="add-exercise" className="field-label">Add an exercise</label>
       <div className="flex flex-wrap gap-3">
-        <select id="add-exercise" value={exerciseId} onChange={(e) => setExerciseId(e.target.value)} disabled={library.status !== 'ready'} className={`${inputClass} flex-1 min-w-[12rem]`}>
+        <select id="add-exercise" value={exerciseId} onChange={(e) => setExerciseId(e.target.value)} disabled={library.status !== 'ready'} className="input flex-1 min-w-[12rem]">
           <option value="">{library.status === 'ready' ? 'Choose an exercise...' : 'Loading...'}</option>
           {library.status === 'ready' && library.data.map((e) => <option key={e.id} value={e.id}>{e.name} ({e.muscle_group})</option>)}
         </select>
-        <button type="submit" disabled={!exerciseId || saving} className={primaryButton}>{saving ? 'Adding...' : 'Add'}</button>
+        <button type="submit" disabled={!exerciseId || saving} className="btn-primary">{saving ? 'Adding...' : 'Add'}</button>
       </div>
     </form>
   );
@@ -185,7 +183,7 @@ export default function WorkoutPage() {
   if (status === 'error') {
     if (error instanceof ApiError && error.status === 404) {
       return (
-        <div className={`${cardClass} p-6 max-w-lg`}>
+        <div className="card p-6 max-w-lg">
           <p className="text-sm text-gray-300 mb-3">That workout was not found.</p>
           <Link to="/workouts">Back to workouts</Link>
         </div>
@@ -206,15 +204,15 @@ export default function WorkoutPage() {
           </p>
         </div>
         {!locked && (
-          <button type="button" onClick={complete} disabled={completing} className={secondaryButton}>
+          <button type="button" onClick={complete} disabled={completing} className="btn-secondary">
             {completing ? 'Completing...' : 'Complete workout'}
           </button>
         )}
       </div>
-      {completeError && <div role="alert" className={errorBox}>{completeError}</div>}
+      {completeError && <div role="alert" className="alert-error">{completeError}</div>}
 
       {session.session_exercises.length === 0 && (
-        <p className={`${cardClass} p-4 text-sm text-gray-400`}>{locked ? 'No exercises were logged.' : 'No exercises yet. Add one below to start logging sets.'}</p>
+        <p className="card p-4 text-sm text-gray-400">{locked ? 'No exercises were logged.' : 'No exercises yet. Add one below to start logging sets.'}</p>
       )}
       {session.session_exercises.map((sessionExercise) => (
         <ExerciseCard key={sessionExercise.id} sessionId={id} sessionExercise={sessionExercise} locked={locked} onChanged={reload} />

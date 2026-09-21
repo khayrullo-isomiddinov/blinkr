@@ -1,5 +1,5 @@
 import React from 'react';
-import { getCurrentAccessToken } from './auth';
+import { getCurrentAccessToken } from '../../lib/auth';
 
 // 'checking' | 'in' | 'out' -- a local Amplify session check; the backend still authorizes every request.
 export function useSession() {

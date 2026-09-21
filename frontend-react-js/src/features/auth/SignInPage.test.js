@@ -4,9 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 
 import SignInPage from './SignInPage';
-import { signIn, clearSession } from '../lib/auth';
+import { signIn, clearSession } from '../../lib/auth';
 
-jest.mock('../lib/auth', () => ({ signIn: jest.fn(), clearSession: jest.fn() }));
+jest.mock('../../lib/auth', () => ({ signIn: jest.fn(), clearSession: jest.fn() }));
 
 function renderSignIn(entry = '/signin') {
   const router = createMemoryRouter(

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { signIn, clearSession } from '../lib/auth';
-import { describeAuthError } from '../lib/authErrors';
+import { signIn, clearSession } from '../../lib/auth';
+import { describeAuthError } from '../../lib/authErrors';
 
 // Only ever go back to an in-app path, never an arbitrary URL.
 function safeDestination(from) {
@@ -43,22 +43,22 @@ export default function SignInPage() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <p className="text-center text-2xl font-extrabold text-emerald-400 mb-6">Blinkr</p>
-        <form onSubmit={handleSubmit} className="bg-gray-900 border border-gray-800 rounded-lg p-6" noValidate>
+        <form onSubmit={handleSubmit} className="card p-6" noValidate>
           <h1 className="text-xl font-bold text-center mb-6">Sign in</h1>
 
           {!error && location.state && location.state.notice && (
-            <div role="status" className="mb-4 px-3 py-2 rounded bg-emerald-950 border border-emerald-900 text-emerald-300 text-sm">
+            <div role="status" className="alert-success mb-4">
               {location.state.notice}
             </div>
           )}
 
           {error && (
-            <div role="alert" className="mb-4 px-3 py-2 rounded bg-red-950 border border-red-900 text-red-300 text-sm">
+            <div role="alert" className="alert-error mb-4">
               {error}
             </div>
           )}
 
-          <label htmlFor="signin-username" className="block text-sm font-medium text-gray-300 mb-1">
+          <label htmlFor="signin-username" className="field-label">
             Email or username
           </label>
           <input
@@ -68,10 +68,10 @@ export default function SignInPage() {
             required
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            className="w-full mb-4 bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-emerald-600"
+            className="input mb-4"
           />
 
-          <label htmlFor="signin-password" className="block text-sm font-medium text-gray-300 mb-1">
+          <label htmlFor="signin-password" className="field-label">
             Password
           </label>
           <input
@@ -81,13 +81,13 @@ export default function SignInPage() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full mb-6 bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 focus:outline-none focus:border-emerald-600"
+            className="input mb-6"
           />
 
           <button
             type="submit"
             disabled={loading || !username.trim() || !password}
-            className="w-full py-2 rounded text-sm font-semibold bg-emerald-600 text-white hover:bg-emerald-500 disabled:opacity-40 disabled:hover:bg-emerald-600"
+            className="btn-primary w-full"
           >
             {loading ? 'Signing in...' : 'Sign in'}
           </button>

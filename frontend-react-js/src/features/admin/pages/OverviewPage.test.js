@@ -3,12 +3,12 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import OverviewPage from './OverviewPage';
-import { apiRequest, ApiError } from '../../lib/api';
+import { apiRequest, ApiError } from '../../../lib/api';
 
-jest.mock('../../lib/auth', () => ({ getCurrentAccessToken: jest.fn(), clearSession: jest.fn() }));
+jest.mock('../../../lib/auth', () => ({ getCurrentAccessToken: jest.fn(), clearSession: jest.fn() }));
 
-jest.mock('../../lib/api', () => {
-  const actual = jest.requireActual('../../lib/api');
+jest.mock('../../../lib/api', () => {
+  const actual = jest.requireActual('../../../lib/api');
   return { ...actual, apiRequest: jest.fn() };
 });
 

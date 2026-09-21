@@ -1,21 +1,10 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { apiRequest } from '../lib/api';
-import { describeApiError } from '../lib/apiErrors';
-import { useLoad } from '../lib/useLoad';
-import { Loading, LoadError } from './PageState';
-import { cardClass, primaryButton, errorBox } from '../lib/ui';
-
-export function formatWhen(value) {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? '' : date.toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' });
-}
-
-export function formatDuration(start, end) {
-  const minutes = Math.round((new Date(end) - new Date(start)) / 60000);
-  if (!Number.isFinite(minutes) || minutes < 0) return '';
-  return minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)} h ${minutes % 60} min`;
-}
+import { apiRequest } from '../../lib/api';
+import { describeApiError } from '../../lib/apiErrors';
+import { useLoad } from '../../lib/useLoad';
+import { formatWhen, formatDuration } from '../../lib/format';
+import { Loading, LoadError } from '../../components/PageState';
 
 export default function WorkoutsPage() {
   const navigate = useNavigate();
@@ -39,22 +28,22 @@ export default function WorkoutsPage() {
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <h1 className="text-2xl font-semibold">Workouts</h1>
-        <button type="button" onClick={start} disabled={starting} className={primaryButton}>
+        <button type="button" onClick={start} disabled={starting} className="btn-primary">
           {starting ? 'Starting...' : 'Start workout'}
         </button>
       </div>
-      {startError && <div role="alert" className={`${errorBox} mb-4`}>{startError}</div>}
+      {startError && <div role="alert" className="alert-error mb-4">{startError}</div>}
 
       {status === 'loading' && <Loading label="Loading workouts" />}
       {status === 'error' && <LoadError error={error} onRetry={reload} />}
       {status === 'ready' && data.length === 0 && (
-        <div className={`${cardClass} p-6 text-sm text-gray-400`}>No workouts yet. Start your first one above.</div>
+        <div className="card p-6 text-sm text-gray-400">No workouts yet. Start your first one above.</div>
       )}
       {status === 'ready' && data.length > 0 && (
         <ul className="space-y-3">
           {data.map((session) => (
             <li key={session.id}>
-              <Link to={`/workouts/${session.id}`} className={`${cardClass} flex flex-wrap items-center justify-between gap-2 p-4 !text-gray-100 hover:border-gray-700`}>
+              <Link to={`/workouts/${session.id}`} className="card flex flex-wrap items-center justify-between gap-2 p-4 hover:border-gray-700">
                 <span className="font-medium">{formatWhen(session.started_at)}</span>
                 <span className="text-sm text-gray-400">
                   {session.completed_at

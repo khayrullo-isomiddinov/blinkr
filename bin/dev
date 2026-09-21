@@ -17,16 +17,11 @@ export AWS_XRAY_SDK_ENABLED=false
 echo "== backend dependencies"
 cd "$ROOT/backend-flask"
 [ -x venv/bin/python ] || python3 -m venv venv
-venv/bin/python -c "import flask, psycopg2" 2>/dev/null || venv/bin/pip install -q -r requirements.txt
+venv/bin/python -c "import flask, psycopg2" 2>/dev/null || venv/bin/pip install -q -r requirements-dev.txt
 
 echo "== database"
 HAS_WORKOUT=$(psql "$DATABASE_URL" -Atc "select to_regclass('public.workout_sessions') is not null")
-HAS_OLD=$(psql "$DATABASE_URL" -Atc "select to_regclass('public.matches') is not null or to_regclass('public.teams') is not null")
-if [ "$HAS_OLD" = "t" ]; then
-  echo "removing the old football tables"
-  psql "$DATABASE_URL" -q -c "DROP TABLE IF EXISTS public.match_events, public.match_reactions, public.user_followed_matches, public.user_followed_teams, public.matches, public.teams CASCADE"
-fi
-if [ "$HAS_WORKOUT" != "t" ] || [ "$HAS_OLD" = "t" ]; then
+if [ "$HAS_WORKOUT" != "t" ]; then
   echo "loading workout schema + starter exercises"
   psql "$DATABASE_URL" -q -f db/schema.sql >/dev/null
   psql "$DATABASE_URL" -q -f db/seed.sql

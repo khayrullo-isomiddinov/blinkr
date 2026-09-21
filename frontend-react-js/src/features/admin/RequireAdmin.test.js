@@ -3,19 +3,19 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 
-import { appRoutes } from '../routes';
-import { apiRequest, ApiError } from '../lib/api';
-import { signOut, getCurrentAccessToken } from '../lib/auth';
+import { appRoutes } from '../../routes';
+import { apiRequest, ApiError } from '../../lib/api';
+import { signOut, getCurrentAccessToken } from '../../lib/auth';
 
-jest.mock('../lib/auth', () => ({
+jest.mock('../../lib/auth', () => ({
   signIn: jest.fn(),
   signOut: jest.fn(),
   clearSession: jest.fn(),
   getCurrentAccessToken: jest.fn(),
 }));
 
-jest.mock('../lib/api', () => {
-  const actual = jest.requireActual('../lib/api');
+jest.mock('../../lib/api', () => {
+  const actual = jest.requireActual('../../lib/api');
   return { ...actual, apiRequest: jest.fn() };
 });
 

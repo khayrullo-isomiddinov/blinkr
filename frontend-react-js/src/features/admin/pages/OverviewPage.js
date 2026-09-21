@@ -1,5 +1,5 @@
 import React from 'react';
-import { apiRequest } from '../../lib/api';
+import { apiRequest } from '../../../lib/api';
 
 const isCount = (value) => Number.isInteger(value) && value >= 0;
 
@@ -22,8 +22,6 @@ function formatTime(iso) {
   const date = new Date(iso);
   return Number.isNaN(date.getTime()) ? '' : date.toLocaleString();
 }
-
-const buttonClass = 'px-3 py-1.5 rounded text-sm border border-gray-700 hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed';
 
 function Stat({ label, value, tone }) {
   return (
@@ -132,7 +130,7 @@ export default function OverviewPage() {
             <p className="text-xs text-gray-500" aria-live="polite">
               {refreshing ? 'Refreshing...' : `Updated ${formatTime(data.generated_at)}`}
             </p>
-            <button type="button" onClick={refresh} disabled={refreshing} className={buttonClass}>Refresh</button>
+            <button type="button" onClick={refresh} disabled={refreshing} className="btn-secondary">Refresh</button>
           </div>
         )}
       </div>
@@ -143,7 +141,7 @@ export default function OverviewPage() {
         <div role="alert" className="rounded border border-gray-800 bg-gray-900 p-6 max-w-xl">
           <h2 className="text-base font-semibold mb-1">Overview unavailable</h2>
           <p className="text-sm text-gray-400 mb-4">The overview could not be loaded. Try again in a moment.</p>
-          <button type="button" onClick={retry} className={buttonClass}>Retry</button>
+          <button type="button" onClick={retry} className="btn-secondary">Retry</button>
         </div>
       )}
 

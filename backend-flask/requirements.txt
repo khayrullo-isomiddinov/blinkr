@@ -1,14 +1,13 @@
 flask
 flask-cors
-opentelemetry-api 
-opentelemetry-sdk 
-opentelemetry-exporter-otlp-proto-http 
-opentelemetry-instrumentation-flask 
+opentelemetry-api
+opentelemetry-sdk
+opentelemetry-exporter-otlp-proto-http
+opentelemetry-instrumentation-flask
 opentelemetry-instrumentation-requests
 
 aws-xray-sdk
-watchtower
-
+boto3
 blinker
 rollbar
 
@@ -16,5 +15,3 @@ python-jose[cryptography]
 
 gunicorn
 psycopg2-binary
-
-pytest

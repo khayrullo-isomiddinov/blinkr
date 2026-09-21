@@ -1,6 +1,5 @@
 import React from 'react';
 import { describeApiError } from '../lib/apiErrors';
-import { cardClass, secondaryButton } from '../lib/ui';
 
 export function Loading({ label = 'Loading' }) {
   return (
@@ -14,9 +13,9 @@ export function Loading({ label = 'Loading' }) {
 
 export function LoadError({ error, onRetry }) {
   return (
-    <div role="alert" className={`${cardClass} p-5 max-w-lg`}>
+    <div role="alert" className="card p-5 max-w-lg">
       <p className="text-sm text-gray-300 mb-3">{describeApiError(error)}</p>
-      <button type="button" onClick={onRetry} className={secondaryButton}>Try again</button>
+      <button type="button" onClick={onRetry} className="btn-secondary">Try again</button>
     </div>
   );
 }
