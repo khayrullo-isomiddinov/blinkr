@@ -1,9 +1,38 @@
 import { Auth } from 'aws-amplify';
 
-// Shared Cognito auth calls, kept out of page components.
+export function signIn(username, password) {
+  return Auth.signIn({ username, password });
+}
 
-export function signIn(email, password) {
-  return Auth.signIn({ username: email, password });
+// The access token, never the ID token -- the backend authorizes on it.
+export async function getCurrentAccessToken() {
+  try {
+    const session = await Auth.currentSession();
+    return session.getAccessToken().getJwtToken();
+  } catch (err) {
+    return null;
+  }
+}
+
+// Local-only clear for after a 401, when the token is already known to be bad.
+export async function clearSession() {
+  try {
+    await Auth.signOut();
+  } catch (err) {
+    // nothing more to clear
+  }
+  localStorage.removeItem('access_token');
+}
+
+export async function signOut() {
+  try {
+    await Auth.signOut({ global: true });
+  } catch (err) {
+    // global revoke needs the network; local state must clear regardless
+    await Auth.signOut();
+  } finally {
+    localStorage.removeItem('access_token');
+  }
 }
 
 export function signUp({ name, email, username, password }) {
@@ -28,10 +57,6 @@ export function forgotPassword(username) {
 
 export function forgotPasswordSubmit(username, code, newPassword) {
   return Auth.forgotPasswordSubmit(username, code, newPassword);
-}
-
-export function signOut() {
-  return Auth.signOut({ global: true });
 }
 
 export function currentAuthenticatedUser() {

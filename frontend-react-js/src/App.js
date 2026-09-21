@@ -1,11 +1,11 @@
 import React from 'react';
 import process from 'process';
-import {
-  createBrowserRouter,
-  RouterProvider
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 
 import { Amplify } from 'aws-amplify';
+
+import { appRoutes } from './routes';
+import { setUnauthorizedHandler } from './lib/api';
 
 Amplify.configure({
   Auth: {
@@ -15,20 +15,10 @@ Amplify.configure({
   }
 });
 
-function HomePage() {
-  return (
-    <div className="min-h-screen flex items-center justify-center px-4">
-      <p className="text-gray-400">Application foundation -- product not yet implemented.</p>
-    </div>
-  );
-}
+const router = createBrowserRouter(appRoutes);
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <HomePage />
-  }
-]);
+// A 401 from any API call clears the session (in lib/api.js), then lands here.
+setUnauthorizedHandler(() => router.navigate('/signin', { replace: true }));
 
 function App() {
   return (
