@@ -32,11 +32,19 @@ def test_invalid_token_raises():
     resolve_current_user(headers, fake_token)
 
 
-def test_unprovisioned_user_raises(db_available):
+def test_first_sign_in_creates_the_user_row_once(db_available):
+  from lib.db import execute, query_array_json
+  cognito_id = 'first-sign-in-test-user'
   headers = FakeHeaders({'Authorization': 'Bearer good-token'})
-  fake_token = FakeCognitoJwtToken(claims={'username': 'no-such-cognito-user-id'})
-  with pytest.raises(AuthError):
-    resolve_current_user(headers, fake_token)
+  fake_token = FakeCognitoJwtToken(claims={'username': cognito_id})
+  try:
+    first = resolve_current_user(headers, fake_token)
+    second = resolve_current_user(headers, fake_token)
+    assert first['uuid'] == second['uuid']
+    assert first['handle'] == cognito_id
+    assert len(query_array_json("SELECT 1 FROM public.users WHERE cognito_user_id = %s", (cognito_id,))) == 1
+  finally:
+    execute("DELETE FROM public.users WHERE cognito_user_id = %s", (cognito_id,))
 
 
 def test_resolve_optional_user_returns_none_instead_of_raising():

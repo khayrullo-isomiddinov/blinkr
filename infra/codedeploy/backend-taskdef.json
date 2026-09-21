@@ -13,8 +13,8 @@
       "essential": true,
       "portMappings": [{ "containerPort": 4567, "protocol": "tcp" }],
       "environment": [
-        { "name": "FRONTEND_URL", "value": "http://blinkr-alb-2112977045.eu-central-1.elb.amazonaws.com" },
-        { "name": "BACKEND_URL", "value": "http://blinkr-alb-2112977045.eu-central-1.elb.amazonaws.com:8080" },
+        { "name": "FRONTEND_URL", "value": "https://blinkr.fit" },
+        { "name": "BACKEND_URL", "value": "https://blinkr.fit:8443" },
         { "name": "OTEL_SERVICE_NAME", "value": "blinkr_backend" },
         { "name": "OTEL_EXPORTER_OTLP_ENDPOINT", "value": "https://api.honeycomb.io" },
         { "name": "AWS_XRAY_DAEMON_ADDRESS", "value": "127.0.0.1:2000" },

@@ -1,9 +1,8 @@
 # App foundation
 
 This repository is currently a clean application foundation, not a finished
-product. The previous application (Blinkr, a football-match discussion app)
-has been removed; the AWS/cloud infrastructure it ran on is preserved and
-still live.
+product. Blinkr is a workout-tracking app: log sessions, exercises and sets. The AWS/cloud
+infrastructure behind it is live.
 
 ## What's here
 

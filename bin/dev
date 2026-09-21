@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Runs the whole app locally: database schema -> Flask API (:4567) -> React UI (:3000).
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+set -a; source "$ROOT/.env"; set +a
+export DATABASE_URL="${DATABASE_URL:-$CONNECTION_URL}"
+
+export AWS_DEFAULT_REGION=eu-central-1
+export AWS_COGNITO_USER_POOL_ID=eu-central-1_vpiFVQ68P
+export AWS_COGNITO_USER_POOL_CLIENT_ID=7bn0hbepr945cu3d2ea07btf1p
+export FRONTEND_URL=http://localhost:3000
+export BACKEND_URL=http://127.0.0.1:4567
+export OTEL_SDK_DISABLED=true
+export AWS_XRAY_SDK_ENABLED=false
+
+echo "== backend dependencies"
+cd "$ROOT/backend-flask"
+[ -x venv/bin/python ] || python3 -m venv venv
+venv/bin/python -c "import flask, psycopg2" 2>/dev/null || venv/bin/pip install -q -r requirements.txt
+
+echo "== database"
+HAS_WORKOUT=$(psql "$DATABASE_URL" -Atc "select to_regclass('public.workout_sessions') is not null")
+HAS_OLD=$(psql "$DATABASE_URL" -Atc "select to_regclass('public.matches') is not null or to_regclass('public.teams') is not null")
+if [ "$HAS_OLD" = "t" ]; then
+  echo "removing the old football tables"
+  psql "$DATABASE_URL" -q -c "DROP TABLE IF EXISTS public.match_events, public.match_reactions, public.user_followed_matches, public.user_followed_teams, public.matches, public.teams CASCADE"
+fi
+if [ "$HAS_WORKOUT" != "t" ] || [ "$HAS_OLD" = "t" ]; then
+  echo "loading workout schema + starter exercises"
+  psql "$DATABASE_URL" -q -f db/schema.sql >/dev/null
+  psql "$DATABASE_URL" -q -f db/seed.sql
+fi
+
+echo "== starting API on :4567"
+venv/bin/python -m flask --app app run --host 127.0.0.1 --port 4567 &
+API_PID=$!
+trap 'kill $API_PID 2>/dev/null || true' EXIT
+
+echo "== starting UI on :3000  ->  open http://localhost:3000"
+cd "$ROOT/frontend-react-js"
+[ -d node_modules ] || npm install
+REACT_APP_BACKEND_URL=http://127.0.0.1:4567 \
+REACT_APP_AWS_PROJECT_REGION=eu-central-1 \
+REACT_APP_AWS_USER_POOLS_ID=eu-central-1_vpiFVQ68P \
+REACT_APP_AWS_USER_POOLS_WEB_CLIENT_ID=7bn0hbepr945cu3d2ea07btf1p \
+WATCHPACK_POLLING=true \
+npm start

@@ -1,11 +1,11 @@
 import React from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { signIn, clearSession } from '../lib/auth';
 import { describeAuthError } from '../lib/authErrors';
 
 // Only ever go back to an in-app path, never an arbitrary URL.
 function safeDestination(from) {
-  return typeof from === 'string' && from.startsWith('/') && !from.startsWith('//') ? from : '/admin';
+  return typeof from === 'string' && from.startsWith('/') && !from.startsWith('//') ? from : '/workouts';
 }
 
 export default function SignInPage() {
@@ -45,6 +45,12 @@ export default function SignInPage() {
         <p className="text-center text-2xl font-extrabold text-emerald-400 mb-6">Blinkr</p>
         <form onSubmit={handleSubmit} className="bg-gray-900 border border-gray-800 rounded-lg p-6" noValidate>
           <h1 className="text-xl font-bold text-center mb-6">Sign in</h1>
+
+          {!error && location.state && location.state.notice && (
+            <div role="status" className="mb-4 px-3 py-2 rounded bg-emerald-950 border border-emerald-900 text-emerald-300 text-sm">
+              {location.state.notice}
+            </div>
+          )}
 
           {error && (
             <div role="alert" className="mb-4 px-3 py-2 rounded bg-red-950 border border-red-900 text-red-300 text-sm">
@@ -86,6 +92,9 @@ export default function SignInPage() {
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
+        <p className="text-center text-sm text-gray-400 mt-4">
+          New here? <Link to="/signup">Create an account</Link>
+        </p>
       </div>
     </div>
   );

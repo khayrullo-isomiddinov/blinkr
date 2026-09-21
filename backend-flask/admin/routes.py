@@ -1,6 +1,7 @@
 from flask import Blueprint, g, request
 
 from lib.auth import resolve_admin, AuthError, ForbiddenError
+from admin.overview import build_overview
 
 
 def register_admin_routes(app, cognito_jwt_token):
@@ -27,5 +28,9 @@ def register_admin_routes(app, cognito_jwt_token):
   @admin.route('/me', methods=['GET'])
   def data_admin_me():
     return g.admin, 200
+
+  @admin.route('/overview', methods=['GET'])
+  def data_admin_overview():
+    return build_overview(), 200
 
   app.register_blueprint(admin)

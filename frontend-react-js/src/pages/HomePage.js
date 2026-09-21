@@ -1,9 +1,24 @@
 import React from 'react';
+import { Link, Navigate } from 'react-router-dom';
+import { useSession } from '../lib/useSession';
+import { primaryButton, secondaryButton } from '../lib/ui';
 
 export default function HomePage() {
+  const status = useSession();
+  if (status === 'in') return <Navigate to="/workouts" replace />;
+
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
-      <p className="text-gray-400">Application foundation -- product not yet implemented.</p>
+      <div className="text-center max-w-md">
+        <h1 className="text-4xl font-extrabold text-emerald-400 mb-3">Blinkr</h1>
+        <p className="text-gray-300 mb-8">Log your workouts, track every set, and see your training add up.</p>
+        {status === 'out' && (
+          <div className="flex justify-center gap-3">
+            <Link to="/signup" className={`${primaryButton} !text-white hover:!text-white`}>Create account</Link>
+            <Link to="/signin" className={`${secondaryButton} !text-gray-200`}>Sign in</Link>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

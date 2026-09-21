@@ -37,6 +37,9 @@ function renderAt(path) {
   return router;
 }
 
+// The shell also mounts Overview, which calls the (mocked) API too; its request just stays pending here.
+const answerApi = (me) => apiRequest.mockImplementation((path) => (path === '/api/admin/me' ? me() : new Promise(() => {})));
+
 // router 6.4's navigate() is a no-op until the component's passive effects have flushed
 const settle = () => act(() => new Promise((resolve) => setTimeout(resolve, 0)));
 
@@ -63,7 +66,7 @@ test.each(ADMIN_PATHS)('%s is behind the admin gate (401 -> /signin)', async (pa
 });
 
 test('a backend 200 from /api/admin/me renders the admin shell', async () => {
-  apiRequest.mockResolvedValue(ADMIN);
+  answerApi(() => Promise.resolve(ADMIN));
 
   renderAt('/admin');
 
@@ -77,7 +80,7 @@ test('a backend 200 from /api/admin/me renders the admin shell', async () => {
 });
 
 test('the gate defers to the backend and never inspects the token itself', async () => {
-  apiRequest.mockResolvedValue(ADMIN);
+  answerApi(() => Promise.resolve(ADMIN));
   renderAt('/admin');
   await screen.findByRole('heading', { name: 'Overview' });
   expect(getCurrentAccessToken).not.toHaveBeenCalled();
@@ -108,9 +111,8 @@ test('a backend 403 renders "Admin access required" with a sign-out action, not 
 });
 
 test('other failures show an unavailable state without backend internals, and can retry', async () => {
-  apiRequest
-    .mockRejectedValueOnce(new ApiError(500, ['internal_stack_detail_xyz']))
-    .mockResolvedValueOnce(ADMIN);
+  let calls = 0;
+  answerApi(() => (calls++ === 0 ? Promise.reject(new ApiError(500, ['internal_stack_detail_xyz'])) : Promise.resolve(ADMIN)));
 
   renderAt('/admin');
 
@@ -129,7 +131,7 @@ test('a network failure or unexpected error also shows the unavailable state', a
 });
 
 test('sign-out from the admin shell clears auth and returns to /signin', async () => {
-  apiRequest.mockResolvedValue(ADMIN);
+  answerApi(() => Promise.resolve(ADMIN));
 
   const router = renderAt('/admin');
   await screen.findByRole('heading', { name: 'Overview' });
@@ -142,7 +144,7 @@ test('sign-out from the admin shell clears auth and returns to /signin', async (
 });
 
 test('sign-out still returns to /signin even if the sign-out call fails', async () => {
-  apiRequest.mockResolvedValue(ADMIN);
+  answerApi(() => Promise.resolve(ADMIN));
   signOut.mockRejectedValue(new Error('network down'));
 
   const router = renderAt('/admin');
@@ -154,7 +156,7 @@ test('sign-out still returns to /signin even if the sign-out call fails', async 
 });
 
 test('the active section is marked in the navigation', async () => {
-  apiRequest.mockResolvedValue(ADMIN);
+  answerApi(() => Promise.resolve(ADMIN));
 
   renderAt('/admin/users');
 
@@ -164,7 +166,7 @@ test('the active section is marked in the navigation', async () => {
 });
 
 test('the mobile menu toggles the sidebar', async () => {
-  apiRequest.mockResolvedValue(ADMIN);
+  answerApi(() => Promise.resolve(ADMIN));
   renderAt('/admin');
   const toggle = await screen.findByRole('button', { name: 'Menu' });
 

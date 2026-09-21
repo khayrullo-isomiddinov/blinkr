@@ -1,7 +1,8 @@
 import time
+import uuid
 
 from lib.cognito_jwt_token import CognitoJwtToken, TokenVerifyError
-from lib.db import query_array_json
+from lib.db import query_array_json, transaction
 
 ADMIN_GROUP = 'admin'
 
@@ -34,9 +35,32 @@ def resolve_current_user(request_headers, cognito_jwt_token):
     "SELECT uuid, handle, display_name FROM public.users WHERE cognito_user_id = %s",
     (cognito_user_id,)
   )
-  if not rows:
-    raise AuthError('user_not_provisioned')
-  return rows[0]
+  if rows:
+    return rows[0]
+  return _provision_user(cognito_user_id)
+
+
+def _provision_user(cognito_user_id):
+  # Cognito owns the account; the app row is created the first time a verified user shows up.
+  with transaction() as conn:
+    # serializes concurrent first requests for the same user so only one row is inserted
+    query_array_json("SELECT pg_advisory_xact_lock(hashtext(%s))", (cognito_user_id,), conn=conn)
+    existing = query_array_json(
+      "SELECT uuid, handle, display_name FROM public.users WHERE cognito_user_id = %s",
+      (cognito_user_id,), conn=conn
+    )
+    if existing:
+      return existing[0]
+
+    for handle in (cognito_user_id, f'{cognito_user_id}-{uuid.uuid4().hex[:6]}'):
+      created = query_array_json(
+        "INSERT INTO public.users (display_name, handle, cognito_user_id) VALUES (%s, %s, %s) "
+        "ON CONFLICT (handle) DO NOTHING RETURNING uuid, handle, display_name",
+        (cognito_user_id, handle, cognito_user_id), conn=conn
+      )
+      if created:
+        return created[0]
+  raise AuthError('user_not_provisioned')
 
 
 def resolve_admin(request_headers, cognito_jwt_token):
