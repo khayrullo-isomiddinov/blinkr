@@ -1,0 +1,154 @@
+AWSTemplateFormatVersion: '2010-09-09'
+# Lambda consumer for workout.session.completed -> a derived DynamoDB
+# analytics read model. PostgreSQL stays the source of truth: this table
+# holds only a per-user rollup, entirely rebuildable from Postgres +
+# outbox_events history if it were ever lost. Not a mirror of the
+# relational schema -- see WorkoutAnalyticsTable below for the one access
+# pattern it exists to serve.
+Description: blinkr - Lambda consumer for workout.session.completed events, building a DynamoDB analytics read model
+
+Parameters:
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+  FargateSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: >
+      Reused as-is (not a new security group): network.yaml's
+      RdsIngressFromFargate rule already grants this security group access
+      to RDS on 5432, so attaching the Lambda to it gives RDS connectivity
+      with no new networking resource.
+  AwsRegion:
+    Type: String
+    Default: eu-central-1
+  WorkoutEventsQueueArn:
+    Type: String
+  DatabaseUrlParameterName:
+    Type: String
+    Default: /blinkr/database_url
+    Description: SSM SecureString parameter name holding the Postgres connection string (same secret ecs.yaml's tasks use).
+
+Resources:
+  # Single-table, single-attribute-partition-key design. Two item shapes,
+  # distinguished by a prefixed pk, so one table serves both jobs:
+  #   pk = "USER#<user_id>"  -> the read-model row: GetItem(pk) is the
+  #                             entire access pattern this table exists
+  #                             for -- "this user's aggregate workout
+  #                             stats", O(1), no query/scan needed.
+  #   pk = "EVENT#<event_id>" -> a durable idempotency marker, written in
+  #                              the SAME transaction as the aggregate
+  #                              update (see handler.py), so a duplicate
+  #                              at-least-once delivery of the same
+  #                              event_id can never double-count.
+  # No GSIs, no mirrored PostgreSQL tables -- deliberately minimal.
+  WorkoutAnalyticsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: blinkr-workout-analytics
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+
+  WorkoutAnalyticsConsumerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: blinkr-workout-analytics-consumer-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        # Required because this function has a VpcConfig (it needs to
+        # reach RDS) -- lets Lambda create/manage the ENIs that VPC
+        # attachment requires. Standard AWS-managed policy for exactly
+        # this, not a custom broadening.
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole
+      Policies:
+        - PolicyName: blinkr-workout-analytics-consumer-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: arn:aws:logs:*:*:*
+              - Effect: Allow
+                Action:
+                  - sqs:ReceiveMessage
+                  - sqs:DeleteMessage
+                  - sqs:GetQueueAttributes
+                Resource: !Ref WorkoutEventsQueueArn
+              - Effect: Allow
+                Action:
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:TransactWriteItems
+                Resource: !GetAtt WorkoutAnalyticsTable.Arn
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                Resource: !Sub arn:aws:ssm:${AwsRegion}:${AWS::AccountId}:parameter${DatabaseUrlParameterName}
+              - Effect: Allow
+                Action:
+                  - kms:Decrypt
+                Resource: !Sub arn:aws:kms:${AwsRegion}:${AWS::AccountId}:alias/aws/ssm
+
+  WorkoutAnalyticsConsumerFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: blinkr-workout-analytics-consumer
+      Runtime: python3.12
+      Handler: handler.handler
+      Role: !GetAtt WorkoutAnalyticsConsumerRole.Arn
+      Timeout: 30
+      MemorySize: 256
+      VpcConfig:
+        SubnetIds: !Ref SubnetIds
+        SecurityGroupIds:
+          - !Ref FargateSecurityGroupId
+      Environment:
+        Variables:
+          ANALYTICS_TABLE_NAME: !Ref WorkoutAnalyticsTable
+          # Not the secret value itself -- the function fetches it from
+          # SSM at runtime (see handler.py's _default_db_connection).
+          # CloudFormation dynamic references (`{{resolve:ssm-secure:...}}`)
+          # were tried first and rejected by cfn-lint: SecureString
+          # dynamic references aren't supported in Lambda environment
+          # variables (unlike ECS's `Secrets` field, which is how
+          # ecs.yaml's tasks get this same secret). See the deployment
+          # note in the final report about what this implies for network
+          # reachability.
+          DATABASE_URL_PARAMETER_NAME: !Ref DatabaseUrlParameterName
+      Code:
+        ZipFile: |
+          def handler(event, context):
+              return {'batchItemFailures': []}  # placeholder - replaced by deploy script
+
+  WorkoutAnalyticsEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Properties:
+      EventSourceArn: !Ref WorkoutEventsQueueArn
+      FunctionName: !GetAtt WorkoutAnalyticsConsumerFunction.Arn
+      # Conservative: this is a low-volume event stream (one message per
+      # workout completion), not a high-throughput pipeline.
+      BatchSize: 10
+      FunctionResponseTypes:
+        - ReportBatchItemFailures
+
+Outputs:
+  TableName:
+    Value: !Ref WorkoutAnalyticsTable
+  TableArn:
+    Value: !GetAtt WorkoutAnalyticsTable.Arn
+  FunctionArn:
+    Value: !GetAtt WorkoutAnalyticsConsumerFunction.Arn
+  FunctionName:
+    Value: !Ref WorkoutAnalyticsConsumerFunction

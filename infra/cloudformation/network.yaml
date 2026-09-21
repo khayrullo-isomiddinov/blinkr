@@ -8,6 +8,12 @@ Parameters:
     Type: List<AWS::EC2::Subnet::Id>
   RdsSecurityGroupId:
     Type: AWS::EC2::SecurityGroup::Id
+  RouteTableIds:
+    Type: List<String>
+    Description: >
+      Route table(s) associated with SubnetIds, for the DynamoDB gateway
+      endpoint's route. Not owned by this stack (this is the default VPC's
+      own route table), so supplied externally, same as VpcId/SubnetIds.
   CertificateArn:
     Type: String
     Default: ''
@@ -80,6 +86,71 @@ Resources:
       FromPort: 5432
       ToPort: 5432
       SourceSecurityGroupId: !Ref FargateSecurityGroup
+
+  # VPC endpoints so VPC-attached workloads (the workout-analytics Lambda,
+  # and reusable by any future one on FargateSecurityGroup) can reach
+  # DynamoDB/SSM/KMS without a NAT Gateway, which this account
+  # intentionally doesn't have. ECS tasks don't need these -- they reach
+  # AWS APIs via their public IP (AssignPublicIp: ENABLED) -- this is only
+  # for workloads that can't get a public IP, i.e. Lambda.
+
+  # Gateway endpoint: no ENI, no hourly charge, no security group -- it
+  # works by adding a route for DynamoDB's prefix list to the given route
+  # tables. Free, so no reason to scope it narrower than "the route tables
+  # the relevant subnets use".
+  DynamoDbGatewayEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VpcId
+      VpcEndpointType: Gateway
+      ServiceName: !Sub com.amazonaws.${AWS::Region}.dynamodb
+      RouteTableIds: !Ref RouteTableIds
+
+  # Interface endpoints (SSM, KMS) are ENIs in the given subnets and do
+  # need a security group -- HTTPS only, only from the shared Fargate
+  # security group the Lambda already reuses (req 8: no new Lambda-
+  # specific security group). PrivateDnsEnabled means the *standard*
+  # ssm./kms.<region>.amazonaws.com hostnames boto3 already calls resolve
+  # privately inside the VPC -- no application/handler code change needed.
+  VpcEndpointSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: blinkr VPC interface endpoints (SSM, KMS) - HTTPS from the shared Fargate/Lambda security group only
+      VpcId: !Ref VpcId
+      Tags:
+        - Key: Name
+          Value: blinkr-vpc-endpoints-sg
+
+  VpcEndpointIngressFromFargate:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref VpcEndpointSecurityGroup
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+      SourceSecurityGroupId: !Ref FargateSecurityGroup
+
+  SsmInterfaceEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VpcId
+      VpcEndpointType: Interface
+      ServiceName: !Sub com.amazonaws.${AWS::Region}.ssm
+      SubnetIds: !Ref SubnetIds
+      SecurityGroupIds:
+        - !Ref VpcEndpointSecurityGroup
+      PrivateDnsEnabled: true
+
+  KmsInterfaceEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VpcId
+      VpcEndpointType: Interface
+      ServiceName: !Sub com.amazonaws.${AWS::Region}.kms
+      SubnetIds: !Ref SubnetIds
+      SecurityGroupIds:
+        - !Ref VpcEndpointSecurityGroup
+      PrivateDnsEnabled: true
 
   ApplicationLoadBalancer:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
@@ -228,6 +299,14 @@ Outputs:
     Value: !GetAtt BackendTargetGroupGreen.TargetGroupName
   FargateSecurityGroupId:
     Value: !Ref FargateSecurityGroup
+  VpcEndpointSecurityGroupId:
+    Value: !Ref VpcEndpointSecurityGroup
+  DynamoDbGatewayEndpointId:
+    Value: !Ref DynamoDbGatewayEndpoint
+  SsmInterfaceEndpointId:
+    Value: !Ref SsmInterfaceEndpoint
+  KmsInterfaceEndpointId:
+    Value: !Ref KmsInterfaceEndpoint
   HttpListenerArn:
     Value: !Ref HttpListener
   BackendListenerArn:

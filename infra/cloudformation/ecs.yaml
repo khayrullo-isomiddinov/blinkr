@@ -35,6 +35,12 @@ Parameters:
     Type: String
   WorkoutEventsQueueArn:
     Type: String
+  WorkerScheduleExpression:
+    Type: String
+    Default: rate(1 minute)
+    Description: >
+      EventBridge Scheduler expression controlling how often the outbox
+      worker task runs (rate(...) or cron(...)).
 
 Resources:
   Cluster:
@@ -55,6 +61,12 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: /ecs/blinkr-frontend
+      RetentionInDays: 14
+
+  WorkerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: /ecs/blinkr-outbox-worker
       RetentionInDays: 14
 
   TaskExecutionRole:
@@ -182,6 +194,116 @@ Resources:
               awslogs-region: !Ref AwsRegion
               awslogs-stream-prefix: xray
 
+  # Standalone one-batch outbox worker, same image as the API, different
+  # command. No PortMappings (nothing listens), no ALB target group, no
+  # AWS::ECS::Service -- this is run on demand via `aws ecs run-task`, not
+  # kept running: the container starts, worker.py processes one batch, and
+  # exits. Scheduling that invocation (EventBridge Scheduler or otherwise)
+  # is a later step, not this one.
+  WorkerTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: blinkr-outbox-worker
+      Cpu: '256'
+      Memory: '512'
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      ExecutionRoleArn: !GetAtt TaskExecutionRole.Arn
+      TaskRoleArn: !GetAtt BackendTaskRole.Arn
+      ContainerDefinitions:
+        - Name: outbox-worker
+          Image: !Ref BackendImage
+          Essential: true
+          Command:
+            - python3
+            - worker.py
+          Environment:
+            - Name: AWS_DEFAULT_REGION
+              Value: !Ref AwsRegion
+            - Name: WORKOUT_EVENTS_QUEUE_URL
+              Value: !Ref WorkoutEventsQueueUrl
+          Secrets:
+            - Name: DATABASE_URL
+              ValueFrom: !Ref DatabaseUrlSecretArn
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref WorkerLogGroup
+              awslogs-region: !Ref AwsRegion
+              awslogs-stream-prefix: worker
+
+  # Lets EventBridge Scheduler (and only EventBridge Scheduler, and only
+  # for this account) invoke ecs:RunTask for the worker task specifically,
+  # on the existing cluster, and pass it the two roles its task definition
+  # already references. Nothing broader -- this role can't run any other
+  # task definition, and BackendTaskRole/TaskExecutionRole themselves are
+  # untouched.
+  WorkerSchedulerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: blinkr-outbox-scheduler-role
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: scheduler.amazonaws.com
+            Action: sts:AssumeRole
+            Condition:
+              StringEquals:
+                aws:SourceAccount: !Ref AWS::AccountId
+      Policies:
+        - PolicyName: blinkr-outbox-scheduler-policy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ecs:RunTask
+                Resource: !Ref WorkerTaskDefinition
+                Condition:
+                  ArnLike:
+                    ecs:cluster: !GetAtt Cluster.Arn
+              - Effect: Allow
+                Action:
+                  - iam:PassRole
+                Resource:
+                  - !GetAtt BackendTaskRole.Arn
+                  - !GetAtt TaskExecutionRole.Arn
+                Condition:
+                  StringEquals:
+                    iam:PassedToService: ecs-tasks.amazonaws.com
+
+  # Fires WorkerTaskDefinition on a schedule as a one-shot Fargate RunTask --
+  # not a service, nothing kept running. Overlapping firings (a slow task
+  # from one tick still in flight when the next tick fires) are safe by
+  # construction: OutboxPublisher claims rows with `FOR UPDATE SKIP LOCKED`
+  # per event, so two concurrent worker tasks just split the unpublished
+  # rows between them rather than double-publishing anything -- no
+  # additional distributed lock is needed here.
+  WorkerSchedule:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Name: blinkr-outbox-worker-schedule
+      Description: Runs the outbox worker as a one-shot Fargate task to publish unpublished outbox_events.
+      ScheduleExpression: !Ref WorkerScheduleExpression
+      FlexibleTimeWindow:
+        Mode: 'OFF'
+      Target:
+        Arn: !GetAtt Cluster.Arn
+        RoleArn: !GetAtt WorkerSchedulerRole.Arn
+        EcsParameters:
+          TaskDefinitionArn: !Ref WorkerTaskDefinition
+          LaunchType: FARGATE
+          TaskCount: 1
+          NetworkConfiguration:
+            AwsvpcConfiguration:
+              Subnets: !Ref SubnetIds
+              SecurityGroups:
+                - !Ref FargateSecurityGroupId
+              AssignPublicIp: ENABLED
+
   FrontendTaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties:
@@ -253,3 +375,5 @@ Outputs:
     Value: !GetAtt BackendServiceV2.Name
   FrontendServiceName:
     Value: !GetAtt FrontendServiceV2.Name
+  WorkerTaskDefinitionArn:
+    Value: !Ref WorkerTaskDefinition
