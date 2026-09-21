@@ -56,9 +56,9 @@ export default function SignUpPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-sm">
-        <p className="text-center text-2xl font-extrabold text-emerald-400 mb-6">Blinkr</p>
+        <p className="text-center font-display text-2xl font-extrabold text-accent mb-6">Blinkr</p>
         <div className="card p-6">
-          <h1 className="text-xl font-bold text-center mb-6">{step === 'details' ? 'Create your account' : 'Confirm your email'}</h1>
+          <h1 className="font-display text-2xl font-extrabold text-center mb-6">{step === 'details' ? 'Create your account' : 'Confirm your email'}</h1>
           {error && <div role="alert" className="alert-error mb-4">{error}</div>}
           {notice && !error && <div role="status" className="alert-success mb-4">{notice}</div>}
 
@@ -93,7 +93,7 @@ export default function SignUpPage() {
             </form>
           )}
         </div>
-        <p className="text-center text-sm text-gray-400 mt-4">
+        <p className="text-center text-sm text-fg-mute mt-4">
           Already have an account? <Link to="/signin">Sign in</Link>
         </p>
       </div>

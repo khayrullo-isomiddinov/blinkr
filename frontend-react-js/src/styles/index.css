@@ -5,45 +5,61 @@
 /* Element defaults. Kept in the base layer so any utility or component class overrides them. */
 @layer base {
   body {
-    @apply bg-gray-950 text-gray-100;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    @apply bg-ink-950 text-fg font-sans antialiased;
   }
 
   a {
-    @apply text-emerald-400 hover:text-emerald-300;
+    @apply text-accent hover:underline;
   }
 }
 
 /* Shared building blocks. Page-specific layout stays in Tailwind utilities on the element. */
 @layer components {
   .card {
-    @apply rounded-lg border border-gray-800 bg-gray-900;
+    @apply rounded-[10px] bg-ink-900;
   }
 
   .field-label {
-    @apply block text-sm font-medium text-gray-300 mb-1;
+    @apply block text-xs font-medium uppercase tracking-wider text-fg-mute mb-1.5;
   }
 
   .input {
-    @apply w-full bg-gray-800 border border-gray-700 rounded px-3 py-2 text-sm text-gray-100 placeholder-gray-500
-      focus:outline-none focus:border-emerald-600;
+    @apply w-full min-h-[44px] rounded-lg border border-ink-600 bg-ink-950 px-3 py-2 text-base text-fg
+      placeholder-fg-mute focus:outline-none focus:border-accent;
   }
 
   .btn-primary {
-    @apply inline-block px-4 py-2 rounded text-sm font-semibold text-center bg-emerald-600 text-white
-      hover:bg-emerald-500 hover:text-white disabled:opacity-40 disabled:hover:bg-emerald-600;
+    @apply inline-flex items-center justify-center gap-2 min-h-[44px] px-5 rounded-lg bg-accent text-accent-ink font-display
+      font-extrabold hover:brightness-110 hover:no-underline disabled:opacity-40 disabled:hover:brightness-100;
   }
 
   .btn-secondary {
-    @apply inline-block px-3 py-1.5 rounded text-sm text-center border border-gray-700 text-gray-200
-      hover:bg-gray-800 hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 min-h-[44px] px-4 rounded-lg bg-ink-800 text-fg text-sm
+      font-semibold hover:bg-ink-600 hover:no-underline disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 min-h-[44px] px-4 rounded-lg border border-ink-500 text-fg font-display
+      font-bold hover:bg-ink-800 hover:no-underline disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .stepper-btn {
+    @apply flex w-11 flex-none items-center justify-center rounded-lg bg-ink-800 text-fg hover:bg-ink-600 lg:w-[52px];
+  }
+
+  .seg-btn {
+    @apply min-h-[44px] rounded-lg bg-ink-800 text-[13px] font-medium text-fg-mute hover:bg-ink-600 lg:text-sm;
+  }
+
+  .seg-btn[aria-pressed='true'] {
+    @apply bg-accent font-semibold text-accent-ink hover:bg-accent;
   }
 
   .alert-error {
-    @apply px-3 py-2 rounded bg-red-950 border border-red-900 text-red-300 text-sm;
+    @apply px-3 py-2 rounded-lg bg-red-950 border border-red-900 text-red-300 text-sm;
   }
 
   .alert-success {
-    @apply px-3 py-2 rounded bg-emerald-950 border border-emerald-900 text-emerald-300 text-sm;
+    @apply px-3 py-2 rounded-lg bg-emerald-950 border border-emerald-900 text-emerald-300 text-sm;
   }
 }

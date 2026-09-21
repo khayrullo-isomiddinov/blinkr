@@ -3,14 +3,75 @@ import { Link, useParams } from 'react-router-dom';
 import { apiRequest, ApiError } from '../../lib/api';
 import { describeApiError } from '../../lib/apiErrors';
 import { useLoad } from '../../lib/useLoad';
+import { formatDay, formatClock, formatDuration, formatElapsed } from '../../lib/format';
 import { Loading, LoadError } from '../../components/PageState';
-import { formatWhen, formatDuration } from '../../lib/format';
+import { ChevronLeft, ChevronRight, Plus, Minus, Check } from '../../components/icons';
 
-const SET_TYPES = ['working', 'warmup', 'drop', 'failure'];
+const SET_TYPES = [['warmup', 'Warm-up'], ['working', 'Working'], ['drop', 'Drop'], ['failure', 'Failure']];
+const TYPE_LABEL = Object.fromEntries(SET_TYPES);
 const nextNumber = (items, field) => items.reduce((max, item) => Math.max(max, item[field]), 0) + 1;
+const num = 'font-display font-bold tabular-nums';
 
-function AddSetForm({ sessionId, sessionExercise, onAdded }) {
-  const last = sessionExercise.sets[sessionExercise.sets.length - 1];
+function formatSet(set) {
+  return set.weight != null ? `${Number(set.weight)} ${set.weight_unit} × ${set.reps}` : `${set.reps} reps`;
+}
+
+function setCount(exercise) {
+  return `${exercise.sets.length} ${exercise.sets.length === 1 ? 'set' : 'sets'}`;
+}
+
+function useElapsed(startedAt, running) {
+  const [now, setNow] = React.useState(Date.now());
+  React.useEffect(() => {
+    if (!running) return undefined;
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [running]);
+  return startedAt ? now - new Date(startedAt).getTime() : 0;
+}
+
+function SetRows({ sets, muted }) {
+  if (sets.length === 0) return <p className="border-t border-ink-700 py-4 text-sm text-fg-mute">No sets logged yet.</p>;
+  return (
+    <ul>
+      {sets.map((set) => (
+        <li key={set.id} className={`grid grid-cols-[2rem_1fr_auto] items-center border-t ${muted ? 'h-[46px] border-ink-700/70' : 'h-[52px] border-ink-700'}`}>
+          <span className="text-sm text-fg-mute">{set.set_order}</span>
+          <span className={`text-sm ${set.set_type === 'warmup' || muted ? 'text-fg-mute' : 'text-fg'}`}>{TYPE_LABEL[set.set_type] || set.set_type}</span>
+          <span className={`${num} ${muted ? 'text-[19px] text-fg-soft' : 'text-[21px] lg:text-[22px]'}`}>{formatSet(set)}</span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function Stepper({ id, label, value, onChange, step, inputMode }) {
+  const bump = (direction) => {
+    const current = Number(value);
+    const base = value.trim() !== '' && Number.isFinite(current) ? current : 0;
+    onChange(String(Math.max(0, Math.round((base + direction * step) * 100) / 100)));
+  };
+  return (
+    <div>
+      <label htmlFor={id} className="field-label">{label}</label>
+      <div className="flex h-[60px] gap-1">
+        <button type="button" aria-label={`Decrease ${label.toLowerCase()}`} onClick={() => bump(-1)} className="stepper-btn"><Minus width={20} height={20} /></button>
+        <input
+          id={id}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          inputMode={inputMode}
+          placeholder="0"
+          className="min-w-0 flex-1 bg-transparent text-center font-display text-[32px] font-extrabold tabular-nums text-fg placeholder-ink-500 focus:outline-none"
+        />
+        <button type="button" aria-label={`Increase ${label.toLowerCase()}`} onClick={() => bump(1)} className="stepper-btn"><Plus width={20} height={20} /></button>
+      </div>
+    </div>
+  );
+}
+
+function SetComposer({ sessionId, exercise, onLogged }) {
+  const last = exercise.sets[exercise.sets.length - 1];
   const [reps, setReps] = React.useState(last ? String(last.reps) : '');
   const [weight, setWeight] = React.useState(last && last.weight != null ? String(Number(last.weight)) : '');
   const [unit, setUnit] = React.useState((last && last.weight_unit) || 'kg');
@@ -29,94 +90,58 @@ function AddSetForm({ sessionId, sessionExercise, onAdded }) {
       setError('Weight must be a number.');
       return;
     }
-    const body = { set_order: nextNumber(sessionExercise.sets, 'set_order'), reps: parseInt(reps, 10), set_type: setType };
+    const body = { set_order: nextNumber(exercise.sets, 'set_order'), reps: parseInt(reps, 10), set_type: setType };
     if (weight.trim() !== '') {
       body.weight = Number(weight);
       body.weight_unit = unit;
     }
     setSaving(true);
     try {
-      await apiRequest(`/api/workout-sessions/${sessionId}/exercises/${sessionExercise.id}/sets`, { method: 'POST', body });
-      onAdded();
+      await apiRequest(`/api/workout-sessions/${sessionId}/exercises/${exercise.id}/sets`, { method: 'POST', body });
+      onLogged();
     } catch (err) {
       setError(describeApiError(err));
-    } finally {
       setSaving(false);
     }
   }
 
-  const id = (name) => `${name}-${sessionExercise.id}`;
   return (
-    <form onSubmit={submit} className="mt-4 pt-4 border-t border-gray-800">
-      {error && <div role="alert" className="alert-error mb-3">{error}</div>}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 items-end">
-        <div>
-          <label htmlFor={id('reps')} className="field-label">Reps</label>
-          <input id={id('reps')} inputMode="numeric" value={reps} onChange={(e) => setReps(e.target.value)} className="input" />
-        </div>
-        <div>
-          <label htmlFor={id('weight')} className="field-label">Weight</label>
-          <input id={id('weight')} inputMode="decimal" value={weight} onChange={(e) => setWeight(e.target.value)} className="input" placeholder="optional" />
-        </div>
-        <div>
-          <label htmlFor={id('unit')} className="field-label">Unit</label>
-          <select id={id('unit')} value={unit} onChange={(e) => setUnit(e.target.value)} className="input">
-            <option value="kg">kg</option>
-            <option value="lb">lb</option>
-          </select>
-        </div>
-        <div>
-          <label htmlFor={id('type')} className="field-label">Type</label>
-          <select id={id('type')} value={setType} onChange={(e) => setSetType(e.target.value)} className="input">
-            {SET_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-          </select>
-        </div>
-        <button type="submit" disabled={saving} className="btn-primary">{saving ? 'Adding...' : 'Add set'}</button>
+    <form onSubmit={submit} aria-label="Log a set" className="card mt-3.5 flex flex-col gap-3 p-3.5 lg:p-[18px]">
+      <div className="flex items-baseline justify-between">
+        <span className="font-display text-lg font-bold lg:text-xl">Set {nextNumber(exercise.sets, 'set_order')}</span>
+        {last && <span className="text-[13px] text-fg-mute">Prev {formatSet(last)}</span>}
       </div>
+      {error && <div role="alert" className="alert-error">{error}</div>}
+      <div className="grid grid-cols-[1.3fr_1fr] gap-3 lg:grid-cols-[1.3fr_1fr_auto] lg:items-end lg:gap-4">
+        <Stepper id="set-weight" label="Weight" value={weight} onChange={setWeight} step={unit === 'kg' ? 2.5 : 5} inputMode="decimal" />
+        <Stepper id="set-reps" label="Reps" value={reps} onChange={setReps} step={1} inputMode="numeric" />
+        <div role="group" aria-label="Unit" className="col-span-2 grid grid-cols-2 gap-1 rounded-lg bg-ink-950 p-1 lg:col-span-1 lg:h-[60px] lg:w-[132px]">
+          {['kg', 'lb'].map((u) => (
+            <button
+              key={u}
+              type="button"
+              aria-pressed={unit === u}
+              onClick={() => setUnit(u)}
+              className={`h-10 rounded-md text-[15px] lg:h-auto ${unit === u ? 'bg-ink-500 font-semibold text-fg' : 'text-fg-mute'}`}
+            >
+              {u}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div role="group" aria-label="Set type" className="grid grid-cols-4 gap-1.5 lg:gap-2">
+        {SET_TYPES.map(([value, label]) => (
+          <button key={value} type="button" aria-pressed={setType === value} onClick={() => setSetType(value)} className="seg-btn">{label}</button>
+        ))}
+      </div>
+      <button type="submit" disabled={saving} className="btn-primary h-14 text-[19px]">
+        <Plus width={20} height={20} />{saving ? 'Adding...' : 'Add set'}
+      </button>
     </form>
   );
 }
 
-function ExerciseCard({ sessionId, sessionExercise, locked, onChanged }) {
-  const { sets } = sessionExercise;
-  return (
-    <section className="card p-4" aria-label={sessionExercise.exercise_name}>
-      <div className="flex items-baseline justify-between gap-2 mb-3">
-        <h2 className="font-semibold text-gray-100">{sessionExercise.exercise_name}</h2>
-        <span className="text-xs uppercase tracking-wide text-gray-500">{sessionExercise.exercise_muscle_group}</span>
-      </div>
-      {sets.length === 0 ? (
-        <p className="text-sm text-gray-500">No sets logged yet.</p>
-      ) : (
-        <table className="w-full text-left text-sm">
-          <caption className="sr-only">Sets for {sessionExercise.exercise_name}</caption>
-          <thead className="text-xs uppercase tracking-wide text-gray-500">
-            <tr>
-              <th scope="col" className="py-1 pr-3 font-medium">Set</th>
-              <th scope="col" className="py-1 pr-3 font-medium">Reps</th>
-              <th scope="col" className="py-1 pr-3 font-medium">Weight</th>
-              <th scope="col" className="py-1 font-medium">Type</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sets.map((set) => (
-              <tr key={set.id} className="border-t border-gray-800">
-                <td className="py-1.5 pr-3 text-gray-400">{set.set_order}</td>
-                <td className="py-1.5 pr-3 text-gray-100">{set.reps}</td>
-                <td className="py-1.5 pr-3 text-gray-100">{set.weight != null ? `${Number(set.weight)} ${set.weight_unit}` : '—'}</td>
-                <td className="py-1.5 text-gray-400">{set.set_type}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-      {!locked && <AddSetForm sessionId={sessionId} sessionExercise={sessionExercise} onAdded={onChanged} />}
-    </section>
-  );
-}
-
-function AddExercise({ sessionId, session, onAdded }) {
-  const library = useLoad('/api/exercises');
+function AddExercisePanel({ sessionId, session, library, onAdded, onCancel }) {
   const [exerciseId, setExerciseId] = React.useState('');
   const [error, setError] = React.useState('');
   const [saving, setSaving] = React.useState(false);
@@ -127,12 +152,12 @@ function AddExercise({ sessionId, session, onAdded }) {
     setSaving(true);
     setError('');
     try {
-      await apiRequest(`/api/workout-sessions/${sessionId}/exercises`, {
+      const created = await apiRequest(`/api/workout-sessions/${sessionId}/exercises`, {
         method: 'POST',
         body: { exercise_id: exerciseId, exercise_order: nextNumber(session.session_exercises, 'exercise_order') },
       });
       setExerciseId('');
-      onAdded();
+      onAdded(created);
     } catch (err) {
       setError(describeApiError(err));
     } finally {
@@ -142,29 +167,95 @@ function AddExercise({ sessionId, session, onAdded }) {
 
   if (library.status === 'error') return <LoadError error={library.error} onRetry={library.reload} />;
   if (library.status === 'ready' && library.data.length === 0) {
-    return <p className="card p-4 text-sm text-gray-400">Your exercise library is empty. <Link to="/exercises">Add an exercise</Link> first.</p>;
+    return <p className="card p-4 text-sm text-fg-mute">Your exercise library is empty. <Link to="/exercises">Add an exercise</Link> first.</p>;
   }
 
   return (
     <form onSubmit={add} className="card p-4">
       {error && <div role="alert" className="alert-error mb-3">{error}</div>}
       <label htmlFor="add-exercise" className="field-label">Add an exercise</label>
-      <div className="flex flex-wrap gap-3">
-        <select id="add-exercise" value={exerciseId} onChange={(e) => setExerciseId(e.target.value)} disabled={library.status !== 'ready'} className="input flex-1 min-w-[12rem]">
+      <div className="flex flex-wrap gap-2.5">
+        <select id="add-exercise" value={exerciseId} onChange={(e) => setExerciseId(e.target.value)} disabled={library.status !== 'ready'} className="input min-w-[12rem] flex-1">
           <option value="">{library.status === 'ready' ? 'Choose an exercise...' : 'Loading...'}</option>
           {library.status === 'ready' && library.data.map((e) => <option key={e.id} value={e.id}>{e.name} ({e.muscle_group})</option>)}
         </select>
         <button type="submit" disabled={!exerciseId || saving} className="btn-primary">{saving ? 'Adding...' : 'Add'}</button>
+        {onCancel && <button type="button" onClick={onCancel} className="btn-secondary">Cancel</button>}
       </div>
     </form>
+  );
+}
+
+function MobileHeader({ session, locked, elapsed }) {
+  return (
+    <header className="flex items-center gap-1 px-4 py-2 pl-1 lg:hidden">
+      <Link to="/workouts" aria-label="Back to workouts" className="flex h-11 w-11 items-center justify-center text-fg hover:no-underline">
+        <ChevronLeft width={22} height={22} />
+      </Link>
+      <div className="min-w-0 flex-1">
+        <h1 className="font-display text-[19px] font-bold leading-tight">{formatDay(session.started_at)}</h1>
+        <p className="text-[13px] text-fg-mute">{locked ? `${formatClock(session.started_at)} – ${formatClock(session.completed_at)}` : `Started ${formatClock(session.started_at)}`}</p>
+      </div>
+      {locked ? (
+        <div className="text-right">
+          <p className="text-[11px] uppercase tracking-wider text-fg-mute">Duration</p>
+          <p className="font-display text-2xl font-extrabold leading-tight text-fg-soft">{formatDuration(session.started_at, session.completed_at)}</p>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] uppercase tracking-wider text-fg-mute">Elapsed</span>
+          <span className="font-display text-[28px] font-extrabold leading-none tabular-nums">{formatElapsed(elapsed)}</span>
+        </div>
+      )}
+    </header>
+  );
+}
+
+function BackLink() {
+  return (
+    <Link to="/workouts" className="hidden items-center gap-1 text-sm text-fg-mute hover:no-underline lg:inline-flex">
+      <ChevronLeft width={16} height={16} />Workouts
+    </Link>
+  );
+}
+
+function CompletedView({ session }) {
+  return (
+    <div className="mx-auto w-full max-w-2xl px-4 pb-28 lg:pt-8">
+      <BackLink />
+      <div className="mt-2 hidden lg:block">
+        <h1 className="font-display text-4xl font-extrabold tracking-tight">{formatDay(session.started_at)}</h1>
+        <p className="mt-1 text-sm text-fg-mute">{formatClock(session.started_at)} – {formatClock(session.completed_at)} · {formatDuration(session.started_at, session.completed_at)}</p>
+      </div>
+      <div className="card mt-2 flex items-center gap-3 px-3.5 py-3 lg:mt-6">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent text-accent-ink"><Check width={16} height={16} /></span>
+        <div>
+          <p className="font-display font-bold">Workout completed</p>
+          <p className="text-xs text-fg-mute">Read-only. Sets can no longer be changed here.</p>
+        </div>
+      </div>
+      {session.session_exercises.length === 0 && <p className="mt-6 text-sm text-fg-mute">No exercises were logged.</p>}
+      {session.session_exercises.map((exercise) => (
+        <section key={exercise.id} aria-label={exercise.exercise_name} className="pt-6">
+          <h2 className="font-display text-2xl font-extrabold leading-tight text-fg-soft">{exercise.exercise_name}</h2>
+          <p className="mb-2 mt-0.5 text-[13px] capitalize text-fg-mute">{exercise.exercise_muscle_group}</p>
+          <SetRows sets={exercise.sets} muted />
+        </section>
+      ))}
+    </div>
   );
 }
 
 export default function WorkoutPage() {
   const { id } = useParams();
   const { status, data: session, error, reload } = useLoad(`/api/workout-sessions/${id}`);
+  const library = useLoad('/api/exercises');
+  const [selectedId, setSelectedId] = React.useState(null);
+  const [adding, setAdding] = React.useState(false);
   const [completing, setCompleting] = React.useState(false);
   const [completeError, setCompleteError] = React.useState('');
+  const locked = Boolean(session && session.completed_at);
+  const elapsed = useElapsed(session && session.started_at, Boolean(session) && !locked);
 
   async function complete() {
     setCompleting(true);
@@ -179,46 +270,107 @@ export default function WorkoutPage() {
     }
   }
 
-  if (status === 'loading') return <Loading label="Loading workout" />;
+  if (status === 'loading') return <div className="mx-auto max-w-2xl p-4"><Loading label="Loading workout" /></div>;
   if (status === 'error') {
     if (error instanceof ApiError && error.status === 404) {
       return (
-        <div className="card p-6 max-w-lg">
-          <p className="text-sm text-gray-300 mb-3">That workout was not found.</p>
+        <div className="card m-4 max-w-lg p-6">
+          <p className="mb-3 text-sm text-fg-soft">That workout was not found.</p>
           <Link to="/workouts">Back to workouts</Link>
         </div>
       );
     }
-    return <LoadError error={error} onRetry={reload} />;
+    return <div className="p-4"><LoadError error={error} onRetry={reload} /></div>;
   }
 
-  const locked = Boolean(session.completed_at);
+  const exercises = session.session_exercises;
+  const selected = exercises.find((e) => e.id === selectedId) || exercises[0];
+  const others = exercises.filter((e) => !selected || e.id !== selected.id);
+  const showAddPanel = adding || exercises.length === 0;
+
+  function added(created) {
+    setSelectedId(created.id);
+    setAdding(false);
+    reload();
+  }
+
+  const completeControls = (
+    <>
+      <button type="button" onClick={complete} disabled={completing} className="btn-outline h-[52px] w-full text-[17px]">
+        {completing ? 'Completing...' : 'Complete workout'}
+      </button>
+      <p className="mt-2.5 text-center text-xs text-fg-mute lg:text-left">Completed workouts are read-only.</p>
+    </>
+  );
+
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <Link to="/workouts" className="text-sm">&larr; Workouts</Link>
-          <h1 className="text-2xl font-semibold mt-2">{formatWhen(session.started_at)}</h1>
-          <p className="text-sm text-gray-400 mt-1">
-            {locked ? `Completed · ${formatDuration(session.started_at, session.completed_at)}` : <span className="text-amber-400">In progress</span>}
-          </p>
+    <div>
+      <MobileHeader session={session} locked={locked} elapsed={elapsed} />
+      {completeError && <div role="alert" className="alert-error mx-4 mb-2">{completeError}</div>}
+
+      {locked ? (
+        <CompletedView session={session} />
+      ) : (
+        <div className="mx-auto w-full px-4 pb-12 lg:grid lg:max-w-[1128px] lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-12 lg:px-12 lg:py-8">
+          <div>
+            <BackLink />
+            {showAddPanel && (
+              <div className="mb-5 lg:mt-4">
+                <AddExercisePanel sessionId={id} session={session} library={library} onAdded={added} onCancel={exercises.length > 0 ? () => setAdding(false) : null} />
+              </div>
+            )}
+
+            {selected && !adding && (
+              <section aria-label={selected.exercise_name} className="lg:mt-4">
+                <div className="pb-2.5 pt-3">
+                  <h2 className="font-display text-[29px] font-extrabold leading-[1.05] tracking-tight lg:text-4xl">{selected.exercise_name}</h2>
+                  <p className="mt-1 text-sm capitalize text-fg-mute lg:text-[15px]">{selected.exercise_muscle_group} · {setCount(selected)} logged</p>
+                </div>
+                <SetRows sets={selected.sets} />
+                <SetComposer key={`${selected.id}:${selected.sets.length}`} sessionId={id} exercise={selected} onLogged={reload} />
+              </section>
+            )}
+
+            {others.length > 0 && (
+              <div className="mt-5">
+                {others.map((exercise) => {
+                  const last = exercise.sets[exercise.sets.length - 1];
+                  return (
+                    <button
+                      key={exercise.id}
+                      type="button"
+                      aria-expanded="false"
+                      onClick={() => { setSelectedId(exercise.id); setAdding(false); }}
+                      className="grid h-[60px] w-full grid-cols-[1fr_auto_1.25rem] items-center gap-2 border-t border-ink-700 text-left text-fg"
+                    >
+                      <span className="font-display text-[19px] font-bold lg:text-xl">{exercise.exercise_name}</span>
+                      <span className="text-[13px] text-fg-mute lg:text-sm">{last ? `${setCount(exercise)} · ${formatSet(last)}` : 'No sets yet'}</span>
+                      <ChevronRight width={18} height={18} className="text-fg-mute" />
+                    </button>
+                  );
+                })}
+                <div className="border-t border-ink-700" />
+              </div>
+            )}
+
+            <div className="mt-4 lg:hidden">
+              <button type="button" onClick={() => setAdding(true)} className="btn-secondary h-[52px] w-full text-[15px]"><Plus width={18} height={18} />Add exercise</button>
+              <div className="mt-3">{completeControls}</div>
+            </div>
+          </div>
+
+          <aside aria-label="Workout" className="sticky top-8 hidden self-start pt-[52px] lg:block">
+            <div className="card p-5">
+              <p className="font-display text-lg font-bold">{formatDay(session.started_at)}</p>
+              <p className="mt-0.5 text-[13px] text-fg-mute">Started {formatClock(session.started_at)} · In progress</p>
+              <p className="mt-[18px] text-[11px] uppercase tracking-wider text-fg-mute">Elapsed</p>
+              <p className="font-display text-[56px] font-extrabold leading-[1.05] tabular-nums">{formatElapsed(elapsed)}</p>
+              <div className="mt-5">{completeControls}</div>
+            </div>
+            <button type="button" onClick={() => setAdding(true)} className="btn-secondary mt-3 h-[52px] w-full text-[15px]"><Plus width={18} height={18} />Add exercise</button>
+          </aside>
         </div>
-        {!locked && (
-          <button type="button" onClick={complete} disabled={completing} className="btn-secondary">
-            {completing ? 'Completing...' : 'Complete workout'}
-          </button>
-        )}
-      </div>
-      {completeError && <div role="alert" className="alert-error">{completeError}</div>}
-
-      {session.session_exercises.length === 0 && (
-        <p className="card p-4 text-sm text-gray-400">{locked ? 'No exercises were logged.' : 'No exercises yet. Add one below to start logging sets.'}</p>
       )}
-      {session.session_exercises.map((sessionExercise) => (
-        <ExerciseCard key={sessionExercise.id} sessionId={id} sessionExercise={sessionExercise} locked={locked} onChanged={reload} />
-      ))}
-
-      {!locked && <AddExercise sessionId={id} session={session} onAdded={reload} />}
     </div>
   );
 }

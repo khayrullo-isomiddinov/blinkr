@@ -9,7 +9,7 @@ export default function RequireAuth({ children }) {
   if (status === 'checking') {
     return (
       <div className="min-h-screen flex items-center justify-center" role="status">
-        <p className="text-gray-400 text-sm">Loading...</p>
+        <p className="text-fg-mute text-sm">Loading...</p>
       </div>
     );
   }

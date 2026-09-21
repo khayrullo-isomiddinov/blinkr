@@ -42,9 +42,9 @@ export default function SignInPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <p className="text-center text-2xl font-extrabold text-emerald-400 mb-6">Blinkr</p>
+        <p className="text-center font-display text-2xl font-extrabold text-accent mb-6">Blinkr</p>
         <form onSubmit={handleSubmit} className="card p-6" noValidate>
-          <h1 className="text-xl font-bold text-center mb-6">Sign in</h1>
+          <h1 className="font-display text-2xl font-extrabold text-center mb-6">Sign in</h1>
 
           {!error && location.state && location.state.notice && (
             <div role="status" className="alert-success mb-4">
@@ -92,7 +92,7 @@ export default function SignInPage() {
             {loading ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
-        <p className="text-center text-sm text-gray-400 mt-4">
+        <p className="text-center text-sm text-fg-mute mt-4">
           New here? <Link to="/signup">Create an account</Link>
         </p>
       </div>

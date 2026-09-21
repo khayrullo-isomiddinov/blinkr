@@ -32,7 +32,7 @@ function NewExerciseForm({ onCreated }) {
 
   return (
     <form onSubmit={submit} className="card p-4 mb-8">
-      <h2 className="text-sm font-semibold text-gray-200 mb-3">Add an exercise</h2>
+      <h2 className="text-sm font-semibold text-fg mb-3">Add an exercise</h2>
       {error && <div role="alert" className="alert-error mb-3">{error}</div>}
       <div className="grid gap-3 sm:grid-cols-4">
         <div className="sm:col-span-2">
@@ -60,32 +60,32 @@ export default function ExercisesPage() {
   const { status, data, error, reload } = useLoad('/api/exercises');
 
   return (
-    <div>
-      <h1 className="text-2xl font-semibold mb-6">Exercises</h1>
+    <div className="mx-auto w-full max-w-3xl px-4 pb-28 pt-6 sm:pb-12 sm:pt-10">
+      <h1 className="font-display text-[38px] font-extrabold leading-none tracking-tight mb-6">Exercises</h1>
       <NewExerciseForm onCreated={reload} />
 
       {status === 'loading' && <Loading label="Loading exercises" />}
       {status === 'error' && <LoadError error={error} onRetry={reload} />}
       {status === 'ready' && data.length === 0 && (
-        <div className="card p-6 text-sm text-gray-400">No exercises yet. Add your first one above.</div>
+        <div className="card p-6 text-sm text-fg-mute">No exercises yet. Add your first one above.</div>
       )}
       {status === 'ready' && data.length > 0 && (
-        <div className="overflow-x-auto rounded-lg border border-gray-800">
+        <div className="overflow-x-auto rounded-lg border border-ink-700">
           <table className="w-full text-left text-sm">
             <caption className="sr-only">Exercise library</caption>
-            <thead className="bg-gray-900 text-xs uppercase tracking-wide text-gray-400">
+            <thead className="bg-ink-900 text-xs uppercase tracking-wide text-fg-mute">
               <tr>
                 <th scope="col" className="px-4 py-2 font-medium">Name</th>
                 <th scope="col" className="px-4 py-2 font-medium">Muscle group</th>
                 <th scope="col" className="px-4 py-2 font-medium">Equipment</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-800">
+            <tbody className="divide-y divide-ink-700">
               {data.map((exercise) => (
                 <tr key={exercise.id}>
-                  <td className="px-4 py-2 text-gray-100">{exercise.name}</td>
-                  <td className="px-4 py-2 text-gray-300 capitalize">{exercise.muscle_group}</td>
-                  <td className="px-4 py-2 text-gray-400">{exercise.equipment || '—'}</td>
+                  <td className="px-4 py-2 text-fg">{exercise.name}</td>
+                  <td className="px-4 py-2 text-fg-soft capitalize">{exercise.muscle_group}</td>
+                  <td className="px-4 py-2 text-fg-mute">{exercise.equipment || '—'}</td>
                 </tr>
               ))}
             </tbody>
