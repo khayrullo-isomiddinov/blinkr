@@ -1,6 +1,6 @@
 {
   "SamplingRule": {
-      "RuleName": "Cruddur",
+      "RuleName": "app-default",
       "ResourceARN": "*",
       "Priority": 9000,
       "FixedRate": 0.1,

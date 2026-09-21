@@ -13,7 +13,7 @@ services:
       AWS_DEFAULT_REGION: "eu-central-1"
       AWS_COGNITO_USER_POOL_ID: "eu-central-1_vpiFVQ68P"
       AWS_COGNITO_USER_POOL_CLIENT_ID: "7bn0hbepr945cu3d2ea07btf1p"
-      DATABASE_URL: "postgresql://postgres:Khayrullo2003@db:5432/cruddur"
+      DATABASE_URL: "postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/cruddur"
     build: ./backend-flask
     ports:
       - "4567:4567"
@@ -56,17 +56,17 @@ services:
     restart: always
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=Khayrullo2003
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - '5432:5432'
-    volumes: 
+    volumes:
       - db:/var/lib/postgresql/data
 
 
 networks:
   internal-network:
     driver: bridge
-    name: cruddur
+    name: app
 
 volumes:
   db:

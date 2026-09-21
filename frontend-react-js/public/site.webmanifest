@@ -1,6 +1,6 @@
 {
-    "name": "Blinkr",
-    "short_name": "Blinkr",
+    "name": "App",
+    "short_name": "App",
     "icons": [
         {
             "src": "/android-chrome-192x192.png",
