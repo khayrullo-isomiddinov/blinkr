@@ -52,14 +52,16 @@ def _provision_user(cognito_user_id):
     if existing:
       return existing[0]
 
+    # handle isn't guaranteed unique at the database level everywhere, so check instead of relying on ON CONFLICT
     for handle in (cognito_user_id, f'{cognito_user_id}-{uuid.uuid4().hex[:6]}'):
+      if query_array_json("SELECT 1 FROM public.users WHERE handle = %s", (handle,), conn=conn):
+        continue
       created = query_array_json(
         "INSERT INTO public.users (display_name, handle, cognito_user_id) VALUES (%s, %s, %s) "
-        "ON CONFLICT (handle) DO NOTHING RETURNING uuid, handle, display_name",
+        "RETURNING uuid, handle, display_name",
         (cognito_user_id, handle, cognito_user_id), conn=conn
       )
-      if created:
-        return created[0]
+      return created[0]
   raise AuthError('user_not_provisioned')
 
 
