@@ -1,17 +1,21 @@
 from flask import Flask
 from flask import request
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 import os
 
-from services.home_activities import *
-from services.user_activities import *
-from services.create_activity import *
-from services.create_reply import *
-from services.search_activities import *
-from services.message_groups import *
-from services.messages import *
-from services.create_message import *
-from services.show_activity import *
+from services.teams import Teams
+from services.show_team import ShowTeam
+from services.follow_team import FollowTeam
+from services.unfollow_team import UnfollowTeam
+from services.matches import Matches
+from services.show_match import ShowMatch
+from services.create_match import CreateMatch
+from services.match_events import MatchEvents
+from services.create_match_event import CreateMatchEvent
+from services.match_reactions import MatchReactions
+from services.create_match_reaction import CreateMatchReaction
+from services.follow_match import FollowMatch
+from services.unfollow_match import UnfollowMatch
 
 # HoneyComb ---------
 from opentelemetry import trace
@@ -36,7 +40,8 @@ import rollbar.contrib.flask
 from flask import got_request_exception
 
 # Cognito JWT ----------
-from lib.cognito_jwt_token import CognitoJwtToken, TokenVerifyError
+from lib.cognito_jwt_token import CognitoJwtToken
+from lib.auth import resolve_current_user, resolve_optional_user, AuthError
 
 # CloudWatch Logs ----------
 LOGGER = logging.getLogger(__name__)
@@ -92,12 +97,22 @@ got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
 frontend = os.getenv('FRONTEND_URL')
 backend = os.getenv('BACKEND_URL')
 origins = [frontend, backend]
+# Local dev only: "localhost" and "127.0.0.1" are different CORS origins even
+# though they're the same machine, so a browser pointed at whichever one
+# FRONTEND_URL/BACKEND_URL *don't* use would otherwise have every GET request
+# silently blocked. Only added when running against local URLs -- production
+# origins (e.g. https://blinkr.fit) are left exactly as configured.
+for url in (frontend, backend):
+  if url and '127.0.0.1' in url:
+    origins.append(url.replace('127.0.0.1', 'localhost'))
+  elif url and 'localhost' in url:
+    origins.append(url.replace('localhost', '127.0.0.1'))
 cors = CORS(
   app,
   resources={r"/api/*": {"origins": origins}},
   expose_headers="location,link,Authorization",
   allow_headers="content-type,if-modified-since,Authorization",
-  methods="OPTIONS,GET,HEAD,POST"
+  methods="OPTIONS,GET,HEAD,POST,DELETE"
 )
 
 # Cognito JWT ----------
@@ -107,110 +122,150 @@ cognito_jwt_token = CognitoJwtToken(
   region=os.getenv("AWS_DEFAULT_REGION")
 )
 
-@app.route("/api/message_groups", methods=['GET','OPTIONS'])
-@cross_origin()
-def data_message_groups():
-  user_handle  = 'andrewbrown'
-  model = MessageGroups.run(user_handle=user_handle)
-  if model['errors'] is not None:
-    return model['errors'], 422
-  else:
-    return model['data'], 200
 
-@app.route("/api/messages/@<string:handle>", methods=['GET','OPTIONS'])
-@cross_origin()
-def data_messages(handle):
-  user_sender_handle = 'andrewbrown'
-  user_receiver_handle = request.args.get('user_reciever_handle')
+@app.route("/api/teams", methods=['GET'])
+def data_teams():
+  followed_only = request.args.get('followed') == 'true'
+  if followed_only:
+    user = resolve_optional_user(request.headers, cognito_jwt_token)
+    if not user:
+      return [], 200
+    return Teams.run(followed_by_user_uuid=user['uuid']), 200
+  return Teams.run(), 200
 
-  model = Messages.run(user_sender_handle=user_sender_handle, user_receiver_handle=user_receiver_handle)
-  if model['errors'] is not None:
-    return model['errors'], 422
-  else:
-    return model['data'], 200
-  return
-
-@app.route("/api/messages", methods=['POST','OPTIONS'])
-@cross_origin()
-def data_create_message():
-  user_sender_handle = 'andrewbrown'
-  user_receiver_handle = request.json['user_receiver_handle']
-  message = request.json['message']
-
-  model = CreateMessage.run(message=message,user_sender_handle=user_sender_handle,user_receiver_handle=user_receiver_handle)
-  if model['errors'] is not None:
-    return model['errors'], 422
-  else:
-    return model['data'], 200
-  return
-
-@app.route("/api/activities/home", methods=['GET','OPTIONS'])
-@cross_origin()
-def data_home():
-  cognito_user_id = None
-  access_token = CognitoJwtToken.extract_access_token(request.headers)
-  if access_token:
-    try:
-      claims = cognito_jwt_token.verify(access_token)
-      cognito_user_id = claims['username']
-      app.logger.debug(f"data_home: authenticated request for cognito user '{cognito_user_id}'")
-    except TokenVerifyError as e:
-      app.logger.debug(f"data_home: token verification failed, treating as unauthenticated: {e}")
-  else:
-    app.logger.debug("data_home: no bearer token present, treating as unauthenticated")
-
-  data = HomeActivities.run(logger=LOGGER, cognito_user_id=cognito_user_id)
+@app.route("/api/teams/<string:team_uuid>", methods=['GET'])
+def data_show_team(team_uuid):
+  data = ShowTeam.run(team_uuid)
+  if data is None:
+    return {'errors': ['team_not_found']}, 404
   return data, 200
 
-@app.route("/api/activities/@<string:handle>", methods=['GET','OPTIONS'])
-@cross_origin()
-def data_handle(handle):
-  model = UserActivities.run(handle)
-  if model['errors'] is not None:
-    LOGGER.error(f"user_activities errors for handle '{handle}': {model['errors']}")
-    return model['errors'], 422
-  else:
-    return model['data'], 200
+@app.route("/api/teams/<string:team_uuid>/follow", methods=['POST', 'OPTIONS'])
+def data_follow_team(team_uuid):
+  try:
+    user = resolve_current_user(request.headers, cognito_jwt_token)
+  except AuthError as e:
+    return {'errors': [str(e)]}, 401
+  result = FollowTeam.run(user['uuid'], team_uuid)
+  if result is None:
+    return {'errors': ['team_not_found']}, 404
+  return result, 200
 
-@app.route("/api/activities/search", methods=['GET'])
-def data_search():
-  term = request.args.get('term')
-  model = SearchActivities.run(term)
-  if model['errors'] is not None:
-    return model['errors'], 422
-  else:
-    return model['data'], 200
-  return
+@app.route("/api/teams/<string:team_uuid>/follow", methods=['DELETE', 'OPTIONS'])
+def data_unfollow_team(team_uuid):
+  try:
+    user = resolve_current_user(request.headers, cognito_jwt_token)
+  except AuthError as e:
+    return {'errors': [str(e)]}, 401
+  result = UnfollowTeam.run(user['uuid'], team_uuid)
+  if result is None:
+    return {'errors': ['team_not_found']}, 404
+  return result, 200
 
-@app.route("/api/activities", methods=['POST','OPTIONS'])
-@cross_origin()
-def data_activities():
-  user_handle  = 'andrewbrown'
-  message = request.json['message']
-  ttl = request.json['ttl']
-  model = CreateActivity.run(message, user_handle, ttl)
-  if model['errors'] is not None:
-    return model['errors'], 422
-  else:
-    return model['data'], 200
-  return
+@app.route("/api/matches/live", methods=['GET'])
+def data_matches_live():
+  return Matches.run(status_filter='live'), 200
 
-@app.route("/api/activities/<string:activity_uuid>", methods=['GET'])
-def data_show_activity(activity_uuid):
-  data = ShowActivity.run(activity_uuid=activity_uuid)
+@app.route("/api/matches/upcoming", methods=['GET'])
+def data_matches_upcoming():
+  return Matches.run(status_filter='scheduled'), 200
+
+@app.route("/api/matches", methods=['POST', 'OPTIONS'])
+def data_create_match():
+  # Admin/demo tool -- same unauthenticated posture as the events endpoint,
+  # used to spin up a fixture for the event-driven demo flow (see
+  # bin/demo-match-simulation).
+  body = request.json or {}
+  model = CreateMatch.run(
+    home_team_uuid=body.get('home_team_uuid'),
+    away_team_uuid=body.get('away_team_uuid'),
+    competition=body.get('competition'),
+    kickoff_time=body.get('kickoff_time'),
+    status=body.get('status', 'scheduled'),
+  )
+  if model['errors'] is not None:
+    status = 404 if model['errors'] == ['team_not_found'] else 422
+    return model['errors'], status
+  return model['data'], 200
+
+@app.route("/api/matches", methods=['GET'])
+def data_matches():
+  followed_only = request.args.get('followed') == 'true'
+  if followed_only:
+    user = resolve_optional_user(request.headers, cognito_jwt_token)
+    if not user:
+      return [], 200
+    return Matches.run(followed_by_user_uuid=user['uuid']), 200
+  return Matches.run(), 200
+
+@app.route("/api/matches/<string:match_uuid>", methods=['GET'])
+def data_show_match(match_uuid):
+  data = ShowMatch.run(match_uuid)
+  if data is None:
+    return {'errors': ['match_not_found']}, 404
   return data, 200
 
-@app.route("/api/activities/<string:activity_uuid>/reply", methods=['POST','OPTIONS'])
-@cross_origin()
-def data_activities_reply(activity_uuid):
-  user_handle  = 'andrewbrown'
-  message = request.json['message']
-  model = CreateReply.run(message, user_handle, activity_uuid)
+@app.route("/api/matches/<string:match_uuid>/events", methods=['GET'])
+def data_match_events(match_uuid):
+  return MatchEvents.run(match_uuid), 200
+
+@app.route("/api/matches/<string:match_uuid>/events", methods=['POST', 'OPTIONS'])
+def data_create_match_event(match_uuid):
+  # Admin/demo tool for recording match events (goals, cards, etc). Not wired
+  # into the frontend -- there's no admin-role system in this project, so this
+  # is intentionally open, matching the existing unauthenticated write routes.
+  body = request.json or {}
+  model = CreateMatchEvent.run(
+    match_uuid=match_uuid,
+    event_type=body.get('event_type'),
+    minute=body.get('minute'),
+    team_uuid=body.get('team_uuid'),
+    player_name=body.get('player_name'),
+    detail=body.get('detail'),
+  )
   if model['errors'] is not None:
-    return model['errors'], 422
-  else:
-    return model['data'], 200
-  return
+    status = 404 if model['errors'] == ['match_not_found'] else 422
+    return model['errors'], status
+  return model['data'], 200
+
+@app.route("/api/matches/<string:match_uuid>/reactions", methods=['GET'])
+def data_match_reactions(match_uuid):
+  return MatchReactions.run(match_uuid), 200
+
+@app.route("/api/matches/<string:match_uuid>/reactions", methods=['POST', 'OPTIONS'])
+def data_create_match_reaction(match_uuid):
+  try:
+    user = resolve_current_user(request.headers, cognito_jwt_token)
+  except AuthError as e:
+    return {'errors': [str(e)]}, 401
+  message = (request.json or {}).get('message')
+  model = CreateMatchReaction.run(match_uuid, user['uuid'], message)
+  if model['errors'] is not None:
+    status = 404 if model['errors'] == ['match_not_found'] else 422
+    return model['errors'], status
+  return model['data'], 200
+
+@app.route("/api/matches/<string:match_uuid>/follow", methods=['POST', 'OPTIONS'])
+def data_follow_match(match_uuid):
+  try:
+    user = resolve_current_user(request.headers, cognito_jwt_token)
+  except AuthError as e:
+    return {'errors': [str(e)]}, 401
+  result = FollowMatch.run(user['uuid'], match_uuid)
+  if result is None:
+    return {'errors': ['match_not_found']}, 404
+  return result, 200
+
+@app.route("/api/matches/<string:match_uuid>/follow", methods=['DELETE', 'OPTIONS'])
+def data_unfollow_match(match_uuid):
+  try:
+    user = resolve_current_user(request.headers, cognito_jwt_token)
+  except AuthError as e:
+    return {'errors': [str(e)]}, 401
+  result = UnfollowMatch.run(user['uuid'], match_uuid)
+  if result is None:
+    return {'errors': ['match_not_found']}, 404
+  return result, 200
 
 @app.route('/api/rollbar/test')
 def rollbar_test():

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import { signIn } from '../lib/auth';
 import { describeAuthError } from '../lib/authErrors';
+import AuthShell, { AuthField, AuthError, AuthButton } from '../components/AuthShell';
 
 export default function SigninPage() {
   const [email, setEmail] = React.useState('');
@@ -27,22 +28,19 @@ export default function SigninPage() {
   }
 
   return (
-    <div>
-      <h1>Sign into your Blinkr account</h1>
+    <AuthShell
+      title="Sign into your Blinkr account"
+      footer={<>Don't have an account? <Link to="/signup" className="text-emerald-400 hover:text-emerald-300">Sign up</Link></>}
+    >
       <form onSubmit={onsubmit}>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input id="email" type="text" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        </div>
-        <div>
-          <label htmlFor="password">Password</label>
-          <input id="password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        </div>
-        {errors && <div>{errors}</div>}
-        <p><Link to="/forgot">Forgot password?</Link></p>
-        <button type="submit">Sign In</button>
+        <AuthField id="email" label="Email" type="text" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <AuthField id="password" label="Password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <AuthError>{errors}</AuthError>
+        <p className="text-right mb-4 -mt-2">
+          <Link to="/forgot" className="text-sm text-emerald-400 hover:text-emerald-300">Forgot password?</Link>
+        </p>
+        <AuthButton type="submit">Sign In</AuthButton>
       </form>
-      <p>Don't have an account? <Link to="/signup">Sign up</Link></p>
-    </div>
+    </AuthShell>
   );
 }

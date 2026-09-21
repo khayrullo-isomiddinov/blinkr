@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 
 import { confirmSignUp, resendConfirmationCode } from '../lib/auth';
 import { describeAuthError } from '../lib/authErrors';
+import AuthShell, { AuthField, AuthError, AuthButton } from '../components/AuthShell';
 
 export default function ConfirmationPage() {
   const [email, setEmail] = React.useState('');
@@ -49,29 +50,23 @@ export default function ConfirmationPage() {
   }, [])
 
   return (
-    <div>
-      <h1>Confirm your email</h1>
+    <AuthShell title="Confirm your email">
       <form onSubmit={onsubmit}>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input id="email" type="text" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        </div>
-        <div>
-          <label htmlFor="username">Username</label>
-          <input id="username" type="text" autoComplete="username" value={username} onChange={(e) => setUsername(e.target.value)} />
-        </div>
-        <div>
-          <label htmlFor="code">Confirmation Code</label>
-          <input id="code" type="text" autoComplete="one-time-code" value={code} onChange={(e) => setCode(e.target.value)} />
-        </div>
-        {errors && <div>{errors}</div>}
-        <button type="submit">Confirm Email</button>
+        <AuthField id="email" label="Email" type="text" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <AuthField id="username" label="Username" type="text" autoComplete="username" value={username} onChange={(e) => setUsername(e.target.value)} />
+        <AuthField id="code" label="Confirmation Code" type="text" autoComplete="one-time-code" value={code} onChange={(e) => setCode(e.target.value)} />
+        <AuthError>{errors}</AuthError>
+        <AuthButton type="submit">Confirm Email</AuthButton>
       </form>
-      {codeSent ? (
-        <div>A new activation code has been sent to your email.</div>
-      ) : (
-        <button onClick={resend_code}>Resend activation code</button>
-      )}
-    </div>
+      <div className="text-center mt-4">
+        {codeSent ? (
+          <p className="text-sm text-emerald-400">A new activation code has been sent to your email.</p>
+        ) : (
+          <button onClick={resend_code} className="text-sm text-emerald-400 hover:text-emerald-300">
+            Resend activation code
+          </button>
+        )}
+      </div>
+    </AuthShell>
   );
 }

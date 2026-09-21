@@ -13,7 +13,7 @@ services:
       AWS_DEFAULT_REGION: "eu-central-1"
       AWS_COGNITO_USER_POOL_ID: "eu-central-1_vpiFVQ68P"
       AWS_COGNITO_USER_POOL_CLIENT_ID: "7bn0hbepr945cu3d2ea07btf1p"
-      DATABASE_URL: "postgresql://postgres:password@db:5432/cruddur"
+      DATABASE_URL: "postgresql://postgres:Khayrullo2003@db:5432/cruddur"
     build: ./backend-flask
     ports:
       - "4567:4567"
@@ -51,24 +51,12 @@ services:
       - "2000:2000/udp"
       - "2000:2000/tcp"
 
-  dynamodb-local:
-    # We needed to add user:root to get this working.
-    user: root
-    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
-    image: "amazon/dynamodb-local:latest"
-    container_name: dynamodb-local
-    ports:
-      - "8000:8000"
-    volumes:
-      - "./docker/dynamodb:/home/dynamodblocal/data"
-    working_dir: /home/dynamodblocal
-
   db:
     image: postgres:13-alpine
     restart: always
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_PASSWORD=Khayrullo2003
     ports:
       - '5432:5432'
     volumes: 

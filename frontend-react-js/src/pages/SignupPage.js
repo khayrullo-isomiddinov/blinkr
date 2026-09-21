@@ -3,6 +3,7 @@ import { Link, useSearchParams } from "react-router-dom";
 
 import { signUp } from '../lib/auth';
 import { describeAuthError } from '../lib/authErrors';
+import AuthShell, { AuthField, AuthError, AuthButton } from '../components/AuthShell';
 
 export default function SignupPage() {
   const [name, setName] = React.useState('');
@@ -34,29 +35,18 @@ export default function SignupPage() {
   }
 
   return (
-    <div>
-      <h1>Sign up to create a Blinkr account</h1>
+    <AuthShell
+      title="Sign up to create a Blinkr account"
+      footer={<>Already have an account? <Link to="/signin" className="text-emerald-400 hover:text-emerald-300">Sign in</Link></>}
+    >
       <form onSubmit={onsubmit}>
-        <div>
-          <label htmlFor="name">Name</label>
-          <input id="name" type="text" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
-        </div>
-        <div>
-          <label htmlFor="email">Email</label>
-          <input id="email" type="text" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        </div>
-        <div>
-          <label htmlFor="username">Username</label>
-          <input id="username" type="text" autoComplete="username" value={username} onChange={(e) => setUsername(e.target.value)} />
-        </div>
-        <div>
-          <label htmlFor="password">Password</label>
-          <input id="password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        </div>
-        {errors && <div>{errors}</div>}
-        <button type="submit">Sign Up</button>
+        <AuthField id="name" label="Name" type="text" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} />
+        <AuthField id="email" label="Email" type="text" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <AuthField id="username" label="Username" type="text" autoComplete="username" value={username} onChange={(e) => setUsername(e.target.value)} />
+        <AuthField id="password" label="Password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <AuthError>{errors}</AuthError>
+        <AuthButton type="submit">Sign Up</AuthButton>
       </form>
-      <p>Already have an account? <Link to="/signin">Sign in</Link></p>
-    </div>
+    </AuthShell>
   );
 }

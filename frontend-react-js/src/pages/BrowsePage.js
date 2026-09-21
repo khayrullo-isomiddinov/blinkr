@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import NavBar from '../components/NavBar';
 import TeamBadge from '../components/TeamBadge';
@@ -7,33 +7,36 @@ import { useAuthUser } from '../lib/useAuthUser';
 import { apiFetch } from '../lib/api';
 import { signOut } from '../lib/auth';
 
-export default function UserFeedPage() {
-  const { handle } = useParams();
+export default function BrowsePage() {
   const [teams, setTeams] = React.useState([]);
   const [matches, setMatches] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState('');
+  const dataFetchedRef = React.useRef(false);
   const user = useAuthUser();
-  const isOwnProfile = !!user && user.handle === handle;
 
   React.useEffect(() => {
-    if (!isOwnProfile) return;
+    if (dataFetchedRef.current) return;
+    dataFetchedRef.current = true;
+
     Promise.all([
-      apiFetch('/api/teams?followed=true').then((res) => res.json()),
-      apiFetch('/api/matches?followed=true').then((res) => res.json()),
+      apiFetch('/api/teams').then((res) => res.json()),
+      apiFetch('/api/matches').then((res) => res.json()),
     ])
       .then(([teamsData, matchesData]) => {
         setTeams(teamsData);
         setMatches(matchesData);
       })
-      .catch(() => setError('Could not load your follows.'));
-  }, [isOwnProfile]);
+      .catch(() => setError('Could not load teams and matches.'))
+      .finally(() => setLoading(false));
+  }, []);
 
   const doSignOut = async () => {
     try {
       await signOut();
       window.location.href = '/';
-    } catch (error) {
-      console.log('error signing out: ', error);
+    } catch (err) {
+      console.log('error signing out: ', err);
     }
   };
 
@@ -42,27 +45,22 @@ export default function UserFeedPage() {
       <NavBar user={user} onSignOut={doSignOut} />
 
       <main className="max-w-3xl mx-auto px-4 py-6">
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-16 h-16 rounded-full bg-gray-800 flex items-center justify-center text-2xl font-bold text-gray-300 shrink-0">
-            {handle.charAt(0).toUpperCase()}
-          </div>
-          <h1 className="text-2xl font-extrabold">@{handle}</h1>
-        </div>
+        <h1 className="text-2xl font-extrabold mb-6">Browse</h1>
 
-        {!isOwnProfile && <p className="text-gray-500">This is @{handle}'s profile.</p>}
-
-        {isOwnProfile && error && (
+        {error && (
           <div className="mb-6 px-4 py-3 rounded-lg bg-red-950 border border-red-900 text-red-300 text-sm">
             {error}
           </div>
         )}
 
-        {isOwnProfile && (
+        {loading ? (
+          <p className="text-gray-500">Loading...</p>
+        ) : (
           <>
             <section className="mb-8">
-              <h2 className="text-lg font-bold mb-3">Followed Teams</h2>
+              <h2 className="text-lg font-bold mb-3">Teams</h2>
               {teams.length === 0 ? (
-                <p className="text-gray-500">You aren't following any teams yet.</p>
+                <p className="text-gray-500">No teams found.</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   {teams.map((team) => (
@@ -72,7 +70,10 @@ export default function UserFeedPage() {
                       className="flex items-center gap-3 bg-gray-900 border border-gray-800 rounded-xl p-3 hover:border-emerald-600 transition-colors"
                     >
                       <TeamBadge abbreviation={team.abbreviation} />
-                      <span className="font-medium truncate">{team.name}</span>
+                      <div className="min-w-0">
+                        <div className="font-medium truncate">{team.name}</div>
+                        <div className="text-sm text-gray-500">{team.country}</div>
+                      </div>
                     </Link>
                   ))}
                 </div>
@@ -80,9 +81,9 @@ export default function UserFeedPage() {
             </section>
 
             <section>
-              <h2 className="text-lg font-bold mb-3">Followed Matches</h2>
+              <h2 className="text-lg font-bold mb-3">All Matches</h2>
               {matches.length === 0 ? (
-                <p className="text-gray-500">You aren't following any matches yet.</p>
+                <p className="text-gray-500">No matches found.</p>
               ) : (
                 <div className="bg-gray-900 border border-gray-800 rounded-xl divide-y divide-gray-800">
                   {matches.map((match) => (
@@ -92,9 +93,9 @@ export default function UserFeedPage() {
                       className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-gray-800/50 transition-colors"
                     >
                       <span className="font-medium">
-                        {match.home_team_abbreviation} vs {match.away_team_abbreviation}
+                        {match.home_team_abbreviation} {match.home_score} - {match.away_score} {match.away_team_abbreviation}
                       </span>
-                      <span className="text-sm text-gray-500">{match.status}</span>
+                      <span className="text-sm text-gray-500">{match.status} · {match.competition}</span>
                     </Link>
                   ))}
                 </div>

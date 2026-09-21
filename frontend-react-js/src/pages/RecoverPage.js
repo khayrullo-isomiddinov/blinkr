@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 
 import { forgotPassword, forgotPasswordSubmit } from '../lib/auth';
 import { describeAuthError } from '../lib/authErrors';
+import AuthShell, { AuthField, AuthError, AuthButton } from '../components/AuthShell';
 
 export default function RecoverPage() {
   // username here is the email
@@ -47,45 +48,31 @@ export default function RecoverPage() {
   };
 
   return (
-    <div>
-      <h1>{titles[formState]}</h1>
-
+    <AuthShell title={titles[formState]}>
       {formState === 'send_code' && (
         <form onSubmit={onsubmit_send_code}>
-          <div>
-            <label htmlFor="username">Email</label>
-            <input id="username" type="text" autoComplete="email" value={username} onChange={(e) => setUsername(e.target.value)} />
-          </div>
-          {errors && <div>{errors}</div>}
-          <button type="submit">Send Recovery Code</button>
+          <AuthField id="username" label="Email" type="text" autoComplete="email" value={username} onChange={(e) => setUsername(e.target.value)} />
+          <AuthError>{errors}</AuthError>
+          <AuthButton type="submit">Send Recovery Code</AuthButton>
         </form>
       )}
 
       {formState === 'confirm_code' && (
         <form onSubmit={onsubmit_confirm_code}>
-          <div>
-            <label htmlFor="code">Reset Password Code</label>
-            <input id="code" type="text" autoComplete="one-time-code" value={code} onChange={(e) => setCode(e.target.value)} />
-          </div>
-          <div>
-            <label htmlFor="password">New Password</label>
-            <input id="password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
-          </div>
-          <div>
-            <label htmlFor="passwordAgain">New Password Again</label>
-            <input id="passwordAgain" type="password" autoComplete="new-password" value={passwordAgain} onChange={(e) => setPasswordAgain(e.target.value)} />
-          </div>
-          {errors && <div>{errors}</div>}
-          <button type="submit">Reset Password</button>
+          <AuthField id="code" label="Reset Password Code" type="text" autoComplete="one-time-code" value={code} onChange={(e) => setCode(e.target.value)} />
+          <AuthField id="password" label="New Password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <AuthField id="passwordAgain" label="New Password Again" type="password" autoComplete="new-password" value={passwordAgain} onChange={(e) => setPasswordAgain(e.target.value)} />
+          <AuthError>{errors}</AuthError>
+          <AuthButton type="submit">Reset Password</AuthButton>
         </form>
       )}
 
       {formState === 'success' && (
-        <div>
-          <p>Your password has been successfully reset!</p>
-          <Link to="/signin">Proceed to Sign In</Link>
+        <div className="text-center">
+          <p className="text-gray-300 mb-4">Your password has been successfully reset!</p>
+          <Link to="/signin" className="text-emerald-400 hover:text-emerald-300 font-semibold">Proceed to Sign In</Link>
         </div>
       )}
-    </div>
+    </AuthShell>
   );
 }
