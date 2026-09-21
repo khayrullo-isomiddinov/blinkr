@@ -4,6 +4,7 @@ import { useSignOut } from '../features/auth/useSignOut';
 import { useStartWorkout } from '../features/workouts/useStartWorkout';
 import { ProfileProvider, useProfile } from '../features/profile/ProfileContext';
 import Avatar from '../components/Avatar';
+import { Logo } from '../components/Logo';
 import { ListIcon, Dumbbell } from '../components/icons';
 
 const topLink = ({ isActive }) =>
@@ -22,7 +23,7 @@ function Shell() {
   return (
     <div className="min-h-screen">
       <header className={`${onWorkout ? 'hidden lg:flex' : 'flex'} h-14 items-center gap-4 border-b border-ink-700 px-4 sm:h-[68px] sm:gap-8 sm:px-12`}>
-        <Link to="/workouts" className="font-display text-2xl font-extrabold tracking-tight text-fg hover:no-underline">Blinkr</Link>
+        <Link to="/workouts" aria-label="Blinkr, workouts" className="hover:no-underline"><Logo size={30} /></Link>
         <nav aria-label="Main" className="hidden flex-1 gap-1 sm:flex">
           <NavLink to="/workouts" className={topLink}>Workouts</NavLink>
           <NavLink to="/exercises" className={topLink}>Exercises</NavLink>

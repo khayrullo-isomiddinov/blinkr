@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { signIn, clearSession } from '../../lib/auth';
 import { describeAuthError } from '../../lib/authErrors';
 import { LegalLinks } from '../../components/PublicPage';
+import { Logo } from '../../components/Logo';
 
 // Only ever go back to an in-app path, never an arbitrary URL.
 function safeDestination(from) {
@@ -43,7 +44,7 @@ export default function SignInPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <p className="text-center font-display text-2xl font-extrabold text-accent mb-6">Blinkr</p>
+        <div className="mb-6 flex justify-center"><Logo size={38} /></div>
         <form onSubmit={handleSubmit} className="card p-6" noValidate>
           <h1 className="font-display text-2xl font-extrabold text-center mb-6">Sign in</h1>
 

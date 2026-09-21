@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft } from './icons';
+import { Logo } from './Logo';
 
 export function LegalLinks({ className = '' }) {
   return (
@@ -21,7 +22,7 @@ export default function PublicPage({ title, children }) {
         <button type="button" aria-label="Go back" onClick={() => navigate(-1)} className="flex h-11 w-11 items-center justify-center text-fg">
           <ChevronLeft width={22} height={22} />
         </button>
-        <Link to="/" className="font-display text-xl font-extrabold tracking-tight text-fg hover:no-underline">Blinkr</Link>
+        <Link to="/" aria-label="Blinkr home" className="hover:no-underline"><Logo size={26} /></Link>
       </header>
       <main className="mx-auto w-full max-w-2xl px-4 pb-16 pt-8">
         <h1 className="font-display text-[34px] font-extrabold leading-tight tracking-tight">{title}</h1>

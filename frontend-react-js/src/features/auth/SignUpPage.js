@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { signUp, confirmSignUp, resendConfirmationCode } from '../../lib/auth';
 import { describeAuthError } from '../../lib/authErrors';
 import { LegalLinks } from '../../components/PublicPage';
+import { Logo } from '../../components/Logo';
 
 export default function SignUpPage() {
   const navigate = useNavigate();
@@ -57,7 +58,7 @@ export default function SignUpPage() {
   return (
     <div className="min-h-screen flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-sm">
-        <p className="text-center font-display text-2xl font-extrabold text-accent mb-6">Blinkr</p>
+        <div className="mb-6 flex justify-center"><Logo size={38} /></div>
         <div className="card p-6">
           <h1 className="font-display text-2xl font-extrabold text-center mb-6">{step === 'details' ? 'Create your account' : 'Confirm your email'}</h1>
           {error && <div role="alert" className="alert-error mb-4">{error}</div>}
