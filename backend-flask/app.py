@@ -41,8 +41,7 @@ from repositories.session_exercises import SessionExercises
 from repositories.create_set import CreateSet
 from repositories.sets import Sets
 
-from events.in_memory_publisher import InMemoryEventPublisher
-from events.aws_publisher import AWSEventPublisher
+from events.publisher_factory import build_event_publisher
 from application.complete_workout_session import CompleteWorkoutSessionAndRecordEvent
 
 # CloudWatch Logs ----------
@@ -124,14 +123,7 @@ cognito_jwt_token = CognitoJwtToken(
 )
 
 # Events ----------
-# AWS (SQS) when a queue URL is configured (ECS sets this); otherwise the
-# in-memory publisher, which is what local dev and the test suite use --
-# neither requires AWS credentials.
-workout_events_queue_url = os.getenv('WORKOUT_EVENTS_QUEUE_URL')
-if workout_events_queue_url:
-  event_publisher = AWSEventPublisher(queue_url=workout_events_queue_url)
-else:
-  event_publisher = InMemoryEventPublisher()
+event_publisher = build_event_publisher()
 
 
 @app.route("/health", methods=['GET'])
