@@ -36,11 +36,14 @@ from repositories.exercises import Exercises
 from repositories.create_workout_session import CreateWorkoutSession
 from repositories.show_workout_session import ShowWorkoutSession
 from repositories.workout_sessions import WorkoutSessions
-from repositories.complete_workout_session import CompleteWorkoutSession
 from repositories.create_session_exercise import CreateSessionExercise
 from repositories.session_exercises import SessionExercises
 from repositories.create_set import CreateSet
 from repositories.sets import Sets
+
+from events.in_memory_publisher import InMemoryEventPublisher
+from events.aws_publisher import AWSEventPublisher
+from application.complete_workout_session import CompleteWorkoutSessionAndRecordEvent
 
 # CloudWatch Logs ----------
 LOGGER = logging.getLogger(__name__)
@@ -119,6 +122,16 @@ cognito_jwt_token = CognitoJwtToken(
   user_pool_client_id=os.getenv("AWS_COGNITO_USER_POOL_CLIENT_ID"),
   region=os.getenv("AWS_DEFAULT_REGION")
 )
+
+# Events ----------
+# AWS (SQS) when a queue URL is configured (ECS sets this); otherwise the
+# in-memory publisher, which is what local dev and the test suite use --
+# neither requires AWS credentials.
+workout_events_queue_url = os.getenv('WORKOUT_EVENTS_QUEUE_URL')
+if workout_events_queue_url:
+  event_publisher = AWSEventPublisher(queue_url=workout_events_queue_url)
+else:
+  event_publisher = InMemoryEventPublisher()
 
 
 @app.route("/health", methods=['GET'])
@@ -227,7 +240,12 @@ def data_complete_workout_session(session_id):
   except ValueError:
     return {'errors': ['workout_session_not_found']}, 404
 
-  session = CompleteWorkoutSession.run(session_id, user['uuid'])
+  # Completion + recording the WorkoutSessionCompleted event happen in one
+  # DB transaction (see CompleteWorkoutSessionAndRecordEvent). Publishing to
+  # SQS is no longer synchronous with this request at all -- it's handled
+  # later, out of band, by OutboxPublisher -- so an SQS outage can no
+  # longer turn a successfully committed completion into an error response.
+  session = CompleteWorkoutSessionAndRecordEvent.run(session_id, user['uuid'])
   if session is None:
     return {'errors': ['workout_session_not_found']}, 404
   return session, 200

@@ -31,6 +31,10 @@ Parameters:
     Type: String
   DatabaseUrlSecretArn:
     Type: String
+  WorkoutEventsQueueUrl:
+    Type: String
+  WorkoutEventsQueueArn:
+    Type: String
 
 Resources:
   Cluster:
@@ -110,6 +114,10 @@ Resources:
                   - logs:PutLogEvents
                   - logs:DescribeLogStreams
                 Resource: "*"
+              - Effect: Allow
+                Action:
+                  - sqs:SendMessage
+                Resource: !Ref WorkoutEventsQueueArn
 
   BackendTaskDefinition:
     Type: AWS::ECS::TaskDefinition
@@ -146,6 +154,8 @@ Resources:
               Value: !Ref CognitoUserPoolId
             - Name: AWS_COGNITO_USER_POOL_CLIENT_ID
               Value: !Ref CognitoUserPoolClientId
+            - Name: WORKOUT_EVENTS_QUEUE_URL
+              Value: !Ref WorkoutEventsQueueUrl
           Secrets:
             - Name: ROLLBAR_ACCESS_TOKEN
               ValueFrom: !Ref RollbarSecretArn

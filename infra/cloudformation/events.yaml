@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: '2010-09-09'
+# SQS was chosen over EventBridge: there is exactly one event type
+# (WorkoutSessionCompleted) and exactly one anticipated consumer (an async
+# analytics processor), so a single point-to-point queue gives reliable
+# at-least-once delivery and a clean producer/consumer boundary without the
+# extra routing/bus machinery EventBridge exists for. Revisit if a second
+# event type or a fan-out to multiple consumers shows up.
+Description: blinkr - SQS queue for workout domain events (WorkoutSessionCompleted)
+
+Resources:
+  WorkoutEventsQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: blinkr-workout-events
+
+Outputs:
+  QueueUrl:
+    Value: !Ref WorkoutEventsQueue
+  QueueArn:
+    Value: !GetAtt WorkoutEventsQueue.Arn
+  QueueName:
+    Value: !GetAtt WorkoutEventsQueue.QueueName

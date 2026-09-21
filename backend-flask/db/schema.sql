@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS public.sets CASCADE;
 DROP TABLE IF EXISTS public.session_exercises CASCADE;
 DROP TABLE IF EXISTS public.workout_sessions CASCADE;
 DROP TABLE IF EXISTS public.exercises CASCADE;
+DROP TABLE IF EXISTS public.outbox_events CASCADE;
 DROP TABLE IF EXISTS public.users CASCADE;
 
 CREATE TABLE public.users (
@@ -60,3 +61,20 @@ CREATE TABLE public.sets (
     CHECK (weight IS NULL OR weight_unit IS NOT NULL)
 );
 CREATE UNIQUE INDEX idx_sets_session_exercise_order ON public.sets (session_exercise_id, set_order);
+
+-- Transactional outbox: written in the same DB transaction as the domain
+-- change it records (e.g. a workout completion), so the two can never
+-- diverge. Not tied by FK to any specific domain table -- generic across
+-- whatever event types get recorded here, identified by event_type/payload.
+CREATE TABLE public.outbox_events (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  event_id UUID NOT NULL,
+  event_type TEXT NOT NULL,
+  payload JSONB NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT current_timestamp NOT NULL,
+  published_at TIMESTAMPTZ,
+  attempts INTEGER NOT NULL DEFAULT 0
+);
+CREATE UNIQUE INDEX idx_outbox_events_event_id ON public.outbox_events (event_id);
+-- Partial index: only the unpublished subset is ever queried by the publisher.
+CREATE INDEX idx_outbox_events_unpublished ON public.outbox_events (created_at) WHERE published_at IS NULL;
