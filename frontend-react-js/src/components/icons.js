@@ -18,3 +18,4 @@ export const ArrowUp = (props) => <svg {...base} {...props}><path d="M12 19V5M5 
 export const Close = (props) => <svg {...base} {...props}><path d="M6 6l12 12M18 6L6 18" /></svg>;
 export const GripDots = (props) => <svg width={16} height={16} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}><circle cx="9" cy="6" r="1.6" /><circle cx="15" cy="6" r="1.6" /><circle cx="9" cy="12" r="1.6" /><circle cx="15" cy="12" r="1.6" /><circle cx="9" cy="18" r="1.6" /><circle cx="15" cy="18" r="1.6" /></svg>;
 export const Undo = (props) => <svg {...base} {...props}><path d="M9 14L4 9l5-5M4 9h10a6 6 0 010 12h-3" /></svg>;
+export const PlayCircle = (props) => <svg {...base} {...props}><circle cx="12" cy="12" r="9" /><path d="M10 8.5l6 3.5-6 3.5z" /></svg>;

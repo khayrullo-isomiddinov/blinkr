@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { apiRequest } from '../../lib/api';
 import { describeApiError } from '../../lib/apiErrors';
-import { useLoad, refreshLoad } from '../../lib/useLoad';
+import { useLoad } from '../../lib/useLoad';
 import { WEEKDAY_NAMES, WEEKDAY_SHORT, muscleGroupLine, workoutSummaryLine } from '../../lib/calendar';
 import { Loading, LoadError } from '../../components/PageState';
 import { ChevronLeft, Plus, GripDots, Undo, Close } from '../../components/icons';
@@ -138,12 +138,11 @@ export default function WeekStudioPage() {
       else if (kind === 'workout-copy') result = await copyWorkout(currentActive, toDay, occupant);
       else result = await createWorkout(currentActive.label, toDay, occupant);
 
-      await refreshLoad('/api/plan').catch(() => {});
+      plan.reload();
       showToast(result.message, () => {
         setBusy(true);
         result.undo()
-          .then(() => refreshLoad('/api/plan').catch(() => {}))
-          .then(dismissToast)
+          .then(() => { plan.reload(); dismissToast(); })
           .catch((err) => setError(describeApiError(err)))
           .finally(() => setBusy(false));
       });
@@ -264,14 +263,15 @@ export default function WeekStudioPage() {
                       borderColor: isOrigin ? 'transparent' : willReplace ? undefined : tint(colorForWorkout(workout), 0.4),
                       boxShadow: `inset 0 3px 0 0 ${colorForWorkout(workout)}`,
                     }}
-                    onDragOver={(e) => { if (!dragBlocked(day)) { e.preventDefault(); setDragOverDay(day); } }}
+                    onDragOver={(e) => { if (!dragBlocked(day)) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDragOverDay(day); } }}
                     onDragLeave={() => setDragOverDay((d) => (d === day ? null : d))}
                     onDrop={(e) => { e.preventDefault(); setDragOverDay(null); attemptPlace(day); }}
                   >
                     <button
                       type="button"
                       draggable
-                      onDragStart={() => setActive({ kind: 'workout', id: workout.id, weekday: day, name: workout.name })}
+                      onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', workout.name); setActive({ kind: 'workout', id: workout.id, weekday: day, name: workout.name }); }}
+                      onDragEnd={() => setDragOverDay(null)}
                       disabled={disabledAll}
                       onClick={() => (isOrigin ? setActive(null) : active ? attemptPlace(day) : setActive({ kind: 'workout', id: workout.id, weekday: day, name: workout.name }))}
                       aria-pressed={isOrigin}
@@ -297,7 +297,7 @@ export default function WeekStudioPage() {
                 ) : (
                   <div
                     className={`relative rounded-xl lg:h-[252px] ${hovering ? 'border-2 border-accent bg-accent/10' : showAsTarget ? 'border-2 border-dashed border-accent/60' : 'border border-dashed border-ink-800'}`}
-                    onDragOver={(e) => { if (!dragBlocked(day)) { e.preventDefault(); setDragOverDay(day); } }}
+                    onDragOver={(e) => { if (!dragBlocked(day)) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDragOverDay(day); } }}
                     onDragLeave={() => setDragOverDay((d) => (d === day ? null : d))}
                     onDrop={(e) => { e.preventDefault(); setDragOverDay(null); attemptPlace(day); }}
                   >
@@ -331,7 +331,8 @@ export default function WeekStudioPage() {
                   key={chip.label}
                   type="button"
                   draggable
-                  onDragStart={() => setActive({ kind: 'chip', label: chip.label })}
+                  onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', chip.label); setActive({ kind: 'chip', label: chip.label }); }}
+                  onDragEnd={() => setDragOverDay(null)}
                   onClick={() => pick({ kind: 'chip', label: chip.label }, (c) => c.kind === 'chip' && c.label === chip.label)}
                   disabled={busy || Boolean(pendingConfirm)}
                   aria-pressed={isActive}

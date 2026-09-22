@@ -7,6 +7,7 @@ import AppLayout from './layouts/AppLayout';
 import WorkoutsPage from './features/workouts/WorkoutsPage';
 import WorkoutPage from './features/workouts/WorkoutPage';
 import ExercisesPage from './features/exercises/ExercisesPage';
+import ExerciseDetailPage from './features/exercises/ExerciseDetailPage';
 import ProfilePage from './features/profile/ProfilePage';
 import CalendarPage from './features/calendar/CalendarPage';
 import DayPage from './features/calendar/DayPage';
@@ -45,6 +46,7 @@ export const appRoutes = [
       { path: '/workouts', element: <WorkoutsPage /> },
       { path: '/workouts/:id', element: <WorkoutPage /> },
       { path: '/exercises', element: <ExercisesPage /> },
+      { path: '/exercises/:id', element: <ExerciseDetailPage /> },
       { path: '/profile', element: <ProfilePage /> },
       { path: '/settings', element: <SettingsPage /> },
     ],
