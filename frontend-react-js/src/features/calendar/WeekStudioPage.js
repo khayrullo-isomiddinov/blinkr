@@ -1,11 +1,11 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { apiRequest } from '../../lib/api';
 import { describeApiError } from '../../lib/apiErrors';
 import { useLoad } from '../../lib/useLoad';
-import { WEEKDAY_NAMES, WEEKDAY_SHORT, muscleGroupLine, workoutSummaryLine } from '../../lib/calendar';
+import { WEEKDAY_NAMES, WEEKDAY_SHORT, muscleGroupLine, workoutSummaryLine, startOfWeek, startOfDay, addDays } from '../../lib/calendar';
 import { Loading, LoadError } from '../../components/PageState';
-import { ChevronLeft, Plus, GripDots, Close, Trash } from '../../components/icons';
+import { ChevronLeft, Plus, GripDots, Trash } from '../../components/icons';
 import { PRESET_CHIPS, colorForWorkout, tint } from './studioColors';
 
 const DRAG_THRESHOLD = 6; // px of pointer movement before a press becomes a drag, not a tap
@@ -37,11 +37,14 @@ function activeColor(active) {
 }
 
 export default function WeekStudioPage() {
+  const navigate = useNavigate();
   const plan = useLoad('/api/plan', { cache: true });
   const workouts = (plan.data && plan.data.plan && plan.data.plan.workouts) || [];
   const byWeekday = Object.fromEntries(workouts.map((w) => [w.weekday, w]));
+  const monday = React.useMemo(() => startOfWeek(new Date()), []);
+  const today = React.useMemo(() => startOfDay(new Date()), []);
 
-  const [mode, setMode] = React.useState('move');
+  // `active` only exists while a real drag is in flight -- a plain tap opens a page instead of "picking up".
   const [active, setActive] = React.useState(null); // { kind: 'workout', id, weekday, name } | { kind: 'chip', label }
   const [listening, setListening] = React.useState(false); // a press is down; may or may not turn into a drag
   const [isDragging, setIsDragging] = React.useState(false); // the press crossed the drag threshold
@@ -55,23 +58,15 @@ export default function WeekStudioPage() {
   const lastDayRef = React.useRef(null);
   const lastTrashRef = React.useRef(false);
 
-  function pick(item, matches) {
-    if (busy) return;
-    setActive((current) => (current && matches(current) ? null : item));
-  }
-
-  async function run(kind, toDay, occupant, currentActive) {
+  async function moveOrCreate(item, toDay, occupant) {
     setBusy(true);
     setError('');
     try {
-      if (kind === 'workout-move') {
-        if (occupant) await apiRequest(`/api/plan/workouts/${occupant.id}`, { method: 'DELETE' });
-        await apiRequest(`/api/plan/workouts/${currentActive.id}`, { method: 'PATCH', body: { weekday: toDay } });
-      } else if (kind === 'workout-copy') {
-        await apiRequest(`/api/plan/workouts/${currentActive.id}/duplicate`, { method: 'POST', body: { weekday: toDay, replace: Boolean(occupant) } });
+      if (occupant) await apiRequest(`/api/plan/workouts/${occupant.id}`, { method: 'DELETE' });
+      if (item.kind === 'workout') {
+        await apiRequest(`/api/plan/workouts/${item.id}`, { method: 'PATCH', body: { weekday: toDay } });
       } else {
-        if (occupant) await apiRequest(`/api/plan/workouts/${occupant.id}`, { method: 'DELETE' });
-        await apiRequest('/api/plan/workouts', { method: 'POST', body: { weekday: toDay, name: currentActive.label, exercises: [] } });
+        await apiRequest('/api/plan/workouts', { method: 'POST', body: { weekday: toDay, name: item.label, exercises: [] } });
       }
       plan.reload();
     } catch (err) {
@@ -96,27 +91,18 @@ export default function WeekStudioPage() {
     }
   }
 
-  // `item` defaults to the live `active` state for ordinary (render-fresh) callers. The pointer-gesture
-  // effect below passes its own ref-tracked item explicitly, since that effect only re-subscribes when
-  // `listening` changes and would otherwise see a stale `active` from before the drag started.
-  function attemptPlace(toDay, item = active) {
+  function attemptPlace(toDay, item) {
     if (!item || busy) return;
     const occupant = byWeekday[toDay];
-
-    if (item.kind === 'workout') {
-      if (toDay === item.weekday) {
-        setActive(null);
-        return;
-      }
-      run(mode === 'move' ? 'workout-move' : 'workout-copy', toDay, occupant, item);
+    if (item.kind === 'workout' && toDay === item.weekday) {
+      setActive(null);
       return;
     }
-
-    run('create', toDay, occupant, item);
+    moveOrCreate(item, toDay, occupant);
   }
 
-  // A press that starts on a draggable source (a placed workout, or a quick-add chip). Stays a "pick" (tap)
-  // until the pointer moves past the threshold, at which point it becomes a real, finger/cursor-following drag.
+  // A press that starts on a draggable source (a placed workout, or a quick-add chip). Stays a "tap" until the
+  // pointer moves past the threshold, at which point it becomes a real, finger/cursor-following drag.
   function beginGesture(item, tapFn, e) {
     if (busy) return;
     if (e.button !== undefined && e.button !== 0) return;
@@ -187,7 +173,6 @@ export default function WeekStudioPage() {
   if (plan.status === 'error') return <div className="p-4"><LoadError error={plan.error} onRetry={plan.reload} /></div>;
 
   const balance = weekBalance(workouts);
-  const verb = active && active.kind === 'workout' ? (mode === 'move' ? 'Move' : 'Copy') : 'Add';
 
   return (
     <div className="mx-auto w-full max-w-6xl select-none px-4 pb-28 pt-6 sm:pb-12 sm:pt-10 lg:px-12">
@@ -197,24 +182,8 @@ export default function WeekStudioPage() {
           <p className="eyebrow mt-4">Week studio</p>
           <h1 className="mt-1.5 font-display text-[38px] font-extrabold leading-none tracking-tight">Your week</h1>
         </div>
-        <div className="flex items-center gap-2.5 pt-1">
-          <div role="group" aria-label="Placement mode" className="grid grid-cols-2 gap-1 rounded-lg bg-ink-900 p-1">
-            {[['move', 'Move'], ['copy', 'Copy']].map(([value, label]) => (
-              <button key={value} type="button" aria-pressed={mode === value} onClick={() => setMode(value)} className="seg-btn w-[76px]">{label}</button>
-            ))}
-          </div>
-          <Link to="/calendar" className="btn-outline">Done</Link>
-        </div>
+        <Link to="/calendar" className="btn-outline">Done</Link>
       </div>
-
-      {active && !isDragging && (
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          <p className="font-display text-lg font-bold text-accent">{verb} "{activeLabel(active)}" <span className="text-fg-mute">→</span> choose a day, or drag it</p>
-          <button type="button" onClick={() => setActive(null)} className="flex h-8 items-center gap-1 rounded-md px-2 text-sm text-fg-mute hover:bg-ink-800 hover:text-fg">
-            <Close width={13} height={13} />Cancel
-          </button>
-        </div>
-      )}
 
       {error && <div role="alert" className="alert-error mt-5">{error}</div>}
 
@@ -222,22 +191,30 @@ export default function WeekStudioPage() {
         <ol className="grid grid-cols-1 gap-2.5 lg:grid-cols-7">
           {WEEKDAY_SHORT.map((short, day) => {
             const workout = byWeekday[day];
+            const date = addDays(monday, day);
+            const isToday = date.getTime() === today.getTime();
             const isOrigin = active && active.kind === 'workout' && active.id === workout?.id;
             const hovering = dragOverDay === day && !isOrigin;
             const showAsTarget = active && !isOrigin;
             const willReplace = showAsTarget && Boolean(workout);
-            const tap = () => (isOrigin ? setActive(null) : active ? attemptPlace(day) : setActive({ kind: 'workout', id: workout?.id, weekday: day, name: workout?.name }));
+            const tap = () => navigate(`/plan/workouts/${workout?.id}`);
 
             return (
               <li key={day} className="lg:h-full">
-                <p className="mb-1.5 px-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-fg-mute">
-                  {short}<span className="sr-only"> ({WEEKDAY_NAMES[day]})</span>
-                </p>
+                <div className="mb-1.5 flex items-baseline justify-between px-0.5">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-fg-mute">
+                    {short}<span className="sr-only"> ({WEEKDAY_NAMES[day]})</span>
+                  </p>
+                  <span className={`flex items-center gap-1 font-display text-[13px] font-bold ${isToday ? 'text-accent' : 'text-fg-mute'}`}>
+                    {isToday && <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-accent" />}
+                    {date.getDate()}
+                  </span>
+                </div>
 
                 {workout ? (
                   <div
                     data-day={day}
-                    className={`relative flex flex-col rounded-lg border p-3 motion-safe:transition-[shadow,opacity] motion-safe:duration-200 lg:h-[252px] ${isOrigin && isDragging ? 'opacity-40' : ''}`}
+                    className={`relative flex flex-col rounded-lg border p-3 motion-safe:transition-[shadow,opacity] motion-safe:duration-200 lg:h-[252px] ${isOrigin && isDragging ? 'opacity-40' : ''} ${isToday ? 'ring-1 ring-accent/50' : ''}`}
                     style={{
                       background: tint(colorForWorkout(workout), 0.11),
                       borderColor: isOrigin ? 'transparent' : willReplace ? undefined : tint(colorForWorkout(workout), 0.4),
@@ -251,7 +228,6 @@ export default function WeekStudioPage() {
                       type="button"
                       onPointerDown={(e) => beginGesture({ kind: 'workout', id: workout.id, weekday: day, name: workout.name }, tap, e)}
                       onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(); } }}
-                      aria-pressed={isOrigin}
                       className="touch-none flex-1 rounded-lg text-left outline-none"
                     >
                       <span className="flex items-center justify-between">
@@ -259,8 +235,8 @@ export default function WeekStudioPage() {
                           <GripDots />
                           <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full" style={{ background: colorForWorkout(workout) }} />
                         </span>
-                        {(isOrigin || willReplace) && (
-                          <span className="text-[11px] font-semibold uppercase tracking-wide text-accent">{isOrigin ? 'Picked up' : 'Replace'}</span>
+                        {willReplace && (
+                          <span className="text-[11px] font-semibold uppercase tracking-wide text-accent">Replace</span>
                         )}
                       </span>
                       <span className="mt-3 block font-display text-[21px] font-extrabold leading-tight tracking-tight text-fg">{workout.name}</span>
@@ -269,15 +245,14 @@ export default function WeekStudioPage() {
                       )}
                       <span className="mt-1.5 block text-xs text-fg-mute">{workoutSummaryLine(workout.exercises, { withEstimate: false })}</span>
                     </button>
-                    <Link to={`/plan/workouts/${workout.id}`} className="mt-2.5 text-[13px] font-semibold text-fg-soft hover:text-fg">Edit workout</Link>
                   </div>
                 ) : (
                   <div
                     data-day={day}
-                    className={`relative rounded-xl border-2 motion-safe:transition-colors motion-safe:duration-200 lg:h-[252px] ${hovering ? 'border-accent bg-accent/10' : showAsTarget ? 'border-dashed border-accent/60' : 'border-dashed border-ink-800'}`}
+                    className={`relative rounded-xl border-2 motion-safe:transition-colors motion-safe:duration-200 lg:h-[252px] ${hovering ? 'border-accent bg-accent/10' : showAsTarget ? 'border-dashed border-accent/60' : isToday ? 'border-dashed border-accent/40' : 'border-dashed border-ink-800'}`}
                   >
                     {active ? (
-                      <button type="button" onClick={() => attemptPlace(day)} className="flex h-16 w-full flex-col items-center justify-center gap-1 rounded-xl text-center lg:h-full">
+                      <button type="button" onClick={() => attemptPlace(day, active)} className="flex h-16 w-full flex-col items-center justify-center gap-1 rounded-xl text-center lg:h-full">
                         <span className="font-display text-lg font-bold text-accent">{hovering ? 'Release to place' : 'Place here'}</span>
                         <span className="text-xs text-fg-mute">{activeLabel(active)}</span>
                       </button>
@@ -300,16 +275,14 @@ export default function WeekStudioPage() {
           <p className="eyebrow">Quick add</p>
           <div className="mt-3.5 overflow-hidden rounded-lg border border-ink-700">
             {PRESET_CHIPS.map((chip) => {
-              const isActive = active && active.kind === 'chip' && active.label === chip.label;
-              const tap = () => pick({ kind: 'chip', label: chip.label }, (c) => c.kind === 'chip' && c.label === chip.label);
+              const tap = () => navigate(`/plan/workouts/new?name=${encodeURIComponent(chip.label)}`);
               return (
                 <button
                   key={chip.label}
                   type="button"
                   onPointerDown={(e) => beginGesture({ kind: 'chip', label: chip.label }, tap, e)}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(); } }}
-                  aria-pressed={isActive}
-                  className={`touch-none flex w-full items-center gap-3 border-t border-ink-700 px-3.5 py-3 text-left first:border-t-0 ${isActive ? 'bg-accent/10' : 'bg-ink-900 hover:bg-ink-800'}`}
+                  className="touch-none flex w-full items-center gap-3 border-t border-ink-700 bg-ink-900 px-3.5 py-3 text-left first:border-t-0 hover:bg-ink-800"
                 >
                   <span aria-hidden="true" className="h-2.5 w-2.5 flex-none rounded-full" style={{ background: chip.color }} />
                   <span className="flex-1 font-display text-[15px] font-bold text-fg">{chip.label}</span>

@@ -6,7 +6,6 @@ import { useLoad, refreshLoad } from '../../lib/useLoad';
 import { WEEKDAY_SHORT, WEEKDAY_NAMES } from '../../lib/calendar';
 import { Loading, LoadError } from '../../components/PageState';
 import { ChevronLeft, ChevronUp, ChevronDown, Close, Plus } from '../../components/icons';
-import DuplicatePicker from './DuplicatePicker';
 
 let rowCounter = 0;
 
@@ -151,6 +150,7 @@ export default function WorkoutEditorPage() {
       const wanted = Number(params.get('weekday'));
       const free = [0, 1, 2, 3, 4, 5, 6].filter((d) => !byWeekday[d]);
       setWeekday(Number.isInteger(wanted) && wanted >= 0 && wanted <= 6 && !byWeekday[wanted] ? wanted : free[0] ?? null);
+      setName(params.get('name') || '');
       setReady(true);
     } else if (existing) {
       setName(existing.name);
@@ -216,12 +216,12 @@ export default function WorkoutEditorPage() {
   return (
     <form onSubmit={save} className="mx-auto w-full max-w-2xl px-4 pb-16 pt-6 sm:pt-10">
       <Link to="/calendar" className="inline-flex items-center gap-1 text-sm text-fg-mute hover:no-underline"><ChevronLeft width={16} height={16} />Calendar</Link>
-      <h1 className="mt-4 font-display text-[34px] font-extrabold leading-tight tracking-tight">{isNew ? 'New workout' : 'Edit workout'}</h1>
+      <p className="eyebrow mt-4">{isNew ? 'New workout' : 'Edit workout'}</p>
 
-      <label htmlFor="workout-name" className="field-label mt-6">Workout name</label>
-      <input id="workout-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} placeholder="Push" className="input h-14 font-display text-2xl font-bold" />
+      <label htmlFor="workout-name" className="sr-only">Workout name</label>
+      <input id="workout-name" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} placeholder="Workout name" className="input mt-1.5 h-11 font-display text-xl font-bold" />
 
-      <p className="field-label mt-5">Day</p>
+      <p className="field-label mt-4">Day</p>
       <div role="group" aria-label="Day of the week" className="grid grid-cols-7 gap-1.5">
         {WEEKDAY_SHORT.map((label, index) => {
           const taken = byWeekday[index] && (!existing || byWeekday[index].id !== existing.id);
@@ -270,16 +270,17 @@ export default function WorkoutEditorPage() {
       <button type="submit" disabled={saving || !ready} className="btn-primary mt-6 h-14 w-full text-lg">{saving ? 'Saving...' : 'Save workout'}</button>
 
       {!isNew && existing && (
-        <div className="mt-10 space-y-6 border-t border-ink-700 pt-6">
-          <DuplicatePicker workout={existing} planWorkouts={workouts} onCopied={plan.reload} />
+        <div className="mt-10 flex flex-col items-center gap-3 border-t border-ink-700 pt-6 text-center">
           {!confirmDelete ? (
-            <button type="button" onClick={() => setConfirmDelete(true)} className="btn-secondary">Delete workout</button>
+            <button type="button" onClick={() => setConfirmDelete(true)} className="btn-danger">Delete workout</button>
           ) : (
-            <div className="flex flex-wrap items-center gap-3">
+            <>
               <p className="text-sm text-fg-soft">Delete {existing.name}? Workouts you already did stay in your history.</p>
-              <button type="button" onClick={remove} disabled={saving} className="btn-danger">Delete</button>
-              <button type="button" onClick={() => setConfirmDelete(false)} disabled={saving} className="btn-secondary">Cancel</button>
-            </div>
+              <div className="flex gap-2">
+                <button type="button" onClick={remove} disabled={saving} className="btn-danger">{saving ? 'Deleting...' : 'Delete'}</button>
+                <button type="button" onClick={() => setConfirmDelete(false)} disabled={saving} className="btn-secondary">Cancel</button>
+              </div>
+            </>
           )}
         </div>
       )}
