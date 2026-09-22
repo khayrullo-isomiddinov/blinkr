@@ -172,17 +172,15 @@ export default function CalendarPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-6 sm:pt-10 lg:px-12">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-display text-[38px] font-extrabold leading-none tracking-tight">Calendar</h1>
-          <p className="mt-1.5 text-sm text-fg-mute">{today.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+      {workouts.length > 0 && (
+        <div className="flex justify-end">
+          <Link to="/plan" className="text-sm font-semibold text-fg-mute hover:text-fg">Edit week</Link>
         </div>
-        {workouts.length > 0 && <Link to="/plan" className="btn-secondary">Edit week</Link>}
-      </div>
+      )}
 
-      {loading && <div className="mt-8"><Loading label="Loading your week" /></div>}
-      {plan.status === 'error' && <div className="mt-8"><LoadError error={plan.error} onRetry={plan.reload} /></div>}
-      {plan.status === 'ready' && sessions.status === 'error' && <div className="mt-8"><LoadError error={sessions.error} onRetry={sessions.reload} /></div>}
+      {loading && <div className="mt-4"><Loading label="Loading your week" /></div>}
+      {plan.status === 'error' && <div className="mt-4"><LoadError error={plan.error} onRetry={plan.reload} /></div>}
+      {plan.status === 'ready' && sessions.status === 'error' && <div className="mt-4"><LoadError error={sessions.error} onRetry={sessions.reload} /></div>}
 
       {plan.status === 'ready' && sessions.status === 'ready' && (
         <>
