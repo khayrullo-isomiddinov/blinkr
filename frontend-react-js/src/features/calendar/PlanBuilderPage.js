@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { apiRequest } from '../../lib/api';
 import { describeApiError } from '../../lib/apiErrors';
-import { useLoad } from '../../lib/useLoad';
+import { useLoad, refreshLoad } from '../../lib/useLoad';
 import { WEEKDAY_SHORT, WEEKDAY_NAMES } from '../../lib/calendar';
 import { Loading, LoadError } from '../../components/PageState';
 import { ChevronLeft } from '../../components/icons';
@@ -11,7 +11,7 @@ const PUSH_PULL_LEGS = ['Push', 'Pull', '', 'Legs', 'Push', '', 'Pull'];
 
 export default function PlanBuilderPage() {
   const navigate = useNavigate();
-  const plan = useLoad('/api/plan');
+  const plan = useLoad('/api/plan', { cache: true });
   const [ready, setReady] = React.useState(false);
   const [names, setNames] = React.useState(Array(7).fill(''));
   const [copyFrom, setCopyFrom] = React.useState(Array(7).fill(''));
@@ -60,6 +60,7 @@ export default function PlanBuilderPage() {
           await apiRequest(`/api/plan/workouts/${byWeekday[day].id}`, { method: 'DELETE' });
         }
       }
+      await refreshLoad('/api/plan').catch(() => {});
       navigate('/calendar');
     } catch (err) {
       setError(describeApiError(err));
@@ -72,7 +73,7 @@ export default function PlanBuilderPage() {
 
   const hasWorkouts = workouts.length > 0;
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 pb-32 pt-6 sm:pb-16 sm:pt-10">
+    <div className="mx-auto w-full max-w-2xl px-4 pb-16 pt-6 sm:pt-10">
       <Link to="/calendar" className="inline-flex items-center gap-1 text-sm text-fg-mute hover:no-underline"><ChevronLeft width={16} height={16} />Calendar</Link>
       <h1 className="mt-4 font-display text-[34px] font-extrabold leading-tight tracking-tight">{hasWorkouts ? 'Edit your week' : 'Create your week'}</h1>
       <p className="mt-2 max-w-md text-sm text-fg-mute">

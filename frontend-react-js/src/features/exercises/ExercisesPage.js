@@ -60,7 +60,7 @@ export default function ExercisesPage() {
   const { status, data, error, reload } = useLoad('/api/exercises');
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 pb-28 pt-6 sm:pb-12 sm:pt-10">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-12 pt-6 sm:pt-10">
       <h1 className="font-display text-[38px] font-extrabold leading-none tracking-tight mb-6">Exercises</h1>
       <NewExerciseForm onCreated={reload} />
 

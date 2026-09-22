@@ -14,4 +14,5 @@ export const Check = (props) => <svg {...base} strokeWidth={3} {...props}><path 
 export const CalendarIcon = (props) => <svg {...base} {...props}><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M3 10h18M8 3v4M16 3v4" /></svg>;
 export const ChevronUp = (props) => <svg {...base} {...props}><path d="M5 15l7-7 7 7" /></svg>;
 export const ChevronDown = (props) => <svg {...base} {...props}><path d="M5 9l7 7 7-7" /></svg>;
+export const ArrowUp = (props) => <svg {...base} {...props}><path d="M12 19V5M5 12l7-7 7 7" /></svg>;
 export const Close = (props) => <svg {...base} {...props}><path d="M6 6l12 12M18 6L6 18" /></svg>;

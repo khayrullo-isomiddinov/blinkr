@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useLoad } from '../../lib/useLoad';
 import {
-  WEEKDAY_NAMES, addDays, dateKey, dayState, estimateMinutes, formatTarget, longDate, parseDateKey, startOfDay, startOfWeek, weekdayOf,
+  WEEKDAY_NAMES, WEEKDAY_SHORT, addDays, dateKey, dayState, estimateMinutes, formatTarget, longDate, parseDateKey, sessionsOn, startOfDay, startOfWeek, weekdayOf,
 } from '../../lib/calendar';
 import { formatClock, formatDuration } from '../../lib/format';
 import { Loading, LoadError } from '../../components/PageState';
@@ -10,14 +10,14 @@ import { ChevronLeft, ChevronRight, Plus } from '../../components/icons';
 import DayStatus from './DayStatus';
 import DuplicatePicker from './DuplicatePicker';
 import { useStartPlanned } from './useStartPlanned';
+import { useSessionsWindow } from './useSessionsWindow';
 
 export default function DayPage() {
   const { date: key } = useParams();
   const date = parseDateKey(key);
   const [copyOpen, setCopyOpen] = React.useState(false);
-  const plan = useLoad('/api/plan');
-  const range = date ? `from=${encodeURIComponent(date.toISOString())}&to=${encodeURIComponent(addDays(date, 1).toISOString())}` : '';
-  const sessions = useLoad(date ? `/api/workout-sessions?${range}` : '/api/workout-sessions?from=1970-01-01T00:00:00Z&to=1970-01-01T00:00:01Z');
+  const plan = useLoad('/api/plan', { cache: true });
+  const sessions = useSessionsWindow(date || new Date());
   const { start, busyId, error: startError } = useStartPlanned();
 
   if (!date) {
@@ -33,13 +33,19 @@ export default function DayPage() {
   const back = `/calendar?week=${dateKey(startOfWeek(date))}`;
   const workouts = (plan.data && plan.data.plan && plan.data.plan.workouts) || [];
   const planned = workouts.find((w) => w.weekday === weekday) || null;
-  const state = dayState({ planned, sessions: sessions.data || [], date, today: startOfDay(new Date()) });
+  const state = dayState({ planned, sessions: sessionsOn(sessions.data || [], date), date, today: startOfDay(new Date()) });
   const { status, session, extras } = state;
   const minutes = planned ? estimateMinutes(planned.exercises) : null;
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 pb-28 pt-6 sm:pb-12 sm:pt-10">
-      <Link to={back} className="inline-flex items-center gap-1 text-sm text-fg-mute hover:no-underline"><ChevronLeft width={16} height={16} />Calendar</Link>
+    <div className="mx-auto w-full max-w-2xl px-4 pb-12 pt-6 sm:pt-10">
+      <div className="flex items-center justify-between">
+        <Link to={back} className="inline-flex items-center gap-1 text-sm text-fg-mute hover:no-underline"><ChevronLeft width={16} height={16} />Calendar</Link>
+        <div className="flex items-center">
+          <Link to={`/calendar/${dateKey(addDays(date, -1))}`} aria-label="Previous day" className="flex h-11 items-center gap-0.5 rounded-lg pl-1 pr-2 text-sm text-fg-mute hover:bg-ink-800 hover:text-fg hover:no-underline"><ChevronLeft width={18} height={18} />{WEEKDAY_SHORT[weekdayOf(addDays(date, -1))]}</Link>
+          <Link to={`/calendar/${dateKey(addDays(date, 1))}`} aria-label="Next day" className="flex h-11 items-center gap-0.5 rounded-lg pl-2 pr-1 text-sm text-fg-mute hover:bg-ink-800 hover:text-fg hover:no-underline">{WEEKDAY_SHORT[weekdayOf(addDays(date, 1))]}<ChevronRight width={18} height={18} /></Link>
+        </div>
+      </div>
 
       {(plan.status === 'loading' || sessions.status === 'loading') && <div className="mt-6"><Loading label="Loading the day" /></div>}
       {plan.status === 'error' && <div className="mt-6"><LoadError error={plan.error} onRetry={plan.reload} /></div>}

@@ -2,6 +2,8 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft } from './icons';
 import { Logo } from './Logo';
+import Footer from './Footer';
+import { useSession } from '../features/auth/useSession';
 
 export function LegalLinks({ className = '' }) {
   return (
@@ -16,6 +18,7 @@ export function LegalLinks({ className = '' }) {
 // Support and legal pages are readable signed in or out, so they sit outside the app shell.
 export default function PublicPage({ title, children }) {
   const navigate = useNavigate();
+  const session = useSession();
   return (
     <div className="min-h-screen">
       <header className="flex h-14 items-center gap-2 border-b border-ink-700 px-4 sm:px-8">
@@ -27,8 +30,8 @@ export default function PublicPage({ title, children }) {
       <main className="mx-auto w-full max-w-2xl px-4 pb-16 pt-8">
         <h1 className="font-display text-[34px] font-extrabold leading-tight tracking-tight">{title}</h1>
         <div className="mt-6 space-y-6 text-[15px] leading-relaxed text-fg-soft">{children}</div>
-        <LegalLinks className="mt-12 border-t border-ink-700 pt-6" />
       </main>
+      <Footer signedIn={session === 'in'} />
     </div>
   );
 }

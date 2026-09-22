@@ -75,7 +75,7 @@ export default function ProfilePage() {
   const unchanged = !profile || name.trim() === profile.display_name;
 
   return (
-    <div className="mx-auto w-full max-w-xl px-4 pb-28 pt-6 sm:pb-12 sm:pt-10">
+    <div className="mx-auto w-full max-w-xl px-4 pb-12 pt-6 sm:pt-10">
       <h1 className="font-display text-[38px] font-extrabold leading-none tracking-tight">Profile</h1>
 
       <section aria-label="Profile photo" className="card mt-6 flex flex-col items-center gap-4 p-6 sm:flex-row sm:items-center">

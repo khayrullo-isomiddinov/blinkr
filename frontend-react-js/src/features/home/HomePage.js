@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useSession } from '../auth/useSession';
-import { LegalLinks } from '../../components/PublicPage';
+import Footer from '../../components/Footer';
 import { Logo, LogoMark } from '../../components/Logo';
 
 export default function HomePage() {
@@ -9,7 +9,8 @@ export default function HomePage() {
   if (status === 'in') return <Navigate to="/calendar" replace />;
 
   return (
-    <div className="flex min-h-screen flex-col px-6 py-6">
+    <div className="flex min-h-screen flex-col">
+      <div className="flex flex-1 flex-col px-6 py-6">
       <Logo size={32} />
       <div className="mx-auto flex w-full max-w-4xl flex-1 items-center justify-between gap-12 pb-16">
         <div className="max-w-xl">
@@ -26,7 +27,8 @@ export default function HomePage() {
         </div>
         <LogoMark size={340} className="hidden text-accent md:block" />
       </div>
-      <LegalLinks className="mx-auto w-full max-w-4xl" />
+      </div>
+      <Footer signedIn={false} />
     </div>
   );
 }

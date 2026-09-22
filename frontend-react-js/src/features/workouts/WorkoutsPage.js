@@ -46,7 +46,7 @@ export default function WorkoutsPage() {
   const { start, starting, error: startError } = useStartWorkout();
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 pb-28 pt-6 sm:pb-12 sm:pt-10">
+    <div className="mx-auto w-full max-w-3xl px-4 pb-12 pt-6 sm:pt-10">
       <h1 className="font-display text-[38px] font-extrabold leading-none tracking-tight">Workouts</h1>
       <button type="button" onClick={start} disabled={starting} className="btn-primary mt-5 h-[60px] w-full text-xl sm:hidden">
         <Plus width={22} height={22} />

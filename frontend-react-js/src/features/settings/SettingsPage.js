@@ -88,7 +88,7 @@ function DeleteAccount() {
 export default function SettingsPage() {
   const rows = [['/support', 'Contact support'], ['/privacy', 'Privacy policy'], ['/terms', 'Terms and conditions']];
   return (
-    <div className="mx-auto w-full max-w-xl space-y-4 px-4 pb-28 pt-6 sm:pb-12 sm:pt-10">
+    <div className="mx-auto w-full max-w-xl space-y-4 px-4 pb-12 pt-6 sm:pt-10">
       <h1 className="font-display text-[38px] font-extrabold leading-none tracking-tight">Settings</h1>
       <div className="pt-2" />
       <Appearance />

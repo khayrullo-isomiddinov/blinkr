@@ -4,6 +4,7 @@ import { useSignOut } from '../features/auth/useSignOut';
 import { useStartWorkout } from '../features/workouts/useStartWorkout';
 import { ProfileProvider, useProfile } from '../features/profile/ProfileContext';
 import Avatar from '../components/Avatar';
+import Footer from '../components/Footer';
 import { Logo } from '../components/Logo';
 import { CalendarIcon, ListIcon, Dumbbell } from '../components/icons';
 
@@ -45,6 +46,8 @@ function Shell() {
       {error && <div role="alert" className="alert-error m-4">{error}</div>}
 
       <Outlet />
+
+      <Footer signedIn clearNav={!onWorkout} className={onWorkout ? 'hidden lg:block' : ''} />
 
       <nav
         aria-label="Main"

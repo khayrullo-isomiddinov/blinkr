@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { apiRequest } from '../../lib/api';
 import { describeApiError } from '../../lib/apiErrors';
-import { useLoad } from '../../lib/useLoad';
+import { useLoad, refreshLoad } from '../../lib/useLoad';
 import { WEEKDAY_SHORT, WEEKDAY_NAMES } from '../../lib/calendar';
 import { Loading, LoadError } from '../../components/PageState';
 import { ChevronLeft, ChevronUp, ChevronDown, Close, Plus } from '../../components/icons';
@@ -130,7 +130,7 @@ export default function WorkoutEditorPage() {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const isNew = id === undefined;
-  const plan = useLoad('/api/plan');
+  const plan = useLoad('/api/plan', { cache: true });
   const library = useLoad('/api/exercises');
   const [ready, setReady] = React.useState(false);
   const [name, setName] = React.useState('');
@@ -180,6 +180,7 @@ export default function WorkoutEditorPage() {
       const body = payload(name, weekday, rows);
       if (isNew) await apiRequest('/api/plan/workouts', { method: 'POST', body });
       else await apiRequest(`/api/plan/workouts/${id}`, { method: 'PATCH', body });
+      await refreshLoad('/api/plan').catch(() => {});
       navigate('/calendar');
     } catch (err) {
       setError(describeApiError(err));
@@ -192,6 +193,7 @@ export default function WorkoutEditorPage() {
     setError('');
     try {
       await apiRequest(`/api/plan/workouts/${id}`, { method: 'DELETE' });
+      await refreshLoad('/api/plan').catch(() => {});
       navigate('/calendar');
     } catch (err) {
       setError(describeApiError(err));
@@ -199,7 +201,8 @@ export default function WorkoutEditorPage() {
     }
   }
 
-  if (plan.status === 'loading') return <div className="mx-auto max-w-2xl p-4"><Loading label="Loading" /></div>;
+  // A cached plan may predate this workout; wait for the refresh before calling it missing.
+  if (plan.status === 'loading' || (!isNew && !existing && plan.fetching)) return <div className="mx-auto max-w-2xl p-4"><Loading label="Loading" /></div>;
   if (plan.status === 'error') return <div className="p-4"><LoadError error={plan.error} onRetry={plan.reload} /></div>;
   if (!isNew && !existing) {
     return (
@@ -211,7 +214,7 @@ export default function WorkoutEditorPage() {
   }
 
   return (
-    <form onSubmit={save} className="mx-auto w-full max-w-2xl px-4 pb-32 pt-6 sm:pb-16 sm:pt-10">
+    <form onSubmit={save} className="mx-auto w-full max-w-2xl px-4 pb-16 pt-6 sm:pt-10">
       <Link to="/calendar" className="inline-flex items-center gap-1 text-sm text-fg-mute hover:no-underline"><ChevronLeft width={16} height={16} />Calendar</Link>
       <h1 className="mt-4 font-display text-[34px] font-extrabold leading-tight tracking-tight">{isNew ? 'New workout' : 'Edit workout'}</h1>
 
