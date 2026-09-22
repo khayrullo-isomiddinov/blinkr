@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useLoad } from '../../lib/useLoad';
 import {
-  WEEKDAY_NAMES, WEEKDAY_SHORT, addDays, dateKey, dayState, estimateMinutes, formatTarget, longDate, parseDateKey, sessionsOn, startOfDay, startOfWeek, weekdayOf,
+  WEEKDAY_NAMES, WEEKDAY_SHORT, addDays, dateKey, dayState, formatTarget, longDate, muscleGroupLine, parseDateKey, sessionsOn, startOfDay, startOfWeek, weekdayOf, workoutSummaryLine,
 } from '../../lib/calendar';
 import { formatClock, formatDuration } from '../../lib/format';
 import { Loading, LoadError } from '../../components/PageState';
@@ -35,7 +35,6 @@ export default function DayPage() {
   const planned = workouts.find((w) => w.weekday === weekday) || null;
   const state = dayState({ planned, sessions: sessionsOn(sessions.data || [], date), date, today: startOfDay(new Date()) });
   const { status, session, extras } = state;
-  const minutes = planned ? estimateMinutes(planned.exercises) : null;
 
   return (
     <div className="mx-auto w-full max-w-2xl px-4 pb-12 pt-6 sm:pt-10">
@@ -61,9 +60,8 @@ export default function DayPage() {
           {planned ? (
             <section aria-label={planned.name} className="mt-6">
               <h2 className="font-display text-3xl font-extrabold leading-tight tracking-tight">{planned.name}</h2>
-              <p className="mt-1 text-sm text-fg-mute">
-                {planned.exercises.length} {planned.exercises.length === 1 ? 'exercise' : 'exercises'}{minutes ? ` · Estimated ~${minutes} min` : ''}
-              </p>
+              {planned.exercises.length > 0 && <p className="mt-1.5 text-[15px] text-fg-soft">{muscleGroupLine(planned.exercises)}</p>}
+              <p className="mt-1 text-sm text-fg-mute">{workoutSummaryLine(planned.exercises)}</p>
 
               {planned.exercises.length === 0 ? (
                 <p className="card mt-5 p-4 text-sm text-fg-mute">No exercises yet. <Link to={`/plan/workouts/${planned.id}`}>Add some</Link>.</p>

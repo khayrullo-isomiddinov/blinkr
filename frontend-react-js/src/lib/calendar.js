@@ -53,10 +53,40 @@ export function formatTarget(exercise) {
   return text;
 }
 
+export function totalSets(exercises) {
+  return exercises.reduce((total, e) => total + (e.target_sets || 0), 0);
+}
+
 // A rough duration for the "Today" panel: about three minutes a set plus five to get started.
 export function estimateMinutes(exercises) {
-  const sets = exercises.reduce((total, e) => total + (e.target_sets || 0), 0);
+  const sets = totalSets(exercises);
   return sets === 0 ? null : Math.max(10, Math.round((sets * 3 + 5) / 5) * 5);
+}
+
+// "Chest · Shoulders · Triceps" -- the muscle groups actually trained, in the order they first appear.
+export function muscleGroupLine(exercises, limit = 3) {
+  const seen = [];
+  exercises.forEach((e) => {
+    const group = e.exercise_muscle_group;
+    if (group && !seen.includes(group)) seen.push(group);
+  });
+  if (seen.length === 0) return '';
+  const shown = seen.slice(0, limit).map((g) => g.charAt(0).toUpperCase() + g.slice(1));
+  const rest = seen.length - shown.length;
+  return rest > 0 ? `${shown.join(' · ')} +${rest}` : shown.join(' · ');
+}
+
+// "4 exercises · 12 sets · ~35 min"
+export function workoutSummaryLine(exercises, { withEstimate = true } = {}) {
+  if (exercises.length === 0) return 'No exercises yet';
+  const sets = totalSets(exercises);
+  const parts = [`${exercises.length} ${exercises.length === 1 ? 'exercise' : 'exercises'}`];
+  if (sets > 0) parts.push(`${sets} sets`);
+  if (withEstimate) {
+    const minutes = estimateMinutes(exercises);
+    if (minutes) parts.push(`~${minutes} min`);
+  }
+  return parts.join(' · ');
 }
 
 export function sessionsOn(sessions, date) {

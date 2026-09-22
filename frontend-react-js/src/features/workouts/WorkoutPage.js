@@ -76,29 +76,28 @@ function topSet(sets) {
   return [...sets].sort((a, b) => (Number(b.weight) || 0) - (Number(a.weight) || 0) || b.reps - a.reps)[0];
 }
 
-// What the plan asked for, next to what was actually done last time. Either can be missing.
+// What the plan asked for, next to what was actually done last time. Either can be missing. A quiet readout, not a
+// pair of dashboard tiles -- this is reference information, secondary to the set list right below it.
 function TargetPanel({ exercise }) {
   const planned = Boolean(exercise.target_sets);
   const last = exercise.last_time;
   if (!planned && !last) return null;
   const done = exercise.sets.length;
   return (
-    <div className={`mb-3 grid gap-3 ${planned && last ? 'grid-cols-2' : 'grid-cols-1'}`}>
+    <div className="mb-1 flex flex-col gap-2.5 border-b border-ink-700 pb-4 sm:flex-row sm:items-baseline sm:gap-8">
       {planned && (
-        <div className="card p-3">
-          <p className="field-label">Target</p>
-          <p className="font-display text-xl font-bold tabular-nums">{formatTarget(exercise)}</p>
-          <p className="mt-1 text-xs text-fg-mute">{done >= exercise.target_sets ? 'All planned sets done' : `Set ${done + 1} of ${exercise.target_sets}`}</p>
-        </div>
+        <p className="flex items-baseline gap-2">
+          <span className="field-label mb-0">Target</span>
+          <span className={`${num} text-lg`}>{formatTarget(exercise)}</span>
+          <span className="text-xs text-fg-mute">{done >= exercise.target_sets ? 'all done' : `set ${done + 1} of ${exercise.target_sets}`}</span>
+        </p>
       )}
       {last && (
-        <div className="card p-3">
-          <p className="field-label">Last time</p>
-          <p className="font-display text-xl font-bold tabular-nums">{formatSet(topSet(last.sets))}</p>
-          <p className="mt-1 text-xs text-fg-mute">
-            {new Date(last.performed_at).toLocaleDateString([], { month: 'short', day: 'numeric' })} · {last.sets.length} {last.sets.length === 1 ? 'set' : 'sets'}
-          </p>
-        </div>
+        <p className="flex items-baseline gap-2">
+          <span className="field-label mb-0">Last time</span>
+          <span className={`${num} text-lg`}>{formatSet(topSet(last.sets))}</span>
+          <span className="text-xs text-fg-mute">{new Date(last.performed_at).toLocaleDateString([], { month: 'short', day: 'numeric' })}</span>
+        </p>
       )}
     </div>
   );

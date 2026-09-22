@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useLoad } from '../../lib/useLoad';
 import {
-  WEEKDAY_SHORT, addDays, dateKey, dayState, estimateMinutes, parseDateKey, startOfDay, startOfWeek, weekLabel,
+  WEEKDAY_SHORT, addDays, dateKey, dayState, muscleGroupLine, parseDateKey, startOfDay, startOfWeek, weekLabel, workoutSummaryLine,
 } from '../../lib/calendar';
 import { Loading, LoadError } from '../../components/PageState';
 import { ChevronLeft, ChevronRight, Check } from '../../components/icons';
@@ -10,49 +10,39 @@ import DayStatus, { DayMarker } from './DayStatus';
 import { useStartPlanned } from './useStartPlanned';
 import { useSessionsWindow } from './useSessionsWindow';
 
-const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
-const preview = (planned) => planned.exercises.slice(0, 3).map((e) => e.exercise_name);
-
 function TodayPanel({ day, onStart, busyId }) {
   const { planned, status, session } = day;
-  const minutes = planned ? estimateMinutes(planned.exercises) : null;
-  const count = planned ? planned.exercises.length : 0;
-  const scrollToWeek = () => {
-    const week = document.getElementById('week');
-    if (week) week.scrollIntoView({ behavior: 'smooth' });
-  };
+
+  if (status === 'rest') {
+    return (
+      <section aria-label="Today" className="mt-8">
+        <p className="eyebrow text-accent">Today</p>
+        <h2 className="mt-2 font-display text-[40px] font-extrabold leading-none tracking-tight">Rest day</h2>
+        <p className="mt-2 text-sm text-fg-mute">Recovery is part of the plan. The next session is in the week below.</p>
+      </section>
+    );
+  }
 
   return (
-    <section aria-label="Today" className="card border-2 border-accent p-5 sm:p-6">
+    <section aria-label="Today" className="mt-8">
       <p className="eyebrow text-accent">Today</p>
-      {status === 'rest' ? (
-        <>
-          <h2 className="mt-2 font-display text-[34px] font-extrabold leading-none tracking-tight">Rest day</h2>
-          <p className="mt-2 text-sm text-fg-mute">Recover. The next session is in the week below.</p>
-          <button type="button" onClick={scrollToWeek} className="btn-secondary mt-5">View week</button>
-        </>
-      ) : (
-        <>
-          <h2 className="mt-2 font-display text-[34px] font-extrabold leading-none tracking-tight">{planned.name}</h2>
-          <p className="mt-2 flex items-center gap-1.5 text-sm text-fg-mute">
-            {status === 'completed' && <span className="inline-flex items-center gap-1 font-semibold text-accent"><Check width={14} height={14} />Completed</span>}
-            {status === 'in_progress' && <span className="font-semibold text-accent">In progress</span>}
-            {(status === 'planned' || status === 'missed') && (
-              count === 0 ? 'No exercises yet' : `${plural(count, 'exercise')}${minutes ? ` · Estimated ~${minutes} min` : ''}`
-            )}
-          </p>
-          <div className="mt-5 flex flex-wrap gap-2.5">
-            {(status === 'planned' || status === 'missed') && (
-              <button type="button" onClick={() => onStart(planned.id)} disabled={busyId === planned.id} className="btn-primary h-12 px-6 text-base">
-                {busyId === planned.id ? 'Starting...' : 'Start workout'}
-              </button>
-            )}
-            {status === 'in_progress' && <Link to={`/workouts/${session.id}`} className="btn-primary h-12 px-6 text-base text-accent-ink hover:text-accent-ink">Continue workout</Link>}
-            {status === 'completed' && <Link to={`/workouts/${session.id}`} className="btn-secondary h-12 px-6 text-base text-fg hover:text-fg">View workout</Link>}
-            <Link to={`/plan/workouts/${planned.id}`} className="btn-secondary h-12 text-fg hover:text-fg">Edit plan</Link>
-          </div>
-        </>
-      )}
+      <h2 className="mt-2 font-display text-[40px] font-extrabold leading-none tracking-tight">{planned.name}</h2>
+      {planned.exercises.length > 0 && <p className="mt-2 text-[15px] text-fg-soft">{muscleGroupLine(planned.exercises)}</p>}
+      <p className="mt-1.5 flex items-center gap-1.5 text-sm text-fg-mute">
+        {status === 'completed' && <span className="inline-flex items-center gap-1 font-semibold text-accent"><Check width={14} height={14} />Completed ·</span>}
+        {status === 'in_progress' && <span className="font-semibold text-accent">In progress ·</span>}
+        {workoutSummaryLine(planned.exercises)}
+      </p>
+      <div className="mt-5 flex flex-wrap gap-2.5">
+        {(status === 'planned' || status === 'missed') && (
+          <button type="button" onClick={() => onStart(planned.id)} disabled={busyId === planned.id} className="btn-primary h-12 px-6 text-base">
+            {busyId === planned.id ? 'Starting...' : 'Start workout'}
+          </button>
+        )}
+        {status === 'in_progress' && <Link to={`/workouts/${session.id}`} className="btn-primary h-12 px-6 text-base text-accent-ink hover:text-accent-ink">Continue workout</Link>}
+        {status === 'completed' && <Link to={`/workouts/${session.id}`} className="btn-secondary h-12 px-6 text-base text-fg hover:text-fg">View workout</Link>}
+        <Link to={`/plan/workouts/${planned.id}`} className="btn-secondary h-12 text-fg hover:text-fg">Edit plan</Link>
+      </div>
     </section>
   );
 }
@@ -64,42 +54,36 @@ function DayCell({ day, isToday, onStart, busyId }) {
   const skin = done
     ? 'border-accent/40 bg-accent/10 hover:border-accent/70'
     : status === 'rest'
-      ? 'border-dashed border-ink-700 hover:border-ink-500 hover:bg-ink-900'
+      ? 'border-dashed border-ink-800 hover:border-ink-600 hover:bg-ink-900'
       : isToday
         ? 'border-2 border-accent bg-ink-900 hover:bg-ink-800'
         : 'border-ink-700 bg-ink-900/60 hover:border-ink-500 hover:bg-ink-900';
 
   return (
-    <li className={`group relative flex min-h-[290px] flex-col rounded-xl border p-4 pt-3.5 outline-none motion-safe:transition motion-safe:duration-150 motion-safe:hover:-translate-y-0.5 focus-within:ring-2 focus-within:ring-accent/60 ${skin}`}>
+    <li className={`group relative flex min-h-[236px] flex-col rounded-xl border p-3.5 outline-none motion-safe:transition motion-safe:duration-150 motion-safe:hover:-translate-y-0.5 focus-within:ring-2 focus-within:ring-accent/60 ${skin}`}>
       <div className="flex items-center justify-between">
         <span className={`text-xs font-semibold uppercase tracking-[0.1em] ${isToday ? 'text-accent' : 'text-fg-mute'}`}>{WEEKDAY_SHORT[day.index]}</span>
-        {isToday ? <span className="rounded-md bg-accent px-2 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-accent-ink">Today</span> : <DayMarker status={status} />}
+        <DayMarker status={status} />
       </div>
 
       <Link
         to={`/calendar/${dateKey(day.date)}`}
         aria-label={`${WEEKDAY_SHORT[day.index]} ${day.date.getDate()}, ${planned ? planned.name : 'rest'}`}
-        className="mt-1.5 block text-fg after:absolute after:inset-0 after:rounded-xl after:content-[''] hover:no-underline"
+        className="mt-1.5 block flex-1 text-fg after:absolute after:inset-0 after:rounded-xl after:content-[''] hover:no-underline"
       >
-        <span className={`block font-display text-[44px] font-extrabold leading-none tracking-tight tabular-nums ${isToday ? 'text-accent' : status === 'rest' ? 'text-fg-mute' : ''}`}>{day.date.getDate()}</span>
+        <span className={`block font-display text-[38px] font-extrabold leading-none tracking-tight tabular-nums ${isToday ? 'text-accent' : status === 'rest' ? 'text-fg-mute' : ''}`}>{day.date.getDate()}</span>
         {planned ? (
           <>
-            <span className="mt-4 block font-display text-[22px] font-extrabold leading-tight tracking-tight">{planned.name}</span>
-            <span className="mt-1 block text-[13px] text-fg-mute">{plural(planned.exercises.length, 'exercise')}{estimateMinutes(planned.exercises) ? ` · ~${estimateMinutes(planned.exercises)} min` : ''}</span>
+            <span className="mt-3.5 block font-display text-lg font-extrabold leading-tight tracking-tight">{planned.name}</span>
+            {planned.exercises.length > 0 && <span className="mt-1 block truncate text-[13px] text-fg-soft">{muscleGroupLine(planned.exercises, 2)}</span>}
+            <span className="mt-1 block text-[13px] text-fg-mute">{workoutSummaryLine(planned.exercises, { withEstimate: false })}</span>
           </>
         ) : (
-          <span className="mt-4 block font-display text-xl font-bold text-fg-mute">Rest</span>
+          <span className="mt-3.5 block font-display text-xl font-bold text-fg-mute">Rest</span>
         )}
       </Link>
 
-      {planned && planned.exercises.length > 0 && (
-        <ul className="mt-3.5 space-y-1 text-[13px] text-fg-soft">
-          {preview(planned).map((name) => <li key={name} className="truncate">{name}</li>)}
-          {planned.exercises.length > 3 && <li className="text-fg-mute">+{planned.exercises.length - 3} more</li>}
-        </ul>
-      )}
-
-      <div className="relative z-10 mt-auto pt-4">
+      <div className="relative z-10 mt-2 pt-2">
         {status === 'planned' && isToday && (
           <button type="button" onClick={() => onStart(planned.id)} disabled={busyId === planned.id} className="btn-primary h-11 w-full text-base">{busyId === planned.id ? 'Starting...' : 'Start'}</button>
         )}
@@ -130,7 +114,9 @@ function DayRow({ day, isToday }) {
         </span>
         <span className="min-w-0">
           <span className={`block truncate font-display text-[19px] font-extrabold leading-tight ${status === 'rest' ? 'text-fg-mute' : ''}`}>{planned ? planned.name : 'Rest'}</span>
-          {planned && <span className="mt-0.5 block truncate text-[13px] text-fg-mute">{planned.exercises.length ? preview(planned).join(' · ') : 'No exercises yet'}</span>}
+          <span className="mt-0.5 block truncate text-[13px] text-fg-mute">
+            {planned ? (planned.exercises.length ? muscleGroupLine(planned.exercises) : 'No exercises yet') : 'Recovery'}
+          </span>
         </span>
         {isToday && status === 'planned' ? (
           <span className="font-display text-sm font-extrabold text-accent">Start</span>
@@ -153,7 +139,7 @@ function WeekProgress({ days }) {
         {days.map((d) => (
           <span
             key={d.index}
-            className={`h-1.5 w-5 rounded-full sm:w-6 ${d.status === 'completed' ? 'bg-accent' : d.status === 'in_progress' ? 'bg-accent/50' : d.status === 'rest' ? 'border border-dashed border-ink-500' : 'bg-ink-600'}`}
+            className={`h-1.5 w-5 rounded-sm sm:w-6 ${d.status === 'completed' ? 'bg-accent' : d.status === 'in_progress' ? 'bg-accent/50' : d.status === 'rest' ? 'border border-dashed border-ink-500' : 'bg-ink-600'}`}
           />
         ))}
       </div>
@@ -186,9 +172,11 @@ export default function CalendarPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-6 sm:pt-10 lg:px-12">
-      <p className="eyebrow">Plan → Train → Log → Repeat</p>
-      <div className="mt-2 flex flex-wrap items-end justify-between gap-3">
-        <h1 className="font-display text-[38px] font-extrabold leading-none tracking-tight">Calendar</h1>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-display text-[38px] font-extrabold leading-none tracking-tight">Calendar</h1>
+          <p className="mt-1.5 text-sm text-fg-mute">{today.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+        </div>
         {workouts.length > 0 && <Link to="/plan" className="btn-secondary">Edit week</Link>}
       </div>
 
@@ -208,10 +196,10 @@ export default function CalendarPage() {
               <Link to="/plan" className="btn-primary mt-6 h-12 px-6 text-base text-accent-ink hover:text-accent-ink">Create your plan</Link>
             </section>
           ) : (
-            isCurrentWeek && todayDay && <div className="mt-8"><TodayPanel day={todayDay} onStart={start} busyId={busyId} /></div>
+            isCurrentWeek && todayDay && <TodayPanel day={todayDay} onStart={start} busyId={busyId} />
           )}
 
-          <section id="week" aria-label="Week" className="mt-10 scroll-mt-6">
+          <section id="week" aria-label="Week" className="mt-10 scroll-mt-6 border-t border-ink-800 pt-7">
             <div className="mb-5 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
               <div className="flex items-center gap-1">
                 <Link to={prev} aria-label="Previous week" className="flex h-11 w-11 items-center justify-center rounded-lg text-fg hover:bg-ink-800 hover:no-underline motion-safe:transition-colors"><ChevronLeft width={22} height={22} /></Link>

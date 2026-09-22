@@ -88,6 +88,15 @@
     @apply bg-accent font-semibold text-accent-ink hover:bg-accent;
   }
 
+  .chip {
+    @apply inline-flex h-10 items-center gap-2 rounded-lg border border-ink-700 bg-ink-900 px-3.5 text-sm font-semibold text-fg
+      hover:border-ink-500 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .chip[aria-pressed='true'] {
+    @apply border-accent bg-accent/10;
+  }
+
   .btn-chrome {
     @apply inline-flex items-center justify-center gap-2 min-h-[44px] px-4 rounded-lg border border-chrome-line text-chrome-fg text-sm
       font-semibold hover:bg-chrome-raised hover:no-underline disabled:opacity-50 disabled:cursor-not-allowed;
