@@ -23,10 +23,12 @@ export function ExerciseLogo({ exercise, size = 32 }) {
     );
   }
   return (
+    // The artwork is white-on-transparent (see THIRD_PARTY_NOTICES.md), so the swatch behind it stays
+    // a fixed dark shade regardless of light/dark mode -- otherwise it vanishes on the light theme.
     <img
       src={src}
       alt=""
-      className="shrink-0 rounded-md border border-ink-700 bg-ink-900 object-contain p-0.5"
+      className="shrink-0 rounded-md border border-chrome-line bg-chrome object-contain p-0.5"
       style={{ width: size, height: size }}
     />
   );

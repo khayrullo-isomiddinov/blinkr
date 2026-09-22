@@ -237,11 +237,14 @@ export default function WeekStudioPage() {
                 {workout ? (
                   <div
                     data-day={day}
-                    className={`relative flex flex-col rounded-lg border p-3 motion-safe:transition-shadow lg:h-[252px] ${hovering ? 'ring-2 ring-accent' : ''} ${isOrigin && isDragging ? 'opacity-40' : ''}`}
+                    className={`relative flex flex-col rounded-lg border p-3 motion-safe:transition-[shadow,opacity] motion-safe:duration-200 lg:h-[252px] ${isOrigin && isDragging ? 'opacity-40' : ''}`}
                     style={{
                       background: tint(colorForWorkout(workout), 0.11),
                       borderColor: isOrigin ? 'transparent' : willReplace ? undefined : tint(colorForWorkout(workout), 0.4),
-                      boxShadow: `inset 0 3px 0 0 ${colorForWorkout(workout)}`,
+                      boxShadow: [
+                        `inset 0 3px 0 0 ${colorForWorkout(workout)}`,
+                        hovering ? '0 0 0 2px rgb(var(--accent))' : null,
+                      ].filter(Boolean).join(', '),
                     }}
                   >
                     <button
@@ -271,7 +274,7 @@ export default function WeekStudioPage() {
                 ) : (
                   <div
                     data-day={day}
-                    className={`relative rounded-xl lg:h-[252px] ${hovering ? 'border-2 border-accent bg-accent/10' : showAsTarget ? 'border-2 border-dashed border-accent/60' : 'border border-dashed border-ink-800'}`}
+                    className={`relative rounded-xl border-2 motion-safe:transition-colors motion-safe:duration-200 lg:h-[252px] ${hovering ? 'border-accent bg-accent/10' : showAsTarget ? 'border-dashed border-accent/60' : 'border-dashed border-ink-800'}`}
                   >
                     {active ? (
                       <button type="button" onClick={() => attemptPlace(day)} className="flex h-16 w-full flex-col items-center justify-center gap-1 rounded-xl text-center lg:h-full">
@@ -345,7 +348,7 @@ export default function WeekStudioPage() {
       {isDragging && active && active.kind === 'workout' && (
         <div
           data-trash
-          className={`fixed inset-x-0 bottom-24 z-40 mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2 shadow-2xl transition-transform motion-safe:duration-150 sm:bottom-10 ${overTrash ? 'scale-125 border-red-500 bg-red-500/20 text-red-400' : 'border-chrome-line bg-chrome text-chrome-mute'}`}
+          className={`fixed inset-x-0 bottom-24 z-40 mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2 shadow-2xl transition-transform motion-safe:animate-[fade-in_140ms_ease-out] motion-safe:duration-150 sm:bottom-10 ${overTrash ? 'scale-125 border-red-500 bg-red-500/20 text-red-400' : 'border-chrome-line bg-chrome text-chrome-mute'}`}
         >
           <Trash width={24} height={24} />
         </div>
@@ -355,7 +358,7 @@ export default function WeekStudioPage() {
         <div
           ref={previewRef}
           aria-hidden="true"
-          className="pointer-events-none fixed left-0 top-0 z-50 max-w-[220px] truncate rounded-lg px-3.5 py-2.5 font-display text-sm font-bold text-fg shadow-2xl"
+          className="pointer-events-none fixed left-0 top-0 z-50 max-w-[220px] truncate rounded-lg px-3.5 py-2.5 font-display text-sm font-bold text-fg shadow-2xl motion-safe:animate-[fade-in_140ms_ease-out]"
           style={{
             background: tint(activeColor(active), 0.9),
             border: `1px solid ${activeColor(active)}`,

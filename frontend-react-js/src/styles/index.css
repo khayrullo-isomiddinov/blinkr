@@ -43,6 +43,19 @@
   }
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  /* A quiet entrance for a newly mounted page -- never used for anything already on screen. */
+  @keyframes page-in {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .page-in { animation: page-in 180ms ease-out; }
+}
+
 /* Shared building blocks. Page-specific layout stays in Tailwind utilities on the element. */
 @layer components {
   .card {

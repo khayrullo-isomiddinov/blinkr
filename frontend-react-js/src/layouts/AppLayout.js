@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink, Link, Outlet, useMatch } from 'react-router-dom';
+import { NavLink, Link, Outlet, useMatch, useLocation } from 'react-router-dom';
 import { useSignOut } from '../features/auth/useSignOut';
 import { useStartWorkout } from '../features/workouts/useStartWorkout';
 import { ProfileProvider, useProfile } from '../features/profile/ProfileContext';
@@ -20,6 +20,9 @@ function Shell() {
   const { profile } = useProfile();
   // The workout screen has its own header, so the phone chrome steps aside there.
   const onWorkout = Boolean(useMatch('/workouts/:id'));
+  const location = useLocation();
+  // A fresh page starts at the top, the way real navigation always has -- not wherever the last page left off.
+  React.useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
 
   return (
     <div className="min-h-screen">
@@ -46,7 +49,9 @@ function Shell() {
 
       {error && <div role="alert" className="alert-error m-4">{error}</div>}
 
-      <Outlet />
+      <div key={location.pathname} className="page-in">
+        <Outlet />
+      </div>
 
       <Footer signedIn clearNav={!onWorkout} className={onWorkout ? 'hidden lg:block' : ''} />
 

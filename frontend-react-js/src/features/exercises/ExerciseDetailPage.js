@@ -43,9 +43,10 @@ export default function ExerciseDetailPage() {
       </div>
 
       {iconSrc && (
-        <figure className="card mt-6 flex flex-col items-center overflow-hidden p-8">
+        // Fixed dark background, same reasoning as ExerciseLogo: the artwork is white-on-transparent.
+        <figure className="mt-6 flex flex-col items-center overflow-hidden rounded-lg border border-chrome-line bg-chrome p-8">
           <img src={iconSrc} alt={exercise.name} className="h-48 w-48 object-contain" />
-          <figcaption className="mt-2 text-xs text-fg-mute">
+          <figcaption className="mt-2 text-xs text-chrome-mute">
             Illustration by Bryl Lim, adapted from Everkinetic — CC BY-SA 4.0
           </figcaption>
         </figure>
