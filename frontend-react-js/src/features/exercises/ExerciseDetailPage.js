@@ -5,6 +5,7 @@ import { useLoad } from '../../lib/useLoad';
 import { Loading, LoadError } from '../../components/PageState';
 import { PlayCircle, ChevronLeft } from '../../components/icons';
 import { ExerciseLogo } from './ExercisesPage';
+import { exerciseIconUrl } from '../../lib/exerciseIcons';
 
 export default function ExerciseDetailPage() {
   const { id } = useParams();
@@ -23,6 +24,8 @@ export default function ExerciseDetailPage() {
     return <div className="mx-auto max-w-2xl px-4 pt-6"><LoadError error={error} onRetry={reload} /></div>;
   }
 
+  const iconSrc = exerciseIconUrl(exercise.name);
+
   return (
     <div className="mx-auto w-full max-w-2xl px-4 pb-12 pt-6 sm:pt-10">
       <Link to="/exercises" className="mb-4 inline-flex items-center gap-1 text-sm text-fg-mute hover:no-underline">
@@ -39,12 +42,12 @@ export default function ExerciseDetailPage() {
         </div>
       </div>
 
-      {exercise.image_url && (
-        <figure className="card mt-6 overflow-hidden">
-          <img src={exercise.image_url} alt={exercise.name} className="w-full object-cover" />
-          {exercise.image_attribution && (
-            <figcaption className="px-4 py-2 text-xs text-fg-mute">{exercise.image_attribution}</figcaption>
-          )}
+      {iconSrc && (
+        <figure className="card mt-6 flex flex-col items-center overflow-hidden p-8">
+          <img src={iconSrc} alt={exercise.name} className="h-48 w-48 object-contain" />
+          <figcaption className="mt-2 text-xs text-fg-mute">
+            Illustration by Bryl Lim, adapted from Everkinetic — CC BY-SA 4.0
+          </figcaption>
         </figure>
       )}
 

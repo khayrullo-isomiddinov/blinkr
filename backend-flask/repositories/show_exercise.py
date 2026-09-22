@@ -5,7 +5,7 @@ class ShowExercise:
   def run(exercise_id):
     rows = query_array_json(
       """
-      SELECT id, name, muscle_group, equipment, image_url, image_attribution, created_at
+      SELECT id, name, muscle_group, equipment, created_at
       FROM public.exercises
       WHERE id = %s
       """,

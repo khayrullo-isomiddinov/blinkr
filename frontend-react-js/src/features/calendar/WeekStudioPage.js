@@ -5,19 +5,10 @@ import { describeApiError } from '../../lib/apiErrors';
 import { useLoad } from '../../lib/useLoad';
 import { WEEKDAY_NAMES, WEEKDAY_SHORT, muscleGroupLine, workoutSummaryLine } from '../../lib/calendar';
 import { Loading, LoadError } from '../../components/PageState';
-import { ChevronLeft, Plus, GripDots, Undo, Close } from '../../components/icons';
+import { ChevronLeft, Plus, GripDots, Close, Trash } from '../../components/icons';
 import { PRESET_CHIPS, colorForWorkout, tint } from './studioColors';
 
-// The fields a planned workout's exercises come back with from GET /api/plan -- the same shape POST /api/plan/workouts expects.
-const exerciseInput = (e) => ({
-  exercise_id: e.exercise_id,
-  target_sets: e.target_sets,
-  target_reps_min: e.target_reps_min,
-  target_reps_max: e.target_reps_max,
-  target_weight: e.target_weight,
-  target_weight_unit: e.target_weight_unit,
-  notes: e.notes,
-});
+const DRAG_THRESHOLD = 6; // px of pointer movement before a press becomes a drag, not a tap
 
 function weekBalance(workouts) {
   let totalSets = 0;
@@ -40,23 +31,9 @@ function activeLabel(active) {
   return active.kind === 'workout' ? active.name : active.label;
 }
 
-function Toast({ toast, busy, onUndo, onDismiss }) {
-  if (!toast) return null;
-  return (
-    <div role="status" aria-live="polite" className="fixed inset-x-4 bottom-20 z-40 flex justify-center sm:bottom-6">
-      <div className="flex max-w-full items-center gap-3 rounded-full bg-chrome py-2.5 pl-5 pr-2.5 text-sm font-medium text-chrome-fg shadow-2xl">
-        <span className="truncate">{toast.message}</span>
-        {toast.undo && (
-          <button type="button" onClick={onUndo} disabled={busy} className="flex-none rounded-full bg-chrome-raised px-3.5 py-1.5 text-[13px] font-semibold text-chrome-fg hover:bg-chrome-line disabled:opacity-50">
-            <span className="inline-flex items-center gap-1.5"><Undo width={14} height={14} />Undo</span>
-          </button>
-        )}
-        <button type="button" aria-label="Dismiss" onClick={onDismiss} className="flex h-8 w-8 flex-none items-center justify-center rounded-full text-chrome-mute hover:bg-chrome-raised hover:text-chrome-fg">
-          <Close width={14} height={14} />
-        </button>
-      </div>
-    </div>
-  );
+function activeColor(active) {
+  if (active.kind === 'workout') return colorForWorkout(active);
+  return (PRESET_CHIPS.find((c) => c.label === active.label) || {}).color || '#FF6B35';
 }
 
 export default function WeekStudioPage() {
@@ -66,129 +43,145 @@ export default function WeekStudioPage() {
 
   const [mode, setMode] = React.useState('move');
   const [active, setActive] = React.useState(null); // { kind: 'workout', id, weekday, name } | { kind: 'chip', label }
+  const [listening, setListening] = React.useState(false); // a press is down; may or may not turn into a drag
+  const [isDragging, setIsDragging] = React.useState(false); // the press crossed the drag threshold
   const [dragOverDay, setDragOverDay] = React.useState(null);
-  const [pendingConfirm, setPendingConfirm] = React.useState(null); // { kind, toDay, occupant, sourceLabel }
-  const [toast, setToast] = React.useState(null); // { message, undo }
+  const [overTrash, setOverTrash] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState('');
-  const toastTimer = React.useRef(null);
 
-  React.useEffect(() => () => clearTimeout(toastTimer.current), []);
-
-  function showToast(message, undo) {
-    clearTimeout(toastTimer.current);
-    setToast({ message, undo });
-    toastTimer.current = setTimeout(() => setToast(null), 6000);
-  }
-  function dismissToast() {
-    clearTimeout(toastTimer.current);
-    setToast(null);
-  }
+  const gesture = React.useRef(null); // { item, tapFn, startX, startY, lastX, lastY, dragging }
+  const previewRef = React.useRef(null);
+  const lastDayRef = React.useRef(null);
+  const lastTrashRef = React.useRef(false);
 
   function pick(item, matches) {
-    if (busy || pendingConfirm) return;
+    if (busy) return;
     setActive((current) => (current && matches(current) ? null : item));
-  }
-
-  // Recreates a workout that was just replaced -- new id, same name/notes/exercises, on the day it used to hold.
-  async function restoreOccupant(occupant) {
-    await apiRequest('/api/plan/workouts', {
-      method: 'POST',
-      body: { weekday: occupant.weekday, name: occupant.name, notes: occupant.notes, exercises: occupant.exercises.map(exerciseInput) },
-    });
-  }
-
-  async function moveWorkout(workout, toDay) {
-    await apiRequest(`/api/plan/workouts/${workout.id}`, { method: 'PATCH', body: { weekday: toDay } });
-    return {
-      message: `Moved ${workout.name} to ${WEEKDAY_NAMES[toDay]}`,
-      undo: async () => apiRequest(`/api/plan/workouts/${workout.id}`, { method: 'PATCH', body: { weekday: workout.weekday } }),
-    };
-  }
-
-  async function copyWorkout(workout, toDay, occupant) {
-    const copy = await apiRequest(`/api/plan/workouts/${workout.id}/duplicate`, { method: 'POST', body: { weekday: toDay, replace: Boolean(occupant) } });
-    return {
-      message: occupant ? `Replaced ${occupant.name} with a copy of ${workout.name}` : `Copied ${workout.name} to ${WEEKDAY_NAMES[toDay]}`,
-      undo: async () => {
-        await apiRequest(`/api/plan/workouts/${copy.id}`, { method: 'DELETE' });
-        if (occupant) await restoreOccupant(occupant);
-      },
-    };
-  }
-
-  async function createWorkout(label, toDay, occupant) {
-    if (occupant) await apiRequest(`/api/plan/workouts/${occupant.id}`, { method: 'DELETE' });
-    const created = await apiRequest('/api/plan/workouts', { method: 'POST', body: { weekday: toDay, name: label, exercises: [] } });
-    return {
-      message: occupant ? `Replaced ${occupant.name} with ${label}` : `Added ${label} on ${WEEKDAY_NAMES[toDay]}`,
-      undo: async () => {
-        await apiRequest(`/api/plan/workouts/${created.id}`, { method: 'DELETE' });
-        if (occupant) await restoreOccupant(occupant);
-      },
-    };
   }
 
   async function run(kind, toDay, occupant, currentActive) {
     setBusy(true);
     setError('');
     try {
-      let result;
-      if (kind === 'workout-move') result = await moveWorkout(currentActive, toDay);
-      else if (kind === 'workout-copy') result = await copyWorkout(currentActive, toDay, occupant);
-      else result = await createWorkout(currentActive.label, toDay, occupant);
-
+      if (kind === 'workout-move') {
+        if (occupant) await apiRequest(`/api/plan/workouts/${occupant.id}`, { method: 'DELETE' });
+        await apiRequest(`/api/plan/workouts/${currentActive.id}`, { method: 'PATCH', body: { weekday: toDay } });
+      } else if (kind === 'workout-copy') {
+        await apiRequest(`/api/plan/workouts/${currentActive.id}/duplicate`, { method: 'POST', body: { weekday: toDay, replace: Boolean(occupant) } });
+      } else {
+        if (occupant) await apiRequest(`/api/plan/workouts/${occupant.id}`, { method: 'DELETE' });
+        await apiRequest('/api/plan/workouts', { method: 'POST', body: { weekday: toDay, name: currentActive.label, exercises: [] } });
+      }
       plan.reload();
-      showToast(result.message, () => {
-        setBusy(true);
-        result.undo()
-          .then(() => { plan.reload(); dismissToast(); })
-          .catch((err) => setError(describeApiError(err)))
-          .finally(() => setBusy(false));
-      });
     } catch (err) {
       setError(describeApiError(err));
     } finally {
       setBusy(false);
       setActive(null);
-      setPendingConfirm(null);
     }
   }
 
-  function attemptPlace(toDay) {
-    if (!active || busy || pendingConfirm) return;
+  async function removeWorkout(workout) {
+    setBusy(true);
+    setError('');
+    try {
+      await apiRequest(`/api/plan/workouts/${workout.id}`, { method: 'DELETE' });
+      plan.reload();
+    } catch (err) {
+      setError(describeApiError(err));
+    } finally {
+      setBusy(false);
+      setActive(null);
+    }
+  }
+
+  // `item` defaults to the live `active` state for ordinary (render-fresh) callers. The pointer-gesture
+  // effect below passes its own ref-tracked item explicitly, since that effect only re-subscribes when
+  // `listening` changes and would otherwise see a stale `active` from before the drag started.
+  function attemptPlace(toDay, item = active) {
+    if (!item || busy) return;
     const occupant = byWeekday[toDay];
 
-    if (active.kind === 'workout') {
-      if (toDay === active.weekday) {
+    if (item.kind === 'workout') {
+      if (toDay === item.weekday) {
         setActive(null);
         return;
       }
-      if (occupant && mode === 'move') {
-        showToast(`${WEEKDAY_NAMES[toDay]} already has ${occupant.name}. Switch to Copy to replace it, or move ${occupant.name} first.`, null);
-        setActive(null);
-        return;
-      }
-      const kind = mode === 'move' ? 'workout-move' : 'workout-copy';
-      if (occupant) setPendingConfirm({ kind, toDay, occupant, sourceLabel: active.name });
-      else run(kind, toDay, null, active);
+      run(mode === 'move' ? 'workout-move' : 'workout-copy', toDay, occupant, item);
       return;
     }
 
-    if (occupant) setPendingConfirm({ kind: 'create', toDay, occupant, sourceLabel: active.label });
-    else run('create', toDay, null, active);
+    run('create', toDay, occupant, item);
   }
 
-  function confirmPending() {
-    if (!pendingConfirm) return;
-    run(pendingConfirm.kind, pendingConfirm.toDay, pendingConfirm.occupant, active);
+  // A press that starts on a draggable source (a placed workout, or a quick-add chip). Stays a "pick" (tap)
+  // until the pointer moves past the threshold, at which point it becomes a real, finger/cursor-following drag.
+  function beginGesture(item, tapFn, e) {
+    if (busy) return;
+    if (e.button !== undefined && e.button !== 0) return;
+    e.preventDefault();
+    gesture.current = { item, tapFn, startX: e.clientX, startY: e.clientY, lastX: e.clientX, lastY: e.clientY, dragging: false };
+    lastDayRef.current = null;
+    lastTrashRef.current = false;
+    setListening(true);
   }
 
-  const dragBlocked = (day) => {
-    if (!active) return true;
-    const occupant = byWeekday[day];
-    return Boolean(occupant) && active.kind === 'workout' && mode === 'move' && occupant.id !== active.id;
-  };
+  React.useEffect(() => {
+    if (!listening) return undefined;
+
+    function onMove(e) {
+      const g = gesture.current;
+      if (!g) return;
+      g.lastX = e.clientX;
+      g.lastY = e.clientY;
+      if (!g.dragging) {
+        if (Math.hypot(e.clientX - g.startX, e.clientY - g.startY) < DRAG_THRESHOLD) return;
+        g.dragging = true;
+        setActive(g.item);
+        setIsDragging(true);
+      }
+      if (previewRef.current) {
+        previewRef.current.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`;
+      }
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const dayEl = el && el.closest('[data-day]');
+      const trashEl = el && el.closest('[data-trash]');
+      const day = dayEl ? Number(dayEl.dataset.day) : null;
+      const trash = Boolean(trashEl);
+      if (day !== lastDayRef.current) { lastDayRef.current = day; setDragOverDay(day); }
+      if (trash !== lastTrashRef.current) { lastTrashRef.current = trash; setOverTrash(trash); }
+    }
+
+    function onUp() {
+      const g = gesture.current;
+      gesture.current = null;
+      setListening(false);
+      setIsDragging(false);
+      const day = lastDayRef.current;
+      const trash = lastTrashRef.current;
+      setDragOverDay(null);
+      setOverTrash(false);
+      if (!g) return;
+      if (g.dragging) {
+        if (trash && g.item.kind === 'workout') removeWorkout(g.item);
+        else if (day != null) attemptPlace(day, g.item);
+        else setActive(null);
+      } else {
+        g.tapFn();
+      }
+    }
+
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listening]);
 
   if (plan.status === 'loading') return <div className="mx-auto max-w-2xl p-4"><Loading label="Loading your week" /></div>;
   if (plan.status === 'error') return <div className="p-4"><LoadError error={plan.error} onRetry={plan.reload} /></div>;
@@ -197,7 +190,7 @@ export default function WeekStudioPage() {
   const verb = active && active.kind === 'workout' ? (mode === 'move' ? 'Move' : 'Copy') : 'Add';
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-4 pb-28 pt-6 sm:pb-12 sm:pt-10 lg:px-12">
+    <div className="mx-auto w-full max-w-6xl select-none px-4 pb-28 pt-6 sm:pb-12 sm:pt-10 lg:px-12">
       <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3">
         <div>
           <Link to="/calendar" className="inline-flex items-center gap-1 text-sm text-fg-mute hover:no-underline"><ChevronLeft width={16} height={16} />Calendar</Link>
@@ -207,16 +200,16 @@ export default function WeekStudioPage() {
         <div className="flex items-center gap-2.5 pt-1">
           <div role="group" aria-label="Placement mode" className="grid grid-cols-2 gap-1 rounded-lg bg-ink-900 p-1">
             {[['move', 'Move'], ['copy', 'Copy']].map(([value, label]) => (
-              <button key={value} type="button" aria-pressed={mode === value} onClick={() => { setMode(value); setPendingConfirm(null); }} className="seg-btn w-[76px]">{label}</button>
+              <button key={value} type="button" aria-pressed={mode === value} onClick={() => setMode(value)} className="seg-btn w-[76px]">{label}</button>
             ))}
           </div>
           <Link to="/calendar" className="btn-outline">Done</Link>
         </div>
       </div>
 
-      {active && (
+      {active && !isDragging && (
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <p className="font-display text-lg font-bold text-accent">{verb} "{activeLabel(active)}" <span className="text-fg-mute">→</span> choose a day</p>
+          <p className="font-display text-lg font-bold text-accent">{verb} "{activeLabel(active)}" <span className="text-fg-mute">→</span> choose a day, or drag it</p>
           <button type="button" onClick={() => setActive(null)} className="flex h-8 items-center gap-1 rounded-md px-2 text-sm text-fg-mute hover:bg-ink-800 hover:text-fg">
             <Close width={13} height={13} />Cancel
           </button>
@@ -225,29 +218,15 @@ export default function WeekStudioPage() {
 
       {error && <div role="alert" className="alert-error mt-5">{error}</div>}
 
-      {pendingConfirm && (
-        <div role="alertdialog" aria-label="Confirm replace" className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-accent/40 bg-accent/5 p-4">
-          <p className="text-sm text-fg-soft">
-            Replace <strong className="font-semibold text-fg">{pendingConfirm.occupant.name}</strong> with{' '}
-            <strong className="font-semibold text-fg">{pendingConfirm.sourceLabel}</strong> on {WEEKDAY_NAMES[pendingConfirm.toDay]}?
-          </p>
-          <div className="flex gap-2">
-            <button type="button" onClick={confirmPending} disabled={busy} className="btn-primary h-10 min-h-0 text-accent-ink hover:text-accent-ink">{busy ? 'Replacing...' : 'Replace'}</button>
-            <button type="button" onClick={() => setPendingConfirm(null)} disabled={busy} className="btn-secondary h-10 min-h-0">Cancel</button>
-          </div>
-        </div>
-      )}
-
       <section aria-label="Week board" className="mt-8">
         <ol className="grid grid-cols-1 gap-2.5 lg:grid-cols-7">
           {WEEKDAY_SHORT.map((short, day) => {
             const workout = byWeekday[day];
             const isOrigin = active && active.kind === 'workout' && active.id === workout?.id;
-            const blocked = dragBlocked(day);
-            const hovering = dragOverDay === day && !blocked;
-            const showAsTarget = active && !isOrigin && !blocked;
+            const hovering = dragOverDay === day && !isOrigin;
+            const showAsTarget = active && !isOrigin;
             const willReplace = showAsTarget && Boolean(workout);
-            const disabledAll = busy || Boolean(pendingConfirm);
+            const tap = () => (isOrigin ? setActive(null) : active ? attemptPlace(day) : setActive({ kind: 'workout', id: workout?.id, weekday: day, name: workout?.name }));
 
             return (
               <li key={day} className="lg:h-full">
@@ -257,25 +236,20 @@ export default function WeekStudioPage() {
 
                 {workout ? (
                   <div
-                    className={`relative flex flex-col rounded-lg border p-3 motion-safe:transition-shadow lg:h-[252px] ${hovering ? 'ring-2 ring-accent' : ''}`}
+                    data-day={day}
+                    className={`relative flex flex-col rounded-lg border p-3 motion-safe:transition-shadow lg:h-[252px] ${hovering ? 'ring-2 ring-accent' : ''} ${isOrigin && isDragging ? 'opacity-40' : ''}`}
                     style={{
                       background: tint(colorForWorkout(workout), 0.11),
                       borderColor: isOrigin ? 'transparent' : willReplace ? undefined : tint(colorForWorkout(workout), 0.4),
                       boxShadow: `inset 0 3px 0 0 ${colorForWorkout(workout)}`,
                     }}
-                    onDragOver={(e) => { if (!dragBlocked(day)) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDragOverDay(day); } }}
-                    onDragLeave={() => setDragOverDay((d) => (d === day ? null : d))}
-                    onDrop={(e) => { e.preventDefault(); setDragOverDay(null); attemptPlace(day); }}
                   >
                     <button
                       type="button"
-                      draggable
-                      onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', workout.name); setActive({ kind: 'workout', id: workout.id, weekday: day, name: workout.name }); }}
-                      onDragEnd={() => setDragOverDay(null)}
-                      disabled={disabledAll}
-                      onClick={() => (isOrigin ? setActive(null) : active ? attemptPlace(day) : setActive({ kind: 'workout', id: workout.id, weekday: day, name: workout.name }))}
+                      onPointerDown={(e) => beginGesture({ kind: 'workout', id: workout.id, weekday: day, name: workout.name }, tap, e)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(); } }}
                       aria-pressed={isOrigin}
-                      className={`flex-1 rounded-lg text-left outline-none disabled:cursor-not-allowed ${isOrigin ? 'ring-2 ring-accent' : ''} ${willReplace ? 'ring-2 ring-accent/70' : ''}`}
+                      className="touch-none flex-1 rounded-lg text-left outline-none"
                     >
                       <span className="flex items-center justify-between">
                         <span className="inline-flex items-center gap-2 text-fg-mute">
@@ -296,13 +270,11 @@ export default function WeekStudioPage() {
                   </div>
                 ) : (
                   <div
+                    data-day={day}
                     className={`relative rounded-xl lg:h-[252px] ${hovering ? 'border-2 border-accent bg-accent/10' : showAsTarget ? 'border-2 border-dashed border-accent/60' : 'border border-dashed border-ink-800'}`}
-                    onDragOver={(e) => { if (!dragBlocked(day)) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; setDragOverDay(day); } }}
-                    onDragLeave={() => setDragOverDay((d) => (d === day ? null : d))}
-                    onDrop={(e) => { e.preventDefault(); setDragOverDay(null); attemptPlace(day); }}
                   >
                     {active ? (
-                      <button type="button" onClick={() => attemptPlace(day)} disabled={disabledAll} className="flex h-16 w-full flex-col items-center justify-center gap-1 rounded-xl text-center disabled:cursor-not-allowed lg:h-full">
+                      <button type="button" onClick={() => attemptPlace(day)} className="flex h-16 w-full flex-col items-center justify-center gap-1 rounded-xl text-center lg:h-full">
                         <span className="font-display text-lg font-bold text-accent">{hovering ? 'Release to place' : 'Place here'}</span>
                         <span className="text-xs text-fg-mute">{activeLabel(active)}</span>
                       </button>
@@ -326,17 +298,15 @@ export default function WeekStudioPage() {
           <div className="mt-3.5 overflow-hidden rounded-lg border border-ink-700">
             {PRESET_CHIPS.map((chip) => {
               const isActive = active && active.kind === 'chip' && active.label === chip.label;
+              const tap = () => pick({ kind: 'chip', label: chip.label }, (c) => c.kind === 'chip' && c.label === chip.label);
               return (
                 <button
                   key={chip.label}
                   type="button"
-                  draggable
-                  onDragStart={(e) => { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', chip.label); setActive({ kind: 'chip', label: chip.label }); }}
-                  onDragEnd={() => setDragOverDay(null)}
-                  onClick={() => pick({ kind: 'chip', label: chip.label }, (c) => c.kind === 'chip' && c.label === chip.label)}
-                  disabled={busy || Boolean(pendingConfirm)}
+                  onPointerDown={(e) => beginGesture({ kind: 'chip', label: chip.label }, tap, e)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(); } }}
                   aria-pressed={isActive}
-                  className={`flex w-full items-center gap-3 border-t border-ink-700 px-3.5 py-3 text-left first:border-t-0 disabled:cursor-not-allowed disabled:opacity-50 ${isActive ? 'bg-accent/10' : 'bg-ink-900 hover:bg-ink-800'}`}
+                  className={`touch-none flex w-full items-center gap-3 border-t border-ink-700 px-3.5 py-3 text-left first:border-t-0 ${isActive ? 'bg-accent/10' : 'bg-ink-900 hover:bg-ink-800'}`}
                 >
                   <span aria-hidden="true" className="h-2.5 w-2.5 flex-none rounded-full" style={{ background: chip.color }} />
                   <span className="flex-1 font-display text-[15px] font-bold text-fg">{chip.label}</span>
@@ -372,7 +342,29 @@ export default function WeekStudioPage() {
         </div>
       </section>
 
-      <Toast toast={toast} busy={busy} onUndo={() => toast && toast.undo()} onDismiss={dismissToast} />
+      {isDragging && active && active.kind === 'workout' && (
+        <div
+          data-trash
+          className={`fixed inset-x-0 bottom-24 z-40 mx-auto flex h-16 w-16 items-center justify-center rounded-full border-2 shadow-2xl transition-transform motion-safe:duration-150 sm:bottom-10 ${overTrash ? 'scale-125 border-red-500 bg-red-500/20 text-red-400' : 'border-chrome-line bg-chrome text-chrome-mute'}`}
+        >
+          <Trash width={24} height={24} />
+        </div>
+      )}
+
+      {isDragging && active && (
+        <div
+          ref={previewRef}
+          aria-hidden="true"
+          className="pointer-events-none fixed left-0 top-0 z-50 max-w-[220px] truncate rounded-lg px-3.5 py-2.5 font-display text-sm font-bold text-fg shadow-2xl"
+          style={{
+            background: tint(activeColor(active), 0.9),
+            border: `1px solid ${activeColor(active)}`,
+            transform: `translate3d(${gesture.current ? gesture.current.lastX : 0}px, ${gesture.current ? gesture.current.lastY : 0}px, 0) translate(-50%, -50%)`,
+          }}
+        >
+          {activeLabel(active)}
+        </div>
+      )}
     </div>
   );
 }

@@ -5,12 +5,14 @@ import { describeApiError } from '../../lib/apiErrors';
 import { useLoad } from '../../lib/useLoad';
 import { Loading, LoadError } from '../../components/PageState';
 import { Dumbbell } from '../../components/icons';
+import { exerciseIconUrl } from '../../lib/exerciseIcons';
 
 const MUSCLE_GROUPS = ['chest', 'back', 'legs', 'shoulders', 'arms', 'core'];
 
-// Falls back to the generic icon for the exercises we don't have a matched photo for.
+// Falls back to the generic icon for the exercises we don't have a matched illustration for.
 export function ExerciseLogo({ exercise, size = 32 }) {
-  if (!exercise.image_url) {
+  const src = exerciseIconUrl(exercise.name);
+  if (!src) {
     return (
       <span
         className="flex shrink-0 items-center justify-center rounded-md border border-ink-700 bg-ink-900 text-fg-mute"
@@ -22,10 +24,9 @@ export function ExerciseLogo({ exercise, size = 32 }) {
   }
   return (
     <img
-      src={exercise.image_url}
+      src={src}
       alt=""
-      title={exercise.image_attribution || undefined}
-      className="shrink-0 rounded-md border border-ink-700 object-cover"
+      className="shrink-0 rounded-md border border-ink-700 bg-ink-900 object-contain p-0.5"
       style={{ width: size, height: size }}
     />
   );
