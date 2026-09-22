@@ -16,3 +16,5 @@ export const ChevronUp = (props) => <svg {...base} {...props}><path d="M5 15l7-7
 export const ChevronDown = (props) => <svg {...base} {...props}><path d="M5 9l7 7 7-7" /></svg>;
 export const ArrowUp = (props) => <svg {...base} {...props}><path d="M12 19V5M5 12l7-7 7 7" /></svg>;
 export const Close = (props) => <svg {...base} {...props}><path d="M6 6l12 12M18 6L6 18" /></svg>;
+export const GripDots = (props) => <svg width={16} height={16} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}><circle cx="9" cy="6" r="1.6" /><circle cx="15" cy="6" r="1.6" /><circle cx="9" cy="12" r="1.6" /><circle cx="15" cy="12" r="1.6" /><circle cx="9" cy="18" r="1.6" /><circle cx="15" cy="18" r="1.6" /></svg>;
+export const Undo = (props) => <svg {...base} {...props}><path d="M9 14L4 9l5-5M4 9h10a6 6 0 010 12h-3" /></svg>;

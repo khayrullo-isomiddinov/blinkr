@@ -10,7 +10,7 @@ import ExercisesPage from './features/exercises/ExercisesPage';
 import ProfilePage from './features/profile/ProfilePage';
 import CalendarPage from './features/calendar/CalendarPage';
 import DayPage from './features/calendar/DayPage';
-import PlanBuilderPage from './features/calendar/PlanBuilderPage';
+import WeekStudioPage from './features/calendar/WeekStudioPage';
 import WorkoutEditorPage from './features/calendar/WorkoutEditorPage';
 import SettingsPage from './features/settings/SettingsPage';
 import SupportPage from './features/support/SupportPage';
@@ -39,7 +39,7 @@ export const appRoutes = [
     children: [
       { path: '/calendar', element: <CalendarPage /> },
       { path: '/calendar/:date', element: <DayPage /> },
-      { path: '/plan', element: <PlanBuilderPage /> },
+      { path: '/plan', element: <WeekStudioPage /> },
       { path: '/plan/workouts/new', element: <WorkoutEditorPage /> },
       { path: '/plan/workouts/:id', element: <WorkoutEditorPage /> },
       { path: '/workouts', element: <WorkoutsPage /> },

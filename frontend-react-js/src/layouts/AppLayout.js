@@ -9,10 +9,10 @@ import { Logo } from '../components/Logo';
 import { CalendarIcon, ListIcon, Dumbbell } from '../components/icons';
 
 const topLink = ({ isActive }) =>
-  `rounded-lg px-3.5 py-2 text-[15px] hover:no-underline ${isActive ? 'bg-ink-800 font-semibold text-fg' : 'text-fg-mute hover:text-fg'}`;
+  `rounded-lg px-3.5 py-2 text-[15px] hover:no-underline ${isActive ? 'bg-chrome-raised font-semibold text-chrome-fg' : 'text-chrome-mute hover:text-chrome-fg'}`;
 
 const tabLink = ({ isActive }) =>
-  `flex flex-col items-center justify-center gap-1 text-[11px] hover:no-underline ${isActive ? 'font-semibold text-accent' : 'text-fg-mute'}`;
+  `flex flex-col items-center justify-center gap-1 text-[11px] hover:no-underline ${isActive ? 'font-semibold text-accent' : 'text-chrome-mute'}`;
 
 function Shell() {
   const signOut = useSignOut();
@@ -23,8 +23,8 @@ function Shell() {
 
   return (
     <div className="min-h-screen">
-      <header className={`${onWorkout ? 'hidden lg:flex' : 'flex'} h-14 items-center gap-4 border-b border-ink-700 px-4 sm:h-[68px] sm:gap-8 sm:px-12`}>
-        <Link to="/calendar" aria-label="Blinkr, calendar" className="hover:no-underline"><Logo size={30} /></Link>
+      <header className={`${onWorkout ? 'hidden lg:flex' : 'flex'} h-14 items-center gap-4 border-b border-chrome-line bg-chrome px-4 sm:h-[68px] sm:gap-8 sm:px-12`}>
+        <Link to="/calendar" aria-label="Blinkr, calendar" className="hover:no-underline"><Logo size={30} variant="chrome" /></Link>
         <nav aria-label="Main" className="hidden flex-1 gap-1 sm:flex">
           <NavLink to="/calendar" className={topLink}>Calendar</NavLink>
           <NavLink to="/workouts" className={topLink}>Workouts</NavLink>
@@ -35,11 +35,11 @@ function Shell() {
           {starting ? 'Starting...' : 'Start workout'}
         </button>
         <div className="hidden items-center gap-3 sm:flex">
-          <NavLink to="/profile" aria-label="Your profile" className="flex items-center gap-2 text-sm text-fg-soft hover:text-fg hover:no-underline">
+          <NavLink to="/profile" aria-label="Your profile" className="flex items-center gap-2 text-sm text-chrome-soft hover:text-chrome-fg hover:no-underline">
             <Avatar profile={profile} size={28} />
             {profile && <span className="max-w-[10rem] truncate">{profile.display_name}</span>}
           </NavLink>
-          <button type="button" onClick={signOut} className="btn-secondary">Sign out</button>
+          <button type="button" onClick={signOut} className="btn-chrome">Sign out</button>
         </div>
       </header>
 
@@ -51,7 +51,7 @@ function Shell() {
 
       <nav
         aria-label="Main"
-        className={`${onWorkout ? 'hidden' : 'grid'} fixed inset-x-0 bottom-0 z-30 h-[68px] grid-cols-4 border-t border-ink-700 bg-ink-900 sm:hidden`}
+        className={`${onWorkout ? 'hidden' : 'grid'} fixed inset-x-0 bottom-0 z-30 h-[68px] grid-cols-4 border-t border-chrome-line bg-chrome sm:hidden`}
       >
         <NavLink to="/calendar" className={tabLink}><CalendarIcon width={24} height={24} />Calendar</NavLink>
         <NavLink to="/workouts" className={tabLink}><ListIcon width={24} height={24} />Workouts</NavLink>

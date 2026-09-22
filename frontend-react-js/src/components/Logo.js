@@ -23,11 +23,17 @@ export function LogoMark({ size = 32, className = '', label }) {
   );
 }
 
-export function Logo({ size = 28, className = '' }) {
+// `variant="chrome"` is for the header/footer band, whose background stays dark regardless of the site's own theme.
+export function Logo({ size = 28, className = '', variant = 'default' }) {
   return (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
       <LogoMark size={size} className="text-accent" />
-      <span className="font-display font-extrabold leading-none tracking-tight text-fg" style={{ fontSize: Math.round(size * 0.92) }}>Blinkr</span>
+      <span
+        className={`font-display font-extrabold leading-none tracking-tight ${variant === 'chrome' ? 'text-chrome-fg' : 'text-fg'}`}
+        style={{ fontSize: Math.round(size * 0.92) }}
+      >
+        Blinkr
+      </span>
     </span>
   );
 }

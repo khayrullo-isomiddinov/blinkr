@@ -88,6 +88,11 @@
     @apply bg-accent font-semibold text-accent-ink hover:bg-accent;
   }
 
+  .btn-chrome {
+    @apply inline-flex items-center justify-center gap-2 min-h-[44px] px-4 rounded-lg border border-chrome-line text-chrome-fg text-sm
+      font-semibold hover:bg-chrome-raised hover:no-underline disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
   .btn-danger {
     @apply inline-flex items-center justify-center gap-2 min-h-[44px] px-4 rounded-lg bg-red-600 text-white text-sm
       font-semibold hover:bg-red-500 hover:no-underline disabled:opacity-50 disabled:cursor-not-allowed;

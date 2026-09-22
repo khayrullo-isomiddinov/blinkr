@@ -21,11 +21,11 @@ export default function PublicPage({ title, children }) {
   const session = useSession();
   return (
     <div className="min-h-screen">
-      <header className="flex h-14 items-center gap-2 border-b border-ink-700 px-4 sm:px-8">
-        <button type="button" aria-label="Go back" onClick={() => navigate(-1)} className="flex h-11 w-11 items-center justify-center text-fg">
+      <header className="flex h-14 items-center gap-2 border-b border-chrome-line bg-chrome px-4 sm:px-8">
+        <button type="button" aria-label="Go back" onClick={() => navigate(-1)} className="flex h-11 w-11 items-center justify-center text-chrome-fg">
           <ChevronLeft width={22} height={22} />
         </button>
-        <Link to="/" aria-label="Blinkr home" className="hover:no-underline"><Logo size={26} /></Link>
+        <Link to="/" aria-label="Blinkr home" className="hover:no-underline"><Logo size={26} variant="chrome" /></Link>
       </header>
       <main className="mx-auto w-full max-w-2xl px-4 pb-16 pt-8">
         <h1 className="font-display text-[34px] font-extrabold leading-tight tracking-tight">{title}</h1>
