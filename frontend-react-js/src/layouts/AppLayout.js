@@ -49,7 +49,8 @@ function Shell() {
 
       {error && <div role="alert" className="alert-error m-4">{error}</div>}
 
-      <div key={location.pathname} className="page-in">
+      {/* Fills the viewport below the header so short pages never leave the footer half-visible on first load. */}
+      <div key={location.pathname} className={`page-in ${onWorkout ? '' : 'min-h-[calc(100vh-56px)] sm:min-h-[calc(100vh-68px)]'}`}>
         <Outlet />
       </div>
 

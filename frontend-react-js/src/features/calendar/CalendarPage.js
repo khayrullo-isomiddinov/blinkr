@@ -2,10 +2,10 @@ import React from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useLoad } from '../../lib/useLoad';
 import {
-  WEEKDAY_SHORT, addDays, dateKey, dayState, muscleGroupLine, parseDateKey, startOfDay, startOfWeek, weekLabel, workoutSummaryLine,
+  WEEKDAY_SHORT, addDays, dateKey, dayState, formatTarget, muscleGroupLine, parseDateKey, startOfDay, startOfWeek, weekLabel, workoutSummaryLine,
 } from '../../lib/calendar';
 import { Loading, LoadError } from '../../components/PageState';
-import { ChevronLeft, ChevronRight, Check } from '../../components/icons';
+import { ChevronLeft, ChevronRight, Check, Pencil, PlayFilled } from '../../components/icons';
 import DayStatus, { DayMarker } from './DayStatus';
 import { useStartPlanned } from './useStartPlanned';
 import { useSessionsWindow } from './useSessionsWindow';
@@ -15,7 +15,7 @@ function TodayPanel({ day, onStart, busyId }) {
 
   if (status === 'rest') {
     return (
-      <section aria-label="Today" className="mt-8">
+      <section aria-label="Today" className="lg:w-[320px] lg:flex-none">
         <p className="eyebrow text-accent">Today</p>
         <h2 className="mt-2 font-display text-[40px] font-extrabold leading-none tracking-tight">Rest day</h2>
         <p className="mt-2 text-sm text-fg-mute">Recovery is part of the plan. The next session is in the week below.</p>
@@ -24,7 +24,7 @@ function TodayPanel({ day, onStart, busyId }) {
   }
 
   return (
-    <section aria-label="Today" className="mt-8">
+    <section aria-label="Today" className="lg:w-[320px] lg:flex-none">
       <p className="eyebrow text-accent">Today</p>
       <h2 className="mt-2 font-display text-[40px] font-extrabold leading-none tracking-tight">{planned.name}</h2>
       {planned.exercises.length > 0 && <p className="mt-2 text-[15px] text-fg-soft">{muscleGroupLine(planned.exercises)}</p>}
@@ -33,16 +33,33 @@ function TodayPanel({ day, onStart, busyId }) {
         {status === 'in_progress' && <span className="font-semibold text-accent">In progress ·</span>}
         {workoutSummaryLine(planned.exercises)}
       </p>
-      <div className="mt-5 flex flex-wrap gap-2.5">
+      <div className="mt-5 flex gap-2.5">
         {(status === 'planned' || status === 'missed') && (
-          <button type="button" onClick={() => onStart(planned.id)} disabled={busyId === planned.id} className="btn-primary h-12 px-6 text-base">
-            {busyId === planned.id ? 'Starting...' : 'Start workout'}
+          <button type="button" onClick={() => onStart(planned.id)} disabled={busyId === planned.id} className="btn-primary h-12 flex-1 px-6 text-base">
+            {busyId === planned.id ? 'Starting...' : <><PlayFilled width={16} height={16} />Start workout</>}
           </button>
         )}
-        {status === 'in_progress' && <Link to={`/workouts/${session.id}`} className="btn-primary h-12 px-6 text-base text-accent-ink hover:text-accent-ink">Continue workout</Link>}
-        {status === 'completed' && <Link to={`/workouts/${session.id}`} className="btn-secondary h-12 px-6 text-base text-fg hover:text-fg">View workout</Link>}
-        <Link to={`/plan/workouts/${planned.id}`} className="btn-secondary h-12 text-fg hover:text-fg">Edit plan</Link>
+        {status === 'in_progress' && <Link to={`/workouts/${session.id}`} className="btn-primary h-12 flex-1 px-6 text-base text-accent-ink hover:text-accent-ink"><PlayFilled width={16} height={16} />Continue workout</Link>}
+        {status === 'completed' && <Link to={`/workouts/${session.id}`} className="btn-secondary h-12 flex-1 px-6 text-base text-fg hover:text-fg">View workout</Link>}
+        <Link to={`/plan/workouts/${planned.id}`} aria-label="Edit plan" title="Edit plan" className="btn-secondary h-12 w-12 flex-none px-0 text-fg hover:text-fg">
+          <Pencil width={18} height={18} />
+        </Link>
       </div>
+
+      {/* Reduced secondary information on mobile -- the exercise breakdown is a desktop-density addition. */}
+      {planned.exercises.length > 0 && (
+        <div className="mt-8 hidden border-t border-ink-800 pt-6 lg:block">
+          <p className="eyebrow">{planned.name} — exercises</p>
+          <ul className="mt-3.5 flex flex-col gap-2.5">
+            {planned.exercises.map((exercise) => (
+              <li key={exercise.id} className="flex items-baseline justify-between gap-3 text-[13px]">
+                <span className="min-w-0 truncate text-fg">{exercise.exercise_name}</span>
+                <span className="flex-none font-mono text-fg-mute">{formatTarget(exercise)}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </section>
   );
 }
@@ -60,7 +77,7 @@ function DayCell({ day, isToday, onStart, busyId }) {
         : 'border-ink-700 bg-ink-900/60 hover:border-ink-500 hover:bg-ink-900';
 
   return (
-    <li className={`group relative flex min-h-[236px] flex-col rounded-xl border p-3.5 outline-none motion-safe:transition motion-safe:duration-150 motion-safe:hover:-translate-y-0.5 focus-within:ring-2 focus-within:ring-accent/60 ${skin}`}>
+    <li className={`group relative flex min-h-[208px] flex-col rounded-lg border p-3.5 outline-none motion-safe:transition motion-safe:duration-150 motion-safe:hover:-translate-y-0.5 focus-within:ring-2 focus-within:ring-accent/60 ${skin}`}>
       <div className="flex items-center justify-between">
         <span className={`text-xs font-semibold uppercase tracking-[0.1em] ${isToday ? 'text-accent' : 'text-fg-mute'}`}>{WEEKDAY_SHORT[day.index]}</span>
         <DayMarker status={status} />
@@ -166,6 +183,7 @@ export default function CalendarPage() {
     return { index, date, planned, ...dayState({ planned, sessions: onDate, date, today }) };
   });
   const todayDay = days.find((d) => d.date.getTime() === today.getTime());
+  const showToday = isCurrentWeek && Boolean(todayDay);
   const prev = `/calendar?week=${dateKey(addDays(weekStart, -7))}`;
   const next = `/calendar?week=${dateKey(addDays(weekStart, 7))}`;
   const loading = plan.status === 'loading' || sessions.status === 'loading';
@@ -173,7 +191,7 @@ export default function CalendarPage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-4 pb-12 pt-6 sm:pt-10 lg:px-12">
       {workouts.length > 0 && (
-        <div className="flex justify-end">
+        <div className="flex justify-end lg:hidden">
           <Link to="/plan" className="text-sm font-semibold text-fg-mute hover:text-fg">Edit week</Link>
         </div>
       )}
@@ -194,27 +212,33 @@ export default function CalendarPage() {
               <Link to="/plan" className="btn-primary mt-6 h-12 px-6 text-base text-accent-ink hover:text-accent-ink">Create your plan</Link>
             </section>
           ) : (
-            isCurrentWeek && todayDay && <TodayPanel day={todayDay} onStart={start} busyId={busyId} />
-          )}
+            <div className={`mt-8 ${showToday ? 'lg:flex lg:items-start lg:gap-14' : ''}`}>
+              {showToday && <TodayPanel day={todayDay} onStart={start} busyId={busyId} />}
 
-          <section id="week" aria-label="Week" className="mt-10 scroll-mt-6 border-t border-ink-800 pt-7">
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
-              <div className="flex items-center gap-1">
-                <Link to={prev} aria-label="Previous week" className="flex h-11 w-11 items-center justify-center rounded-lg text-fg hover:bg-ink-800 hover:no-underline motion-safe:transition-colors"><ChevronLeft width={22} height={22} /></Link>
-                <h2 className="min-w-[8.5rem] text-center font-display text-xl font-bold tabular-nums">{weekLabel(weekStart)}</h2>
-                <Link to={next} aria-label="Next week" className="flex h-11 w-11 items-center justify-center rounded-lg text-fg hover:bg-ink-800 hover:no-underline motion-safe:transition-colors"><ChevronRight width={22} height={22} /></Link>
-                {!isCurrentWeek && <Link to="/calendar" className="btn-secondary ml-2 h-10 min-h-0">This week</Link>}
-              </div>
-              <WeekProgress days={days} />
+              <section
+                id="week"
+                aria-label="Week"
+                className={`scroll-mt-6 ${showToday ? 'mt-10 border-t border-ink-800 pt-7 lg:mt-0 lg:min-w-0 lg:flex-1 lg:border-0 lg:pt-0' : 'border-t border-ink-800 pt-7'}`}
+              >
+                <div className="mb-5 flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
+                  <div className="flex items-center gap-1">
+                    <Link to={prev} aria-label="Previous week" className="flex h-11 w-11 items-center justify-center rounded-lg text-fg hover:bg-ink-800 hover:no-underline motion-safe:transition-colors"><ChevronLeft width={22} height={22} /></Link>
+                    <h2 className="min-w-[8.5rem] text-center font-display text-xl font-bold tabular-nums">{weekLabel(weekStart)}</h2>
+                    <Link to={next} aria-label="Next week" className="flex h-11 w-11 items-center justify-center rounded-lg text-fg hover:bg-ink-800 hover:no-underline motion-safe:transition-colors"><ChevronRight width={22} height={22} /></Link>
+                    {!isCurrentWeek && <Link to="/calendar" className="btn-secondary ml-2 h-10 min-h-0">This week</Link>}
+                  </div>
+                  <WeekProgress days={days} />
+                </div>
+
+                <ul className="hidden grid-cols-7 gap-2.5 lg:grid">
+                  {days.map((day) => <DayCell key={day.index} day={day} isToday={day.date.getTime() === today.getTime()} onStart={start} busyId={busyId} />)}
+                </ul>
+                <ul className="card overflow-hidden lg:hidden">
+                  {days.map((day) => <DayRow key={day.index} day={day} isToday={day.date.getTime() === today.getTime()} />)}
+                </ul>
+              </section>
             </div>
-
-            <ul className="hidden grid-cols-7 gap-2.5 lg:grid">
-              {days.map((day) => <DayCell key={day.index} day={day} isToday={day.date.getTime() === today.getTime()} onStart={start} busyId={busyId} />)}
-            </ul>
-            <ul className="card overflow-hidden lg:hidden">
-              {days.map((day) => <DayRow key={day.index} day={day} isToday={day.date.getTime() === today.getTime()} />)}
-            </ul>
-          </section>
+          )}
         </>
       )}
     </div>

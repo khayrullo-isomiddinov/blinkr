@@ -5,7 +5,7 @@ import { describeApiError } from '../../lib/apiErrors';
 import { useLoad } from '../../lib/useLoad';
 import { WEEKDAY_NAMES, WEEKDAY_SHORT, muscleGroupLine, workoutSummaryLine, startOfWeek, startOfDay, addDays } from '../../lib/calendar';
 import { Loading, LoadError } from '../../components/PageState';
-import { ChevronLeft, Plus, GripDots, Trash } from '../../components/icons';
+import { ChevronLeft, ChevronRight, Plus, GripDots, Trash } from '../../components/icons';
 import { PRESET_CHIPS, colorForWorkout, tint } from './studioColors';
 
 const DRAG_THRESHOLD = 6; // px of pointer movement before a press becomes a drag, not a tap
@@ -201,7 +201,7 @@ export default function WeekStudioPage() {
 
             return (
               <li key={day} className="lg:h-full">
-                <div className="mb-1.5 flex items-baseline justify-between px-0.5">
+                <div className="mb-1.5 hidden items-baseline justify-between px-0.5 lg:flex">
                   <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-fg-mute">
                     {short}<span className="sr-only"> ({WEEKDAY_NAMES[day]})</span>
                   </p>
@@ -212,57 +212,114 @@ export default function WeekStudioPage() {
                 </div>
 
                 {workout ? (
-                  <div
-                    data-day={day}
-                    className={`relative flex flex-col rounded-lg border p-3 motion-safe:transition-[shadow,opacity] motion-safe:duration-200 lg:h-[252px] ${isOrigin && isDragging ? 'opacity-40' : ''} ${isToday ? 'ring-1 ring-accent/50' : ''}`}
-                    style={{
-                      background: tint(colorForWorkout(workout), 0.11),
-                      borderColor: isOrigin ? 'transparent' : willReplace ? undefined : tint(colorForWorkout(workout), 0.4),
-                      boxShadow: [
-                        `inset 0 3px 0 0 ${colorForWorkout(workout)}`,
-                        hovering ? '0 0 0 2px rgb(var(--accent))' : null,
-                      ].filter(Boolean).join(', '),
-                    }}
-                  >
-                    <button
-                      type="button"
-                      onPointerDown={(e) => beginGesture({ kind: 'workout', id: workout.id, weekday: day, name: workout.name }, tap, e)}
-                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(); } }}
-                      className="touch-none flex-1 rounded-lg text-left outline-none"
+                  <>
+                    {/* Desktop: a boxy card in the 7-column grid. */}
+                    <div
+                      data-day={day}
+                      className={`relative hidden flex-col rounded-lg border p-3 motion-safe:transition-[shadow,opacity] motion-safe:duration-200 lg:flex lg:h-[252px] ${isOrigin && isDragging ? 'opacity-40' : ''} ${isToday ? 'ring-1 ring-accent/50' : ''}`}
+                      style={{
+                        background: tint(colorForWorkout(workout), 0.11),
+                        borderColor: isOrigin ? 'transparent' : willReplace ? undefined : tint(colorForWorkout(workout), 0.4),
+                        boxShadow: [
+                          `inset 0 3px 0 0 ${colorForWorkout(workout)}`,
+                          hovering ? '0 0 0 2px rgb(var(--accent))' : null,
+                        ].filter(Boolean).join(', '),
+                      }}
                     >
-                      <span className="flex items-center justify-between">
-                        <span className="inline-flex items-center gap-2 text-fg-mute">
-                          <GripDots />
-                          <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full" style={{ background: colorForWorkout(workout) }} />
+                      <button
+                        type="button"
+                        onPointerDown={(e) => beginGesture({ kind: 'workout', id: workout.id, weekday: day, name: workout.name }, tap, e)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(); } }}
+                        className="touch-none flex-1 rounded-lg text-left outline-none"
+                      >
+                        <span className="flex items-center justify-between">
+                          <span className="inline-flex items-center gap-2 text-fg-mute">
+                            <GripDots />
+                            <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full" style={{ background: colorForWorkout(workout) }} />
+                          </span>
+                          {willReplace && (
+                            <span className="text-[11px] font-semibold uppercase tracking-wide text-accent">Replace</span>
+                          )}
                         </span>
-                        {willReplace && (
-                          <span className="text-[11px] font-semibold uppercase tracking-wide text-accent">Replace</span>
+                        <span className="mt-3 block font-display text-[21px] font-extrabold leading-tight tracking-tight text-fg">{workout.name}</span>
+                        {workout.exercises.length > 0 && (
+                          <span className="mt-1 block truncate text-[13px] text-fg-soft">{muscleGroupLine(workout.exercises)}</span>
                         )}
-                      </span>
-                      <span className="mt-3 block font-display text-[21px] font-extrabold leading-tight tracking-tight text-fg">{workout.name}</span>
-                      {workout.exercises.length > 0 && (
-                        <span className="mt-1 block truncate text-[13px] text-fg-soft">{muscleGroupLine(workout.exercises)}</span>
-                      )}
-                      <span className="mt-1.5 block text-xs text-fg-mute">{workoutSummaryLine(workout.exercises, { withEstimate: false })}</span>
-                    </button>
-                  </div>
-                ) : (
-                  <div
-                    data-day={day}
-                    className={`relative rounded-xl border-2 motion-safe:transition-colors motion-safe:duration-200 lg:h-[252px] ${hovering ? 'border-accent bg-accent/10' : showAsTarget ? 'border-dashed border-accent/60' : isToday ? 'border-dashed border-accent/40' : 'border-dashed border-ink-800'}`}
-                  >
-                    {active ? (
-                      <button type="button" onClick={() => attemptPlace(day, active)} className="flex h-16 w-full flex-col items-center justify-center gap-1 rounded-xl text-center lg:h-full">
-                        <span className="font-display text-lg font-bold text-accent">{hovering ? 'Release to place' : 'Place here'}</span>
-                        <span className="text-xs text-fg-mute">{activeLabel(active)}</span>
+                        <span className="mt-1.5 block text-xs text-fg-mute">{workoutSummaryLine(workout.exercises, { withEstimate: false })}</span>
                       </button>
-                    ) : (
-                      <Link to={`/plan/workouts/new?weekday=${day}`} className="group flex h-16 w-full flex-col items-center justify-center gap-1 rounded-xl text-center hover:bg-accent/5 hover:no-underline lg:h-full">
-                        <span className="font-display text-lg font-bold text-fg-mute group-hover:text-accent">Rest</span>
-                        <span className="text-xs text-fg-mute group-hover:text-accent">+ Add workout</span>
-                      </Link>
-                    )}
-                  </div>
+                    </div>
+
+                    {/* Mobile: a compact touch-first row -- grip, day, name+summary, chevron. */}
+                    <div
+                      data-day={day}
+                      className={`relative flex items-center rounded-lg border motion-safe:transition-[shadow,opacity] motion-safe:duration-200 lg:hidden ${isOrigin && isDragging ? 'opacity-40' : ''}`}
+                      style={{
+                        borderColor: isOrigin ? 'transparent' : willReplace ? undefined : tint(colorForWorkout(workout), 0.4),
+                        borderLeftWidth: 3,
+                        borderLeftColor: colorForWorkout(workout),
+                        background: isToday ? tint(colorForWorkout(workout), 0.08) : 'transparent',
+                        boxShadow: hovering ? '0 0 0 2px rgb(var(--accent))' : 'none',
+                      }}
+                    >
+                      <button
+                        type="button"
+                        onPointerDown={(e) => beginGesture({ kind: 'workout', id: workout.id, weekday: day, name: workout.name }, tap, e)}
+                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tap(); } }}
+                        className="touch-none flex flex-1 items-center gap-3 p-3 text-left outline-none"
+                      >
+                        <GripDots className="flex-none text-fg-mute" />
+                        <span className="w-8 flex-none text-[11px] font-bold uppercase tracking-wide text-fg-mute">{short}</span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate font-display text-sm font-bold text-fg">{workout.name}</span>
+                          <span className="block truncate text-xs text-fg-mute">{workoutSummaryLine(workout.exercises, { withEstimate: false })}</span>
+                        </span>
+                        {willReplace ? (
+                          <span className="flex-none text-[11px] font-semibold uppercase tracking-wide text-accent">Replace</span>
+                        ) : (
+                          <ChevronRight width={16} height={16} className="flex-none text-fg-mute" />
+                        )}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    {/* Desktop empty slot */}
+                    <div
+                      data-day={day}
+                      className={`relative hidden rounded-xl border-2 motion-safe:transition-colors motion-safe:duration-200 lg:block lg:h-[252px] ${hovering ? 'border-accent bg-accent/10' : showAsTarget ? 'border-dashed border-accent/60' : isToday ? 'border-dashed border-accent/40' : 'border-dashed border-ink-800'}`}
+                    >
+                      {active ? (
+                        <button type="button" onClick={() => attemptPlace(day, active)} className="flex h-full w-full flex-col items-center justify-center gap-1 rounded-xl text-center">
+                          <span className="font-display text-lg font-bold text-accent">{hovering ? 'Release to place' : 'Place here'}</span>
+                          <span className="text-xs text-fg-mute">{activeLabel(active)}</span>
+                        </button>
+                      ) : (
+                        <Link to={`/plan/workouts/new?weekday=${day}`} className="group flex h-full w-full flex-col items-center justify-center gap-1 rounded-xl text-center hover:bg-accent/5 hover:no-underline">
+                          <span className="font-display text-lg font-bold text-fg-mute group-hover:text-accent">Rest</span>
+                          <span className="text-xs text-fg-mute group-hover:text-accent">+ Add workout</span>
+                        </Link>
+                      )}
+                    </div>
+
+                    {/* Mobile empty row */}
+                    <div
+                      data-day={day}
+                      className={`relative rounded-lg border motion-safe:transition-colors motion-safe:duration-200 lg:hidden ${hovering ? 'border-accent bg-accent/10' : showAsTarget ? 'border-dashed border-accent/60' : 'border-dashed border-ink-800'}`}
+                    >
+                      {active ? (
+                        <button type="button" onClick={() => attemptPlace(day, active)} className="flex w-full items-center gap-3 p-3 text-left">
+                          <span className="w-8 flex-none text-[11px] font-bold uppercase tracking-wide text-fg-mute">{short}</span>
+                          <span className="flex-1 text-sm font-semibold text-accent">{hovering ? 'Release to place' : `Place ${activeLabel(active)} here`}</span>
+                        </button>
+                      ) : (
+                        <Link to={`/plan/workouts/new?weekday=${day}`} className="flex w-full items-center gap-3 p-3 hover:no-underline">
+                          <span className="w-8 flex-none text-[11px] font-bold uppercase tracking-wide text-fg-mute">{short}</span>
+                          <span className="flex-1 text-sm text-fg-mute">Rest</span>
+                          <span className="flex-none text-xs font-semibold text-accent">+ Add</span>
+                        </Link>
+                      )}
+                    </div>
+                  </>
                 )}
               </li>
             );

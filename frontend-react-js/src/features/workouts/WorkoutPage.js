@@ -62,25 +62,33 @@ function useRestTimer() {
   };
 }
 
+// r=70 ring; dash offset drains clockwise from full as remaining/total falls, so the ring itself reads as "time left."
 function RestTimer({ rest }) {
   if (!rest.active) return null;
   const mm = String(Math.floor(rest.remaining / 60)).padStart(2, '0');
   const ss = String(rest.remaining % 60).padStart(2, '0');
-  const pct = rest.total ? Math.round((rest.remaining / rest.total) * 100) : 0;
+  const pct = rest.total ? rest.remaining / rest.total : 0;
+  const r = 70;
+  const c = 2 * Math.PI * r;
   return (
-    <div className="card mt-3.5 flex flex-col gap-2 p-3.5">
-      <div className="flex items-center justify-between">
-        <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-fg-mute">
-          <span className="h-1.5 w-1.5 rounded-full bg-accent motion-safe:animate-pulse" />Resting
-        </span>
-        <div className="flex items-center gap-2">
-          <button type="button" onClick={() => rest.addSeconds(30)} className="rounded-md bg-ink-800 px-2.5 py-1 text-xs font-semibold text-fg hover:bg-ink-600 active:translate-y-px">+30s</button>
-          <button type="button" onClick={rest.skip} className="rounded-md bg-ink-800 px-2.5 py-1 text-xs font-semibold text-fg-mute hover:bg-ink-600 hover:text-fg active:translate-y-px">Skip</button>
-        </div>
-      </div>
-      <div className="flex items-baseline gap-3">
+    <div className="card mt-3.5 flex flex-col items-center gap-4 p-5">
+      <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-fg-mute">
+        <span className="h-1.5 w-1.5 rounded-full bg-accent motion-safe:animate-pulse" />Resting
+      </span>
+      <div className="relative flex h-[168px] w-[168px] items-center justify-center">
+        <svg width="168" height="168" className="absolute inset-0 -rotate-90">
+          <circle cx="84" cy="84" r={r} fill="none" strokeWidth="6" stroke="currentColor" className="text-ink-700" />
+          <circle
+            cx="84" cy="84" r={r} fill="none" strokeWidth="6" strokeLinecap="round" stroke="currentColor"
+            className="text-accent transition-[stroke-dashoffset] duration-1000 ease-linear"
+            strokeDasharray={c} strokeDashoffset={c * (1 - pct)}
+          />
+        </svg>
         <span className={`${num} text-4xl tracking-tight text-fg`}>{mm}:{ss}</span>
-        <span className="h-1.5 flex-1 rounded-sm bg-ink-800"><span className="block h-1.5 rounded-sm bg-accent transition-all" style={{ width: `${pct}%` }} /></span>
+      </div>
+      <div className="flex w-full gap-2.5">
+        <button type="button" onClick={() => rest.addSeconds(30)} className="btn-secondary h-12 flex-1 text-sm">+30s</button>
+        <button type="button" onClick={rest.skip} className="btn-outline h-12 flex-1 text-sm">Skip</button>
       </div>
     </div>
   );
@@ -257,7 +265,7 @@ function SetComposer({ sessionId, exercise, onLogged }) {
         ))}
       </div>
       <button type="submit" disabled={saving} className="btn-primary h-14 text-[19px]">
-        <Plus width={20} height={20} />{saving ? 'Adding...' : 'Add set'}
+        <Plus width={20} height={20} />{saving ? 'Logging...' : 'Log set'}
       </button>
     </form>
   );
@@ -388,6 +396,50 @@ function CompletedView({ session }) {
   );
 }
 
+// The moment right after hitting "Complete" -- restrained, not the permanent read-only record (that's
+// CompletedView, shown on every later visit). "View workout" just steps into that same detailed view in place.
+function JustCompletedView({ session, onViewWorkout }) {
+  const { volume, unit } = sessionVolume(session);
+  const minutes = Math.round((new Date(session.completed_at) - new Date(session.started_at)) / 60000);
+  return (
+    <div className="mx-auto flex min-h-[calc(100vh-56px)] w-full max-w-sm flex-col px-6 pb-8 pt-6 sm:min-h-[calc(100vh-68px)]">
+      <div className="flex flex-1 flex-col items-center justify-center text-center">
+        <span className="flex h-16 w-16 items-center justify-center rounded-full border-[1.5px] border-accent text-accent">
+          <Check width={28} height={28} />
+        </span>
+        <h1 className="mt-5 font-display text-[26px] font-extrabold">Workout complete</h1>
+        <p className="mt-1.5 text-sm text-fg-mute">{session.plan_name ? `${session.plan_name} · ` : ''}{formatDay(session.started_at)}</p>
+
+        <div className="mt-8 flex items-center gap-7">
+          <div>
+            <p className={`${num} text-[22px] leading-none`}>{minutes}<span className="text-[13px] font-normal text-fg-mute">min</span></p>
+            <p className="mt-1 text-[11px] text-fg-mute">Duration</p>
+          </div>
+          {volume > 0 && (
+            <>
+              <div className="h-8 w-px bg-ink-700" />
+              <div>
+                <p className={`${num} text-[22px] leading-none`}>{volume.toLocaleString()}<span className="text-[13px] font-normal text-fg-mute"> {unit}</span></p>
+                <p className="mt-1 text-[11px] text-fg-mute">Volume</p>
+              </div>
+            </>
+          )}
+          <div className="h-8 w-px bg-ink-700" />
+          <div>
+            <p className={`${num} text-[22px] leading-none`}>{session.session_exercises.length}</p>
+            <p className="mt-1 text-[11px] text-fg-mute">Exercises</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2.5">
+        <Link to="/calendar" className="btn-primary h-[52px] text-[15px] text-accent-ink hover:text-accent-ink">Back to calendar</Link>
+        <button type="button" onClick={onViewWorkout} className="btn-secondary h-12 text-sm text-fg hover:text-fg">View workout</button>
+      </div>
+    </div>
+  );
+}
+
 export default function WorkoutPage() {
   const { id } = useParams();
   const { status, data: session, error, reload } = useLoad(`/api/workout-sessions/${id}`);
@@ -396,6 +448,7 @@ export default function WorkoutPage() {
   const [adding, setAdding] = React.useState(false);
   const [completing, setCompleting] = React.useState(false);
   const [completeError, setCompleteError] = React.useState('');
+  const [justCompleted, setJustCompleted] = React.useState(false);
   const locked = Boolean(session && session.completed_at);
   const elapsed = useElapsed(session && session.started_at, Boolean(session) && !locked);
   const rest = useRestTimer();
@@ -405,6 +458,7 @@ export default function WorkoutPage() {
     setCompleteError('');
     try {
       await apiRequest(`/api/workout-sessions/${id}/complete`, { method: 'PATCH' });
+      setJustCompleted(true);
       reload();
     } catch (err) {
       setCompleteError(describeApiError(err));
@@ -452,6 +506,10 @@ export default function WorkoutPage() {
       <p className="mt-2.5 text-center text-xs text-fg-mute lg:text-left">Completed workouts are read-only.</p>
     </>
   );
+
+  if (locked && justCompleted) {
+    return <JustCompletedView session={session} onViewWorkout={() => setJustCompleted(false)} />;
+  }
 
   return (
     <div>

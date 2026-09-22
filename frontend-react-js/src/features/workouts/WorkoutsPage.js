@@ -22,20 +22,25 @@ function groupByMonth(sessions) {
 
 function WorkoutRow({ session }) {
   const active = !session.completed_at;
+  const date = new Date(session.started_at);
   return (
     <li className="border-t border-ink-950 first:border-t-0">
       <Link
         to={`/workouts/${session.id}`}
-        className="grid min-h-[72px] grid-cols-[1fr_auto_1.25rem] items-center gap-3 px-4 text-fg hover:bg-ink-800 hover:no-underline"
+        className="flex min-h-[72px] items-center gap-3.5 px-4 text-fg hover:bg-ink-800 hover:no-underline"
       >
-        <span>
-          <span className="block font-display text-lg font-bold">{formatDay(session.started_at)}</span>
-          <span className="mt-0.5 block text-[13px] text-fg-mute">{session.plan_name ? `${session.plan_name} · ` : ''}Started {formatClock(session.started_at)}</span>
+        <span className="flex h-11 w-11 flex-none flex-col items-center justify-center rounded-lg bg-ink-800">
+          <span className="text-[9px] font-bold uppercase tracking-wider text-fg-mute">{date.toLocaleDateString([], { weekday: 'short' })}</span>
+          <span className="font-mono text-sm font-bold leading-none">{date.getDate()}</span>
         </span>
-        <span className={`font-display text-base font-bold ${active ? 'text-accent' : 'text-fg'}`}>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate font-display text-base font-bold">{session.plan_name || formatDay(session.started_at)}</span>
+          <span className="mt-0.5 block truncate text-[13px] text-fg-mute">Started {formatClock(session.started_at)}</span>
+        </span>
+        <span className={`flex-none font-display text-base font-bold ${active ? 'text-accent' : 'text-fg'}`}>
           {active ? 'In progress' : formatDuration(session.started_at, session.completed_at)}
         </span>
-        <ChevronRight width={18} height={18} className="text-fg-mute" />
+        <ChevronRight width={18} height={18} className="flex-none text-fg-mute" />
       </Link>
     </li>
   );

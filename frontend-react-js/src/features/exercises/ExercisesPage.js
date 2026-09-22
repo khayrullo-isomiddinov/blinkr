@@ -4,7 +4,7 @@ import { apiRequest } from '../../lib/api';
 import { describeApiError } from '../../lib/apiErrors';
 import { useLoad } from '../../lib/useLoad';
 import { Loading, LoadError } from '../../components/PageState';
-import { Dumbbell } from '../../components/icons';
+import { Dumbbell, ChevronRight, Plus } from '../../components/icons';
 import { exerciseIconUrl } from '../../lib/exerciseIcons';
 
 const MUSCLE_GROUPS = ['chest', 'back', 'legs', 'shoulders', 'arms', 'core'];
@@ -34,7 +34,9 @@ export function ExerciseLogo({ exercise, size = 32 }) {
   );
 }
 
+// Collapsed by default -- the catalogue is the primary content here, not an admin form.
 function NewExerciseForm({ onCreated }) {
+  const [open, setOpen] = React.useState(false);
   const [form, setForm] = React.useState({ name: '', muscle_group: '', equipment: '' });
   const [error, setError] = React.useState('');
   const [saving, setSaving] = React.useState(false);
@@ -50,6 +52,7 @@ function NewExerciseForm({ onCreated }) {
         body: { name: form.name.trim(), muscle_group: form.muscle_group.trim().toLowerCase(), equipment: form.equipment.trim() || null },
       });
       setForm({ name: '', muscle_group: '', equipment: '' });
+      setOpen(false);
       onCreated();
     } catch (err) {
       setError(describeApiError(err));
@@ -58,9 +61,20 @@ function NewExerciseForm({ onCreated }) {
     }
   }
 
+  if (!open) {
+    return (
+      <button type="button" onClick={() => setOpen(true)} className="mb-6 inline-flex items-center gap-1.5 text-sm font-semibold text-fg-mute hover:text-fg">
+        <Plus width={16} height={16} />Add an exercise
+      </button>
+    );
+  }
+
   return (
-    <form onSubmit={submit} className="card p-4 mb-8">
-      <h2 className="text-sm font-semibold text-fg mb-3">Add an exercise</h2>
+    <form onSubmit={submit} className="card mb-6 p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-fg">Add an exercise</h2>
+        <button type="button" onClick={() => setOpen(false)} className="text-xs font-semibold text-fg-mute hover:text-fg">Cancel</button>
+      </div>
       {error && <div role="alert" className="alert-error mb-3">{error}</div>}
       <div className="grid gap-3 sm:grid-cols-4">
         <div className="sm:col-span-2">
@@ -110,51 +124,49 @@ export default function ExercisesPage() {
       )}
       {status === 'ready' && data.length > 0 && (
         <>
-          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <input
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search exercises"
-              aria-label="Search exercises"
-              className="input sm:max-w-xs"
-            />
-            <select value={group} onChange={(e) => setGroup(e.target.value)} aria-label="Filter by muscle group" className="input sm:max-w-[10rem]">
-              <option value="all">All muscle groups</option>
-              {MUSCLE_GROUPS.map((g) => <option key={g} value={g} className="capitalize">{g}</option>)}
-            </select>
-            <span className="text-xs text-fg-mute sm:ml-auto">{filtered.length} of {data.length}</span>
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={`Search ${data.length} exercises`}
+            aria-label="Search exercises"
+            className="input"
+          />
+
+          <div role="group" aria-label="Filter by muscle group" className="mt-3 flex gap-2 overflow-x-auto pb-1">
+            {['all', ...MUSCLE_GROUPS].map((g) => (
+              <button
+                key={g}
+                type="button"
+                aria-pressed={group === g}
+                onClick={() => setGroup(g)}
+                className={`chip flex-none capitalize ${group === g ? 'text-accent' : ''}`}
+              >
+                {g === 'all' ? 'All' : g}
+              </button>
+            ))}
           </div>
 
           {filtered.length === 0 ? (
-            <div className="card p-6 text-sm text-fg-mute">No exercises match that search.</div>
+            <div className="card mt-4 p-6 text-sm text-fg-mute">No exercises match that search.</div>
           ) : (
-            <div className="overflow-x-auto rounded-lg border border-ink-700">
-              <table className="w-full text-left text-sm">
-                <caption className="sr-only">Exercise library</caption>
-                <thead className="bg-ink-900 text-xs uppercase tracking-wide text-fg-mute">
-                  <tr>
-                    <th scope="col" className="px-4 py-2 font-medium">Name</th>
-                    <th scope="col" className="px-4 py-2 font-medium">Muscle group</th>
-                    <th scope="col" className="px-4 py-2 font-medium">Equipment</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-ink-700">
-                  {filtered.map((exercise) => (
-                    <tr key={exercise.id}>
-                      <td className="px-4 py-2">
-                        <Link to={`/exercises/${exercise.id}`} className="flex items-center gap-3 text-fg hover:text-accent hover:no-underline">
-                          <ExerciseLogo exercise={exercise} />
-                          {exercise.name}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-2 text-fg-soft capitalize">{exercise.muscle_group}</td>
-                      <td className="px-4 py-2 text-fg-mute">{exercise.equipment || '—'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <ul className="mt-4 divide-y divide-ink-700 rounded-lg border border-ink-700">
+              {filtered.map((exercise) => (
+                <li key={exercise.id}>
+                  <Link
+                    to={`/exercises/${exercise.id}`}
+                    className="flex min-h-[60px] items-center gap-3 px-3.5 py-2 text-fg hover:bg-ink-900 hover:no-underline"
+                  >
+                    <ExerciseLogo exercise={exercise} />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[15px] font-semibold">{exercise.name}</span>
+                      <span className="block truncate text-xs capitalize text-fg-mute">{exercise.muscle_group}{exercise.equipment ? ` · ${exercise.equipment}` : ''}</span>
+                    </span>
+                    <ChevronRight width={16} height={16} className="flex-none text-fg-mute" />
+                  </Link>
+                </li>
+              ))}
+            </ul>
           )}
         </>
       )}

@@ -1,15 +1,17 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useSession } from './useSession';
+import { LogoMark } from '../../components/Logo';
 
 export default function RequireAuth({ children }) {
   const status = useSession();
   const location = useLocation();
 
+  // A branded hold instead of a bare "Loading..." flash, while the Cognito session check resolves.
   if (status === 'checking') {
     return (
-      <div className="min-h-screen flex items-center justify-center" role="status">
-        <p className="text-fg-mute text-sm">Loading...</p>
+      <div className="flex min-h-screen items-center justify-center bg-ink-950" role="status">
+        <LogoMark size={36} className="text-accent motion-safe:animate-pulse" label="Loading Blinkr" />
       </div>
     );
   }

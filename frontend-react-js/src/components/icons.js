@@ -20,3 +20,5 @@ export const GripDots = (props) => <svg width={16} height={16} viewBox="0 0 24 2
 export const Undo = (props) => <svg {...base} {...props}><path d="M9 14L4 9l5-5M4 9h10a6 6 0 010 12h-3" /></svg>;
 export const PlayCircle = (props) => <svg {...base} {...props}><circle cx="12" cy="12" r="9" /><path d="M10 8.5l6 3.5-6 3.5z" /></svg>;
 export const Trash = (props) => <svg {...base} {...props}><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6" /></svg>;
+export const Pencil = (props) => <svg {...base} {...props}><path d="M12 20h9M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>;
+export const PlayFilled = (props) => <svg width={20} height={20} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}><path d="M6 4l14 8-14 8V4z" /></svg>;

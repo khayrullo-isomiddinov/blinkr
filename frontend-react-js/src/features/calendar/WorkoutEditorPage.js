@@ -103,24 +103,25 @@ function AddExercise({ library, onAdd }) {
   if (library.status === 'ready' && library.data.length === 0) {
     return <p className="card p-4 text-sm text-fg-mute">Your exercise library is empty. <Link to="/exercises">Add an exercise</Link> first.</p>;
   }
-  const submit = (event) => {
-    event.preventDefault();
+  const submit = () => {
     const exercise = library.status === 'ready' && library.data.find((e) => e.id === id);
     if (!exercise) return;
     onAdd(exercise);
     setId('');
   };
   return (
-    <form onSubmit={submit} className="card p-4">
+    // A <div>, not a <form> -- this sits inside the page's own <form>, and nested <form> elements are invalid
+    // HTML that browsers silently collapse, which was swallowing "Add" clicks into the outer Save submit.
+    <div className="card p-4">
       <label htmlFor="plan-add-exercise" className="field-label">Add an exercise</label>
       <div className="flex flex-wrap gap-2.5">
         <select id="plan-add-exercise" value={id} onChange={(e) => setId(e.target.value)} disabled={library.status !== 'ready'} className="input min-w-[12rem] flex-1">
           <option value="">{library.status === 'ready' ? 'Choose an exercise...' : 'Loading...'}</option>
           {library.status === 'ready' && library.data.map((e) => <option key={e.id} value={e.id}>{e.name} ({e.muscle_group})</option>)}
         </select>
-        <button type="submit" disabled={!id} className="btn-primary"><Plus width={18} height={18} />Add</button>
+        <button type="button" onClick={submit} disabled={!id} className="btn-primary"><Plus width={18} height={18} />Add</button>
       </div>
-    </form>
+    </div>
   );
 }
 

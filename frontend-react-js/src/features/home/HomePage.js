@@ -16,9 +16,11 @@ export default function HomePage() {
       <div className="flex flex-1 flex-col justify-center px-6 py-10 sm:px-8 lg:px-12">
         <div className="mx-auto flex w-full max-w-4xl items-center justify-between gap-12">
           <div className="max-w-xl">
-            <h1 className="font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl">Log your training. Keep getting stronger.</h1>
+            <Logo size={36} className="mb-6 md:hidden" />
+            <p className="eyebrow text-accent">Plan. Train. Log. Repeat.</p>
+            <h1 className="mt-3 font-display text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl">Log your training. Keep getting stronger.</h1>
             <p className="mt-5 max-w-md text-lg text-fg-mute">
-              Start a workout, record your exercises and every set, and keep your training history.
+              Plan a recurring week, see exactly what's today, and log every set with real numbers — no gimmicks, no guessing.
             </p>
             {status === 'out' && (
               <div className="mt-8 flex flex-wrap gap-3">
