@@ -258,8 +258,12 @@ export default function WeekStudioPage() {
 
                 {workout ? (
                   <div
-                    className={`relative flex flex-col rounded-xl border p-3 motion-safe:transition-shadow lg:h-[252px] ${hovering ? 'ring-2 ring-accent' : ''} ${isOrigin ? 'shadow-lg' : ''}`}
-                    style={{ background: tint(colorForWorkout(workout), 0.11), borderColor: isOrigin ? 'transparent' : willReplace ? undefined : tint(colorForWorkout(workout), 0.4) }}
+                    className={`relative flex flex-col rounded-lg border p-3 motion-safe:transition-shadow lg:h-[252px] ${hovering ? 'ring-2 ring-accent' : ''}`}
+                    style={{
+                      background: tint(colorForWorkout(workout), 0.11),
+                      borderColor: isOrigin ? 'transparent' : willReplace ? undefined : tint(colorForWorkout(workout), 0.4),
+                      boxShadow: `inset 0 3px 0 0 ${colorForWorkout(workout)}`,
+                    }}
                     onDragOver={(e) => { if (!dragBlocked(day)) { e.preventDefault(); setDragOverDay(day); } }}
                     onDragLeave={() => setDragOverDay((d) => (d === day ? null : d))}
                     onDrop={(e) => { e.preventDefault(); setDragOverDay(null); attemptPlace(day); }}
@@ -319,7 +323,7 @@ export default function WeekStudioPage() {
       <section aria-label="Quick add and week balance" className="mt-10 grid gap-8 border-t border-ink-800 pt-7 lg:grid-cols-[1.4fr_1fr]">
         <div>
           <p className="eyebrow">Quick add</p>
-          <div className="mt-3.5 flex flex-wrap gap-2">
+          <div className="mt-3.5 overflow-hidden rounded-lg border border-ink-700">
             {PRESET_CHIPS.map((chip) => {
               const isActive = active && active.kind === 'chip' && active.label === chip.label;
               return (
@@ -331,14 +335,18 @@ export default function WeekStudioPage() {
                   onClick={() => pick({ kind: 'chip', label: chip.label }, (c) => c.kind === 'chip' && c.label === chip.label)}
                   disabled={busy || Boolean(pendingConfirm)}
                   aria-pressed={isActive}
-                  className="chip"
+                  className={`flex w-full items-center gap-3 border-t border-ink-700 px-3.5 py-3 text-left first:border-t-0 disabled:cursor-not-allowed disabled:opacity-50 ${isActive ? 'bg-accent/10' : 'bg-ink-900 hover:bg-ink-800'}`}
                 >
-                  <span aria-hidden="true" className="h-2.5 w-2.5 rounded-full" style={{ background: chip.color }} />
-                  {chip.label}
+                  <span aria-hidden="true" className="h-2.5 w-2.5 flex-none rounded-full" style={{ background: chip.color }} />
+                  <span className="flex-1 font-display text-[15px] font-bold text-fg">{chip.label}</span>
+                  <Plus width={16} height={16} className="flex-none text-fg-mute" />
                 </button>
               );
             })}
-            <Link to="/plan/workouts/new" className="chip border-dashed"><Plus width={15} height={15} />Custom</Link>
+            <Link to="/plan/workouts/new" className="flex w-full items-center gap-3 border-t border-ink-700 px-3.5 py-3 text-left text-fg-soft hover:bg-ink-800 hover:no-underline">
+              <Plus width={16} height={16} className="flex-none" />
+              <span className="text-[15px] font-semibold">Custom workout</span>
+            </Link>
           </div>
         </div>
 

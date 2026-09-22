@@ -15,9 +15,18 @@ module.exports = {
         chrome: { DEFAULT: '#16100D', raised: '#211812', line: '#3A2C25', fg: '#F6EFE8', soft: '#D8CCC0', mute: '#B0A296' },
       },
       fontFamily: {
-        sans: ['"Instrument Sans"', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
-        display: ['"Bricolage Grotesque"', '"Instrument Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
+        sans: ['"Inter"', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'Roboto', 'sans-serif'],
+        display: ['"Bricolage Grotesque"', '"Inter"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        // Tabular data -- weights, reps, timers, counts -- so digits never jitter or jump as they update.
+        mono: ['"Space Mono"', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Consolas', 'monospace'],
+      },
+      borderRadius: {
+        // Capped well short of Tailwind's default xl/2xl/3xl/full: crisp tactile plates and rack pins, not bubbly pills.
+        DEFAULT: '0.25rem',
+        md: '0.25rem',
+        lg: '0.5rem',
+        xl: '0.5rem',
+        full: '9999px',
       },
     },
   },

@@ -9,7 +9,7 @@ import { Logo } from '../components/Logo';
 import { CalendarIcon, ListIcon, Dumbbell } from '../components/icons';
 
 const topLink = ({ isActive }) =>
-  `rounded-lg px-3.5 py-2 text-[15px] hover:no-underline ${isActive ? 'bg-chrome-raised font-semibold text-chrome-fg' : 'text-chrome-mute hover:text-chrome-fg'}`;
+  `border-b-2 px-1 py-2 text-xs font-semibold uppercase tracking-wider hover:no-underline ${isActive ? 'border-accent text-chrome-fg' : 'border-transparent text-chrome-mute hover:text-chrome-fg'}`;
 
 const tabLink = ({ isActive }) =>
   `flex flex-col items-center justify-center gap-1 text-[11px] hover:no-underline ${isActive ? 'font-semibold text-accent' : 'text-chrome-mute'}`;
@@ -25,8 +25,9 @@ function Shell() {
     <div className="min-h-screen">
       <header className={`${onWorkout ? 'hidden lg:flex' : 'flex'} h-14 items-center gap-4 border-b border-chrome-line bg-chrome px-4 sm:h-[68px] sm:gap-8 sm:px-12`}>
         <Link to="/calendar" aria-label="Blinkr, calendar" className="hover:no-underline"><Logo size={30} variant="chrome" /></Link>
-        <nav aria-label="Main" className="hidden flex-1 gap-1 sm:flex">
+        <nav aria-label="Main" className="hidden flex-1 gap-5 sm:flex">
           <NavLink to="/calendar" className={topLink}>Calendar</NavLink>
+          <NavLink to="/plan" className={topLink}>Week Studio</NavLink>
           <NavLink to="/workouts" className={topLink}>Workouts</NavLink>
           <NavLink to="/exercises" className={topLink}>Exercises</NavLink>
         </nav>

@@ -49,7 +49,7 @@ export default function Footer({ signedIn = false, clearNav = false, className =
             </nav>
           </div>
 
-          <div className="rounded-[10px] border border-chrome-line bg-chrome-raised p-5 sm:col-span-2 lg:col-span-1 lg:border-0 lg:bg-transparent lg:p-0">
+          <div className="rounded-lg border border-chrome-line bg-chrome-raised p-5 sm:col-span-2 lg:col-span-1 lg:border-0 lg:bg-transparent lg:p-0">
             <p className={heading}>Built by</p>
             <p className="font-display text-[22px] font-extrabold leading-tight">{DEVELOPER_NAME}</p>
             <p className="mb-4 mt-2 text-sm leading-relaxed text-chrome-mute">Want to help build Blinkr? Get in touch.</p>

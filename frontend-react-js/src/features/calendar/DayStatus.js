@@ -19,11 +19,12 @@ export default function DayStatus({ status, className = '' }) {
   );
 }
 
-// The small round marker on a day: filled check, pulsing dot, hollow ring, or nothing for rest.
+// The small marker on a day. Completed is a squared "stamp" (the app's one deliberate non-circular status glyph);
+// live states stay circular dots -- filled/pulsing/hollow -- since those read as status lights, not checkboxes.
 export function DayMarker({ status, size = 24 }) {
   const box = { width: size, height: size };
   if (status === 'completed') {
-    return <span style={box} className="flex flex-none items-center justify-center rounded-full bg-accent text-accent-ink"><Check width={size * 0.58} height={size * 0.58} /></span>;
+    return <span style={box} className="flex flex-none items-center justify-center rounded-md bg-accent text-accent-ink"><Check width={size * 0.56} height={size * 0.56} /></span>;
   }
   if (status === 'in_progress') {
     return <span style={box} className="flex flex-none items-center justify-center rounded-full border-2 border-accent"><span className="h-2 w-2 rounded-full bg-accent motion-safe:animate-pulse" /></span>;

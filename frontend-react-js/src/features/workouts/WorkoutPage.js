@@ -10,6 +10,8 @@ import { ChevronLeft, ChevronRight, Plus, Minus, Check } from '../../components/
 
 const SET_TYPES = [['warmup', 'Warm-up'], ['working', 'Working'], ['drop', 'Drop'], ['failure', 'Failure']];
 const TYPE_LABEL = Object.fromEntries(SET_TYPES);
+// How long to rest by default after each set type -- a starting point the athlete can always +30s or skip.
+const REST_SECONDS = { warmup: 60, working: 120, drop: 75, failure: 90 };
 const nextNumber = (items, field) => items.reduce((max, item) => Math.max(max, item[field]), 0) + 1;
 const num = 'font-display font-bold tabular-nums';
 
@@ -19,6 +21,13 @@ function formatSet(set) {
 
 function setCount(exercise) {
   return `${exercise.sets.length} ${exercise.sets.length === 1 ? 'set' : 'sets'}`;
+}
+
+// Clamped to a floor (never negative, never below 1 rep) and rounded to 2dp so repeated +/- taps don't drift.
+function bumpValue(value, delta, floor = 0) {
+  const current = Number(value);
+  const base = value.trim() !== '' && Number.isFinite(current) ? current : 0;
+  return String(Math.max(floor, Math.round((base + delta) * 100) / 100));
 }
 
 function useElapsed(startedAt, running) {
@@ -31,32 +40,84 @@ function useElapsed(startedAt, running) {
   return startedAt ? now - new Date(startedAt).getTime() : 0;
 }
 
-function SetRows({ sets, muted }) {
-  if (sets.length === 0) return <p className="border-t border-ink-700 py-4 text-sm text-fg-mute">No sets logged yet.</p>;
+// A plain countdown, kept entirely in the browser -- nothing here is logged or stored.
+function useRestTimer() {
+  const [target, setTarget] = React.useState(null); // { total, endsAt } | null
+  const [now, setNow] = React.useState(Date.now());
+
+  React.useEffect(() => {
+    if (!target) return undefined;
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [target]);
+
+  const remaining = target ? Math.max(0, Math.round((target.endsAt - now) / 1000)) : 0;
+  return {
+    active: Boolean(target) && remaining > 0,
+    remaining,
+    total: target ? target.total : 0,
+    start: (seconds) => { setNow(Date.now()); setTarget({ total: seconds, endsAt: Date.now() + seconds * 1000 }); },
+    addSeconds: (delta) => setTarget((t) => (t ? { total: t.total + delta, endsAt: t.endsAt + delta * 1000 } : t)),
+    skip: () => setTarget(null),
+  };
+}
+
+function RestTimer({ rest }) {
+  if (!rest.active) return null;
+  const mm = String(Math.floor(rest.remaining / 60)).padStart(2, '0');
+  const ss = String(rest.remaining % 60).padStart(2, '0');
+  const pct = rest.total ? Math.round((rest.remaining / rest.total) * 100) : 0;
   return (
-    <ul>
-      {sets.map((set) => (
-        <li key={set.id} className={`grid grid-cols-[2rem_1fr_auto] items-center border-t ${muted ? 'h-[46px] border-ink-700/70' : 'h-[52px] border-ink-700'}`}>
-          <span className="text-sm text-fg-mute">{set.set_order}</span>
-          <span className={`text-sm ${set.set_type === 'warmup' || muted ? 'text-fg-mute' : 'text-fg'}`}>{TYPE_LABEL[set.set_type] || set.set_type}</span>
-          <span className={`${num} ${muted ? 'text-[19px] text-fg-soft' : 'text-[21px] lg:text-[22px]'}`}>{formatSet(set)}</span>
-        </li>
-      ))}
-    </ul>
+    <div className="card mt-3.5 flex flex-col gap-2 p-3.5">
+      <div className="flex items-center justify-between">
+        <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-fg-mute">
+          <span className="h-1.5 w-1.5 rounded-full bg-accent motion-safe:animate-pulse" />Resting
+        </span>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={() => rest.addSeconds(30)} className="rounded-md bg-ink-800 px-2.5 py-1 text-xs font-semibold text-fg hover:bg-ink-600 active:translate-y-px">+30s</button>
+          <button type="button" onClick={rest.skip} className="rounded-md bg-ink-800 px-2.5 py-1 text-xs font-semibold text-fg-mute hover:bg-ink-600 hover:text-fg active:translate-y-px">Skip</button>
+        </div>
+      </div>
+      <div className="flex items-baseline gap-3">
+        <span className={`${num} text-4xl tracking-tight text-fg`}>{mm}:{ss}</span>
+        <span className="h-1.5 flex-1 rounded-sm bg-ink-800"><span className="block h-1.5 rounded-sm bg-accent transition-all" style={{ width: `${pct}%` }} /></span>
+      </div>
+    </div>
   );
 }
 
-function Stepper({ id, label, value, onChange, step, inputMode }) {
-  const bump = (direction) => {
-    const current = Number(value);
-    const base = value.trim() !== '' && Number.isFinite(current) ? current : 0;
-    onChange(String(Math.max(0, Math.round((base + direction * step) * 100) / 100)));
-  };
+function SetRows({ sets, muted }) {
+  if (sets.length === 0) return <p className="border-t border-ink-700 py-4 text-sm text-fg-mute">No sets logged yet.</p>;
+  return (
+    <div>
+      <div className="grid grid-cols-[2.25rem_4.5rem_1fr_2rem] items-center gap-2 border-b border-ink-700 px-0.5 pb-1.5">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-fg-mute">Set</span>
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-fg-mute">Type</span>
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-fg-mute">Load</span>
+        <span />
+      </div>
+      <ul>
+        {sets.map((set) => (
+          <li key={set.id} className={`grid grid-cols-[2.25rem_4.5rem_1fr_2rem] items-center gap-2 border-b px-0.5 ${muted ? 'h-[44px] border-ink-700/70' : 'h-[52px] border-ink-700'}`}>
+            <span className="text-sm text-fg-mute">{set.set_order}</span>
+            <span className={`truncate text-sm ${set.set_type === 'warmup' || muted ? 'text-fg-mute' : 'text-fg-soft'}`}>{TYPE_LABEL[set.set_type] || set.set_type}</span>
+            <span className={`${num} ${muted ? 'text-[17px] text-fg-soft' : 'text-[19px] lg:text-[21px]'}`}>{formatSet(set)}</span>
+            <span className={`flex h-6 w-6 items-center justify-center rounded-md ${muted ? 'bg-ink-800 text-fg-mute' : 'bg-accent text-accent-ink'}`} aria-label="Logged">
+              <Check width={14} height={14} />
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function Stepper({ id, label, value, onChange, step, inputMode, quick }) {
   return (
     <div className="min-w-0">
       <label htmlFor={id} className="field-label">{label}</label>
       <div className="flex h-[60px] gap-1">
-        <button type="button" aria-label={`Decrease ${label.toLowerCase()}`} onClick={() => bump(-1)} className="stepper-btn"><Minus width={20} height={20} /></button>
+        <button type="button" aria-label={`Decrease ${label.toLowerCase()}`} onClick={() => onChange(bumpValue(value, -step))} className="stepper-btn"><Minus width={20} height={20} /></button>
         <input
           id={id}
           value={value}
@@ -65,8 +126,15 @@ function Stepper({ id, label, value, onChange, step, inputMode }) {
           placeholder="0"
           className="w-full min-w-0 flex-1 bg-transparent text-center font-display text-[26px] font-extrabold tabular-nums text-fg placeholder-ink-500 focus:outline-none sm:text-[32px]"
         />
-        <button type="button" aria-label={`Increase ${label.toLowerCase()}`} onClick={() => bump(1)} className="stepper-btn"><Plus width={20} height={20} /></button>
+        <button type="button" aria-label={`Increase ${label.toLowerCase()}`} onClick={() => onChange(bumpValue(value, step))} className="stepper-btn"><Plus width={20} height={20} /></button>
       </div>
+      {quick && quick.length > 0 && (
+        <div className="mt-1.5 flex gap-1">
+          {quick.map((q) => (
+            <button key={q.label} type="button" onClick={q.onClick} className="flex-1 rounded-md bg-ink-800 py-1.5 font-mono text-[11px] text-fg-soft hover:bg-ink-600 active:translate-y-px">{q.label}</button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -74,6 +142,13 @@ function Stepper({ id, label, value, onChange, step, inputMode }) {
 // The heaviest set (then most reps) of a list of sets.
 function topSet(sets) {
   return [...sets].sort((a, b) => (Number(b.weight) || 0) - (Number(a.weight) || 0) || b.reps - a.reps)[0];
+}
+
+// Epley estimate from the best set logged for this exercise so far today -- real math on real numbers, not a lookup.
+function estimated1RM(sets) {
+  const best = sets.length ? topSet(sets) : null;
+  if (!best || best.weight == null) return null;
+  return Math.round(Number(best.weight) * (1 + best.reps / 30) * 10) / 10;
 }
 
 // What the plan asked for, next to what was actually done last time. Either can be missing. A quiet readout, not a
@@ -133,12 +208,24 @@ function SetComposer({ sessionId, exercise, onLogged }) {
     setSaving(true);
     try {
       await apiRequest(`/api/workout-sessions/${sessionId}/exercises/${exercise.id}/sets`, { method: 'POST', body });
-      onLogged();
+      onLogged(setType);
     } catch (err) {
       setError(describeApiError(err));
       setSaving(false);
     }
   }
+
+  const weightStep = unit === 'kg' ? 2.5 : 5;
+  const weightQuick = (unit === 'kg' ? [-2.5, 1.25, 2.5, 5] : [-5, 2.5, 5, 10]).map((delta) => ({
+    label: `${delta > 0 ? '+' : ''}${delta}`,
+    onClick: () => setWeight(bumpValue(weight, delta)),
+  }));
+  const repsQuick = [
+    { label: '-1', onClick: () => setReps(bumpValue(reps, -1)) },
+    ...(planned && planned.target_reps_min ? [{ label: String(planned.target_reps_min), onClick: () => setReps(String(planned.target_reps_min)) }] : []),
+    ...(planned && planned.target_reps_max ? [{ label: String(planned.target_reps_max), onClick: () => setReps(String(planned.target_reps_max)) }] : []),
+    { label: '+1', onClick: () => setReps(bumpValue(reps, 1)) },
+  ];
 
   return (
     <form onSubmit={submit} aria-label="Log a set" className="card mt-3.5 flex flex-col gap-3 p-3.5 lg:p-[18px]">
@@ -147,9 +234,9 @@ function SetComposer({ sessionId, exercise, onLogged }) {
         {last && <span className="text-[13px] text-fg-mute">Prev {formatSet(last)}</span>}
       </div>
       {error && <div role="alert" className="alert-error">{error}</div>}
-      <div className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-3 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto] lg:items-end lg:gap-4">
-        <Stepper id="set-weight" label="Weight" value={weight} onChange={setWeight} step={unit === 'kg' ? 2.5 : 5} inputMode="decimal" />
-        <Stepper id="set-reps" label="Reps" value={reps} onChange={setReps} step={1} inputMode="numeric" />
+      <div className="grid grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] gap-3 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_auto] lg:items-start lg:gap-4">
+        <Stepper id="set-weight" label="Weight" value={weight} onChange={setWeight} step={weightStep} inputMode="decimal" quick={weightQuick} />
+        <Stepper id="set-reps" label="Reps" value={reps} onChange={setReps} step={1} inputMode="numeric" quick={repsQuick} />
         <div role="group" aria-label="Unit" className="col-span-2 grid grid-cols-2 gap-1 rounded-lg bg-ink-950 p-1 lg:col-span-1 lg:h-[60px] lg:w-[132px]">
           {['kg', 'lb'].map((u) => (
             <button
@@ -221,6 +308,18 @@ function AddExercisePanel({ sessionId, session, library, onAdded, onCancel }) {
   );
 }
 
+// Real total load moved this session: sum of weight x reps across every logged set. Zero cost -- the data is already loaded.
+function sessionVolume(session) {
+  let volume = 0;
+  let unit = null;
+  session.session_exercises.forEach((exercise) => exercise.sets.forEach((set) => {
+    if (set.weight == null) return;
+    volume += Number(set.weight) * set.reps;
+    unit = unit || set.weight_unit;
+  }));
+  return { volume: Math.round(volume), unit: unit || 'kg' };
+}
+
 function MobileHeader({ session, locked, elapsed }) {
   const plan = session.plan_name ? `${session.plan_name} · ` : '';
   return (
@@ -256,6 +355,7 @@ function BackLink() {
 }
 
 function CompletedView({ session }) {
+  const { volume, unit } = sessionVolume(session);
   return (
     <div className="mx-auto w-full max-w-2xl px-4 pb-28 lg:pt-8">
       <BackLink />
@@ -264,11 +364,17 @@ function CompletedView({ session }) {
         <p className="mt-1 text-sm text-fg-mute">{formatClock(session.started_at)} – {formatClock(session.completed_at)} · {formatDuration(session.started_at, session.completed_at)}</p>
       </div>
       <div className="card mt-2 flex items-center gap-3 px-3.5 py-3 lg:mt-6">
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-accent text-accent-ink"><Check width={16} height={16} /></span>
-        <div>
+        <span className="flex h-7 w-7 items-center justify-center rounded-md bg-accent text-accent-ink"><Check width={16} height={16} /></span>
+        <div className="flex-1">
           <p className="font-display font-bold">Workout completed</p>
           <p className="text-xs text-fg-mute">Read-only. Sets can no longer be changed here.</p>
         </div>
+        {volume > 0 && (
+          <div className="text-right">
+            <p className={`${num} text-lg leading-none`}>{volume.toLocaleString()}</p>
+            <p className="text-[11px] uppercase tracking-wider text-fg-mute">{unit} moved</p>
+          </div>
+        )}
       </div>
       {session.session_exercises.length === 0 && <p className="mt-6 text-sm text-fg-mute">No exercises were logged.</p>}
       {session.session_exercises.map((exercise) => (
@@ -292,6 +398,7 @@ export default function WorkoutPage() {
   const [completeError, setCompleteError] = React.useState('');
   const locked = Boolean(session && session.completed_at);
   const elapsed = useElapsed(session && session.started_at, Boolean(session) && !locked);
+  const rest = useRestTimer();
 
   async function complete() {
     setCompleting(true);
@@ -304,6 +411,11 @@ export default function WorkoutPage() {
     } finally {
       setCompleting(false);
     }
+  }
+
+  function logged(setType) {
+    rest.start(REST_SECONDS[setType] || REST_SECONDS.working);
+    reload();
   }
 
   if (status === 'loading') return <div className="mx-auto max-w-2xl p-4"><Loading label="Loading workout" /></div>;
@@ -323,6 +435,8 @@ export default function WorkoutPage() {
   const selected = exercises.find((e) => e.id === selectedId) || exercises[0];
   const others = exercises.filter((e) => !selected || e.id !== selected.id);
   const showAddPanel = adding || exercises.length === 0;
+  const oneRM = selected ? estimated1RM(selected.sets) : null;
+  const { volume, unit: volumeUnit } = sessionVolume(session);
 
   function added(created) {
     setSelectedId(created.id);
@@ -358,13 +472,22 @@ export default function WorkoutPage() {
 
             {selected && !adding && (
               <section aria-label={selected.exercise_name} className="lg:mt-4">
-                <div className="pb-2.5 pt-3">
-                  <h2 className="font-display text-[29px] font-extrabold leading-[1.05] tracking-tight lg:text-4xl">{selected.exercise_name}</h2>
-                  <p className="mt-1 text-sm capitalize text-fg-mute lg:text-[15px]">{selected.exercise_muscle_group} · {setCount(selected)} logged</p>
+                <div className="flex items-start justify-between gap-3 pb-2.5 pt-3">
+                  <div>
+                    <h2 className="font-display text-[29px] font-extrabold leading-[1.05] tracking-tight lg:text-4xl">{selected.exercise_name}</h2>
+                    <p className="mt-1 text-sm capitalize text-fg-mute lg:text-[15px]">{selected.exercise_muscle_group} · {setCount(selected)} logged</p>
+                  </div>
+                  {oneRM && (
+                    <span className="flex-none rounded-md bg-ink-800 px-2.5 py-1.5 text-right">
+                      <span className="block text-[10px] font-semibold uppercase tracking-wider text-fg-mute">Est. 1RM</span>
+                      <span className={`${num} block text-base leading-tight text-fg`}>{oneRM}<span className="ml-0.5 text-xs text-fg-mute">{selected.sets[0]?.weight_unit || 'kg'}</span></span>
+                    </span>
+                  )}
                 </div>
                 <TargetPanel exercise={selected} />
                 <SetRows sets={selected.sets} />
-                <SetComposer key={`${selected.id}:${selected.sets.length}`} sessionId={id} exercise={selected} onLogged={reload} />
+                <RestTimer rest={rest} />
+                <SetComposer key={`${selected.id}:${selected.sets.length}`} sessionId={id} exercise={selected} onLogged={logged} />
               </section>
             )}
 
@@ -401,8 +524,18 @@ export default function WorkoutPage() {
               {session.plan_name && <p className="eyebrow mb-1 text-accent">{session.plan_name}</p>}
               <p className="font-display text-lg font-bold">{formatDay(session.started_at)}</p>
               <p className="mt-0.5 text-[13px] text-fg-mute">Started {formatClock(session.started_at)} · In progress</p>
-              <p className="mt-[18px] text-[11px] uppercase tracking-wider text-fg-mute">Elapsed</p>
-              <p className="font-display text-[56px] font-extrabold leading-[1.05] tabular-nums">{formatElapsed(elapsed)}</p>
+              <div className="mt-[18px] grid grid-cols-2 gap-3">
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-fg-mute">Elapsed</p>
+                  <p className={`${num} text-[32px] leading-[1.1]`}>{formatElapsed(elapsed)}</p>
+                </div>
+                {volume > 0 && (
+                  <div>
+                    <p className="text-[11px] uppercase tracking-wider text-fg-mute">Volume</p>
+                    <p className={`${num} text-[32px] leading-[1.1]`}>{volume.toLocaleString()}<span className="ml-1 text-sm text-fg-mute">{volumeUnit}</span></p>
+                  </div>
+                )}
+              </div>
               <div className="mt-5">{completeControls}</div>
             </div>
             <button type="button" onClick={() => setAdding(true)} className="btn-secondary mt-3 h-[52px] w-full text-[15px]"><Plus width={18} height={18} />Add exercise</button>

@@ -20,17 +20,18 @@
   }
 
   .dark {
+    /* Ground -> Layer 1 (cards) -> Layer 2 (nested rows/inputs) -> border-subtle -> border-strong -> brightest neutral fill. */
     --ink-950: 15 14 13;
-    --ink-900: 25 23 22;
-    --ink-800: 38 34 31;
-    --ink-700: 42 39 36;
-    --ink-600: 58 52 47;
-    --ink-500: 74 66 60;
-    --fg: 244 239 232;
-    --fg-soft: 207 199 189;
-    --fg-mute: 160 150 139;
+    --ink-900: 22 20 18;
+    --ink-800: 28 25 23;
+    --ink-700: 38 36 34;
+    --ink-600: 58 54 51;
+    --ink-500: 59 57 55;
+    --fg: 245 243 240;
+    --fg-soft: 168 162 158;
+    --fg-mute: 120 113 108;
     --accent: 255 107 53;
-    --accent-ink: 20 17 15;
+    --accent-ink: 15 14 13;
   }
 
   body {
@@ -45,7 +46,7 @@
 /* Shared building blocks. Page-specific layout stays in Tailwind utilities on the element. */
 @layer components {
   .card {
-    @apply rounded-[10px] border border-ink-700 bg-ink-900;
+    @apply rounded-lg border border-ink-700 bg-ink-900;
   }
 
   .eyebrow {
@@ -61,27 +62,33 @@
       placeholder-fg-mute focus:outline-none focus:border-accent;
   }
 
+  /* Tactile press: a crisp top rim highlight plus a real 1px offset on press, not a soft ambient shadow. */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 min-h-[44px] px-5 rounded-lg bg-accent text-accent-ink font-display
-      font-extrabold hover:brightness-110 hover:no-underline disabled:opacity-40 disabled:hover:brightness-100;
+      font-extrabold shadow-[inset_0_1px_0_rgba(255,255,255,0.16)] hover:brightness-110 hover:no-underline
+      active:translate-y-px active:brightness-95 motion-safe:transition disabled:opacity-40 disabled:hover:brightness-100 disabled:active:translate-y-0;
   }
 
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2 min-h-[44px] px-4 rounded-lg bg-ink-800 text-fg text-sm
-      font-semibold hover:bg-ink-600 hover:no-underline disabled:opacity-50 disabled:cursor-not-allowed;
+      font-semibold hover:bg-ink-600 hover:no-underline active:translate-y-px motion-safe:transition
+      disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-y-0;
   }
 
   .btn-outline {
     @apply inline-flex items-center justify-center gap-2 min-h-[44px] px-4 rounded-lg border border-ink-500 text-fg font-display
-      font-bold hover:bg-ink-800 hover:no-underline disabled:opacity-50 disabled:cursor-not-allowed;
+      font-bold hover:bg-ink-800 hover:no-underline active:translate-y-px motion-safe:transition
+      disabled:opacity-50 disabled:cursor-not-allowed disabled:active:translate-y-0;
   }
 
   .stepper-btn {
-    @apply flex w-9 flex-none items-center justify-center rounded-lg bg-ink-800 text-fg hover:bg-ink-600 sm:w-11 lg:w-[52px];
+    @apply flex w-9 flex-none items-center justify-center rounded-lg bg-ink-800 text-fg hover:bg-ink-600
+      active:translate-y-px motion-safe:transition sm:w-11 lg:w-[52px];
   }
 
   .seg-btn {
-    @apply min-h-[44px] rounded-lg bg-ink-800 text-[13px] font-medium text-fg-mute hover:bg-ink-600 lg:text-sm;
+    @apply min-h-[44px] rounded-lg bg-ink-800 text-[13px] font-medium text-fg-mute hover:bg-ink-600
+      active:translate-y-px motion-safe:transition lg:text-sm;
   }
 
   .seg-btn[aria-pressed='true'] {
